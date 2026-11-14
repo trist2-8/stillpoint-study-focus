@@ -1,0 +1,1047 @@
+/* A shared morning / midnight illustration palette. */
+:root {
+  --background: #f7f4f9;
+  --surface: #fffdf9;
+  --surface-secondary: #efeaf3;
+  --primary: #8a72b4;
+  --primary-hover: #705693;
+  --primary-soft: #eee5f5;
+  --accent: #c1abd9;
+  --text-primary: #3e354b;
+  --text-secondary: #8c8196;
+  --border: #e7dfeb;
+  --room-sky: #ddd4ef;
+  --room-horizon: #f6e4df;
+  --room-sun: #fff4d5;
+  --room-frame: #f9f3eb;
+  --room-hill-far: #c5b6d7;
+  --room-hill-near: #ac9ac1;
+  --room-curtain: #ddd1e5;
+  --room-wood: #d9bec0;
+  --room-wood-edge: #b699ac;
+  --room-leaf: #9db6a4;
+  --room-leaf-dark: #6e927e;
+  --room-pot: #c5adc4;
+  --room-pot-rim: #dac7d6;
+  --room-paper: #f8efdf;
+  --room-book: #a18dae;
+  --room-book-line: #9c849d;
+  --room-shadow: #51405b18;
+  --room-ink: #64516f;
+  --cat-fur: #b6a0cb;
+  --cat-light: #cfbce0;
+  --orb-fill: #fbf6f2;
+  --orb-light: #e9dafa;
+  --room-wall: #eee7f2;
+  --room-panel: #f9f6f7;
+}
+:root[data-theme="dark"] {
+  --background: #191621;
+  --surface: #211d2c;
+  --surface-secondary: #2b2538;
+  --primary: #bfa4e1;
+  --primary-hover: #d4bdef;
+  --primary-soft: #352b46;
+  --accent: #9e85bf;
+  --text-primary: #f1e9f7;
+  --text-secondary: #b1a4bf;
+  --border: #393044;
+  --room-sky: #29253f;
+  --room-horizon: #66516f;
+  --room-sun: #e3d9fa;
+  --room-frame: #776383;
+  --room-hill-far: #514365;
+  --room-hill-near: #3b344f;
+  --room-curtain: #43364f;
+  --room-wood: #5c495f;
+  --room-wood-edge: #3b3046;
+  --room-leaf: #6f8f89;
+  --room-leaf-dark: #496b66;
+  --room-pot: #7b607f;
+  --room-pot-rim: #95799b;
+  --room-paper: #bdabbf;
+  --room-book: #776287;
+  --room-book-line: #695774;
+  --room-shadow: #14101d66;
+  --room-ink: #463652;
+  --cat-fur: #9680af;
+  --cat-light: #b09bc7;
+  --orb-fill: #30273e;
+  --orb-light: #9170b5;
+  --room-wall: #2a2335;
+  --room-panel: #241e2e;
+}
+body {
+  font-family: "DM Sans", sans-serif;
+  background:
+    radial-gradient(
+      ellipse at 55% 0%,
+      color-mix(in srgb, var(--primary-soft) 55%, transparent),
+      transparent 65%
+    ),
+    var(--background);
+}
+h1,
+.room-heading h1,
+.room-note {
+  font-family: "Lora", Georgia, serif;
+}
+h1 {
+  font-weight: 400;
+  letter-spacing: -1px;
+}
+.shell {
+  grid-template-columns: 208px minmax(0, 1fr);
+}
+.sidebar {
+  background: color-mix(in srgb, var(--surface) 65%, transparent);
+  padding: 32px 20px;
+  border-right: 1px solid var(--border);
+}
+.brand {
+  font-size: 13px;
+  letter-spacing: 1.8px;
+  gap: 10px;
+}
+.brand-icon {
+  background: transparent;
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  color: var(--primary);
+}
+.sidebar .eyebrow {
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  padding-left: 12px !important;
+}
+.nav a {
+  font-size: 13px;
+  font-weight: 500;
+}
+.nav a.active {
+  background: var(--primary-soft);
+}
+.sidebar-note {
+  background: transparent;
+  border-top: 1px solid var(--border);
+  border-radius: 0;
+  padding: 24px 12px;
+}
+.sidebar-note h3 {
+  font-family: "Lora", Georgia, serif;
+  font-size: 19px;
+  font-weight: 400;
+}
+.profile {
+  font-size: 11px;
+}
+.header {
+  height: 80px;
+  border-bottom: 0;
+  padding-inline: 40px;
+}
+.header .icon-button {
+  background: transparent;
+  border-color: transparent;
+}
+.page {
+  max-width: 1500px;
+  padding: 24px 40px 28px;
+}
+.room-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.room-heading .eyebrow {
+  font-size: 9px;
+  letter-spacing: 2.2px;
+  margin-bottom: 12px;
+}
+.room-heading h1 {
+  font-size: 38px;
+  font-weight: 400;
+  letter-spacing: -1.5px;
+  line-height: 1.3;
+}
+.room-heading h1 em {
+  font-weight: 400;
+  color: var(--primary-hover);
+}
+.room-heading p:last-child {
+  color: var(--text-muted);
+  font-size: 12px;
+  margin-top: 12px;
+}
+.mobile-title-break {
+  display: none;
+}
+.world-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+.world-dark {
+  display: none;
+}
+:root[data-theme="dark"] .world-light {
+  display: none;
+}
+:root[data-theme="dark"] .world-dark {
+  display: inline;
+}
+.living-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 32px;
+}
+.living-room {
+  isolation: isolate;
+  position: relative;
+  border-radius: 24px;
+  background: var(--room-wall);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  min-width: 0;
+}
+.room-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 24px;
+  position: relative;
+  z-index: 2;
+  background: color-mix(in srgb, var(--room-panel) 70%, transparent);
+  font-size: 8px;
+  letter-spacing: 1.8px;
+  color: var(--text-muted);
+}
+.room-topline > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.companion-toggle {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 0;
+  font-size: 10px;
+  letter-spacing: 0;
+  min-height: 32px;
+  color: var(--text-muted);
+}
+.companion-toggle:hover {
+  color: var(--text-primary);
+}
+.room-scene {
+  height: 490px;
+  position: relative;
+  overflow: hidden;
+}
+.study-room-art {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.room-stars {
+  opacity: 0;
+}
+:root[data-theme="dark"] .room-stars {
+  opacity: 0.9;
+}
+:root[data-theme="dark"] .room-sun {
+  filter: drop-shadow(0 0 12px var(--room-sun));
+}
+.orb-workspace {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 24px;
+}
+.living-room .mode-selector {
+  background: color-mix(in srgb, var(--surface) 65%, transparent);
+  border: 1px solid color-mix(in srgb, var(--surface) 75%, transparent);
+  border-radius: 24px;
+  padding: 4px;
+  backdrop-filter: blur(12px);
+}
+.living-room .mode-selector button {
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 11px;
+  min-height: 36px;
+}
+.living-room .mode-selector button[aria-pressed="true"] {
+  background: var(--primary-soft);
+  box-shadow: none;
+}
+.living-room .focus-orb {
+  width: 286px;
+  aspect-ratio: 1;
+  margin: 22px 0 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 40% 30%,
+    color-mix(in srgb, var(--surface) 95%, transparent),
+    var(--orb-fill)
+  );
+  box-shadow:
+    0 0 0 10px color-mix(in srgb, var(--orb-light) 18%, transparent),
+    0 0 0 25px color-mix(in srgb, var(--orb-light) 8%, transparent),
+    0 0 50px color-mix(in srgb, var(--orb-light) 60%, transparent);
+  transition: box-shadow 0.8s;
+}
+.orb-halo {
+  position: absolute;
+  inset: -16px;
+  border: 1px solid color-mix(in srgb, var(--surface) 35%, transparent);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.focus-orb .timer-inner {
+  position: relative;
+  text-align: center;
+}
+.focus-orb .timer-inner > svg {
+  margin: 0 auto 12px;
+  color: var(--primary);
+}
+.focus-orb .timer-caption {
+  font-size: 8px;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+}
+.focus-orb .timer-digits {
+  font-size: 62px;
+  font-family: "DM Sans", sans-serif;
+  font-weight: 400;
+  letter-spacing: -3px;
+}
+.focus-orb .timer-inner small {
+  font-size: 10px;
+  margin-top: 12px;
+}
+.orb-particle {
+  fill: var(--primary);
+  filter: drop-shadow(0 0 5px var(--primary));
+}
+.focus-orb .timer-track {
+  stroke: var(--border);
+}
+.focus-orb[data-status="RUNNING"] .orb-halo {
+  animation: orb-breathe 6s ease-in-out infinite;
+}
+.focus-orb[data-status="PAUSED"] {
+  box-shadow:
+    0 0 0 10px color-mix(in srgb, var(--orb-light) 8%, transparent),
+    0 0 25px color-mix(in srgb, var(--orb-light) 20%, transparent);
+}
+.focus-orb[data-mode="SHORT_BREAK"],
+.focus-orb[data-mode="LONG_BREAK"] {
+  --orb-light: var(--success);
+}
+.focus-orb[data-mode="SHORT_BREAK"] .orb-particle,
+.focus-orb[data-mode="LONG_BREAK"] .orb-particle {
+  fill: var(--success);
+}
+.room-controls {
+  position: relative;
+  background: var(--room-panel);
+  padding: 18px 24px 20px;
+  text-align: center;
+}
+.room-controls .active-task {
+  font-size: 11px;
+}
+.room-controls .timer-controls {
+  margin: 16px 0;
+  gap: 14px;
+}
+.room-controls .timer-controls .primary {
+  background: var(--primary-soft);
+  border-color: var(--accent);
+  min-width: 172px;
+  border-radius: 24px;
+  color: var(--text-primary);
+}
+.room-controls .icon-button {
+  border-radius: 50%;
+  background: transparent;
+  border-color: var(--border);
+}
+.room-cycle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  font-size: 9px;
+  color: var(--text-muted);
+}
+.room-cycle .session-dots {
+  margin: 0;
+}
+.room-cycle .session-dots i {
+  width: 6px;
+  height: 6px;
+}
+.room-tasks {
+  padding: 16px 0;
+  min-width: 0;
+}
+.room-tasks-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.room-tasks-heading .eyebrow {
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  margin-bottom: 8px;
+}
+.room-tasks h2 {
+  font-family: "Lora", Georgia, serif;
+  font-size: 21px;
+  font-weight: 400;
+}
+.room-tasks-heading .icon-button {
+  background: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+}
+.intentions-summary {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 12px;
+}
+.room-task-list {
+  margin-top: 24px;
+}
+.room-task {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+}
+.room-task.selected {
+  border-bottom-color: var(--accent);
+}
+.room-task > div {
+  min-width: 0;
+}
+.room-task h3 {
+  font-size: 12px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.room-task-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  min-height: 28px;
+}
+.room-task-check input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary);
+}
+.task-session-count {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+.priority-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--success);
+}
+.priority-dot.medium {
+  background: var(--warning);
+}
+.priority-dot.high {
+  background: var(--danger);
+}
+.room-task .text-button {
+  font-size: 10px;
+  min-height: 28px;
+}
+.all-intentions {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  padding: 16px 0;
+  font-size: 11px;
+}
+.room-task-list .empty {
+  padding: 16px 0 24px;
+}
+.room-task-list .empty h3 {
+  font-family: "Lora", Georgia, serif;
+  font-size: 17px;
+  font-weight: 400;
+}
+.room-task-list .empty p {
+  font-size: 11px;
+  line-height: 1.8;
+}
+.room-task-list .button {
+  font-size: 11px;
+  background: transparent;
+  border-style: dashed;
+  width: 100%;
+}
+.room-daily-goal {
+  margin-top: 28px;
+}
+.room-daily-goal .row {
+  gap: 8px;
+  color: var(--primary);
+}
+.room-daily-goal h3 {
+  font-size: 12px;
+  color: var(--text-primary);
+}
+.daily-goal-value {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  margin-top: 12px;
+}
+.daily-goal-value strong {
+  font-weight: 400;
+  font-size: 30px;
+}
+.daily-goal-value span {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.room-daily-goal .progress {
+  height: 4px;
+  margin: 12px 0;
+}
+.room-daily-goal p {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+.room-note {
+  border: 0;
+  padding: 24px 0 0;
+  margin: 24px 0 0;
+  border-top: 1px solid var(--border);
+  font-size: 15px;
+  font-style: italic;
+  line-height: 1.9;
+  color: var(--text-muted);
+}
+.room-note cite {
+  display: block;
+  font:
+    8px "DM Sans",
+    sans-serif;
+  letter-spacing: 1.6px;
+  margin-top: 12px;
+}
+.living-progress {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 160px;
+  gap: 24px;
+  align-items: center;
+  padding: 24px 0;
+  margin-top: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.plant-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.growth-plant {
+  width: 104px;
+  height: 104px;
+  flex-shrink: 0;
+}
+.plant-progress .eyebrow {
+  font-size: 8px;
+  letter-spacing: 1.5px;
+}
+.plant-progress h2 {
+  font-family: "Lora", Georgia, serif;
+  font-size: 17px;
+  font-weight: 400;
+  margin: 8px 0;
+}
+.plant-progress p:last-child {
+  font-size: 10px;
+  color: var(--text-muted);
+  max-width: 230px;
+}
+.progress-facts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.progress-facts > div {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.progress-facts svg {
+  color: var(--primary);
+}
+.progress-facts strong {
+  font-size: 18px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.progress-facts span {
+  font-size: 9px;
+  color: var(--text-muted);
+}
+.week-rhythm {
+  padding-left: 20px;
+  border-left: 1px solid var(--border);
+}
+.week-rhythm .row {
+  justify-content: space-between;
+}
+.week-rhythm .eyebrow {
+  font-size: 8px;
+  letter-spacing: 1px;
+}
+.week-rhythm a {
+  display: grid;
+  place-items: center;
+  min-width: 32px;
+  min-height: 32px;
+  color: var(--primary);
+}
+.rhythm-bars {
+  height: 70px;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  justify-content: space-between;
+}
+.rhythm-bars > div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+.rhythm-bars span {
+  width: 100%;
+  max-width: 12px;
+  border-radius: 3px;
+  background: var(--accent);
+}
+.rhythm-bars span[data-empty="true"] {
+  background: var(--border);
+}
+.rhythm-bars small {
+  font-size: 8px;
+}
+.footer {
+  font-size: 9px;
+  margin-top: 24px;
+}
+.card {
+  box-shadow: none;
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+}
+.page-heading h1 {
+  font-family: "Lora", Georgia, serif;
+}
+.room-scene .lavender-petals {
+  animation: petal-drift 14s ease-in-out infinite;
+}
+.tea-steam {
+  animation: steam-rise 7s ease-in-out infinite;
+}
+.study-cat[data-state="happy"] .cat-body {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: cat-delight 0.8s ease-in-out 3;
+}
+.living-room[data-status="PAUSED"] .lavender-petals,
+.living-room[data-status="PAUSED"] .tea-steam {
+  animation-play-state: paused;
+}
+@keyframes orb-breathe {
+  50% {
+    opacity: 0.4;
+    transform: scale(1.025);
+  }
+}
+@keyframes petal-drift {
+  50% {
+    transform: translate(6px, 12px);
+  }
+}
+@keyframes steam-rise {
+  50% {
+    opacity: 0.25;
+    transform: translateY(-5px);
+  }
+}
+@keyframes cat-delight {
+  50% {
+    transform: translateY(-3px) rotate(-2deg);
+  }
+}
+@media (min-width: 1600px) {
+  .page {
+    padding-top: 36px;
+  }
+  .room-scene {
+    height: 520px;
+  }
+  .living-room .focus-orb {
+    width: 306px;
+  }
+  .orb-workspace {
+    padding-top: 28px;
+  }
+  .living-layout {
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 40px;
+  }
+}
+@media (max-width: 1200px) {
+  .shell {
+    grid-template-columns: 180px minmax(0, 1fr);
+  }
+  .sidebar {
+    padding-inline: 14px;
+  }
+  .brand {
+    font-size: 11px;
+  }
+  .page {
+    padding-inline: 28px;
+  }
+  .header {
+    padding-inline: 28px;
+  }
+  .living-layout {
+    grid-template-columns: minmax(0, 1fr) 240px;
+    gap: 24px;
+  }
+  .room-heading h1 {
+    font-size: 33px;
+  }
+  .world-label {
+    font-size: 10px;
+  }
+  .room-scene {
+    height: 450px;
+  }
+  .living-room .focus-orb {
+    width: 264px;
+    margin-top: 18px;
+  }
+  .focus-orb .timer-digits {
+    font-size: 56px;
+  }
+  .room-topline {
+    padding-inline: 16px;
+  }
+  .companion-toggle span {
+    display: none;
+  }
+  .living-progress {
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .week-rhythm {
+    grid-column: 1/-1;
+    border-left: 0;
+    border-top: 1px solid var(--border);
+    padding: 16px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+  }
+  .week-rhythm .rhythm-bars {
+    flex: 1;
+    height: 55px;
+  }
+  .week-rhythm .row {
+    min-width: 150px;
+  }
+}
+@media (max-width: 1000px) {
+  .shell {
+    grid-template-columns: 76px minmax(0, 1fr);
+  }
+  .sidebar {
+    padding-inline: 16px;
+  }
+  .living-layout {
+    grid-template-columns: minmax(0, 1fr) 210px;
+    gap: 20px;
+  }
+  .page {
+    padding-inline: 24px;
+  }
+  .room-heading h1 {
+    font-size: 30px;
+  }
+  .room-scene {
+    height: 430px;
+  }
+  .living-room .focus-orb {
+    width: 246px;
+  }
+  .focus-orb .timer-digits {
+    font-size: 52px;
+  }
+  .focus-orb .timer-inner small {
+    font-size: 9px;
+  }
+  .orb-workspace {
+    padding-top: 18px;
+  }
+  .living-room .mode-selector button {
+    padding: 7px 10px;
+    font-size: 10px;
+  }
+  .room-controls {
+    padding-inline: 14px;
+  }
+  .room-controls .timer-controls .primary {
+    min-width: 145px;
+  }
+  .room-tasks h2 {
+    font-size: 18px;
+  }
+  .room-topline {
+    font-size: 7px;
+    letter-spacing: 1px;
+  }
+  .world-label {
+    display: none;
+  }
+  .plant-progress h2 {
+    font-size: 15px;
+  }
+  .growth-plant {
+    width: 85px;
+    height: 100px;
+  }
+}
+@media (max-width: 760px) {
+  .study-cat {
+    transform: translate(540px, 466px);
+  }
+  .room-houseplant {
+    transform: translate(100px, 68px) scale(0.85);
+  }
+  .shell,
+  .shell.collapsed {
+    display: block;
+  }
+  .header {
+    height: 68px;
+    padding-inline: 20px;
+  }
+  .page {
+    padding: 16px 20px 96px;
+  }
+  .room-heading {
+    margin-bottom: 24px;
+  }
+  .room-heading h1 {
+    font-size: 32px;
+  }
+  .room-heading .eyebrow {
+    font-size: 8px;
+  }
+  .room-heading p:last-child {
+    font-size: 11px;
+  }
+  .living-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .room-scene {
+    height: 455px;
+  }
+  .living-room .focus-orb {
+    width: 270px;
+    margin-top: 22px;
+  }
+  .focus-orb .timer-digits {
+    font-size: 60px;
+  }
+  .orb-workspace {
+    padding-top: 24px;
+  }
+  .living-room .mode-selector button {
+    padding: 8px 14px;
+    font-size: 11px;
+  }
+  .room-controls {
+    padding: 20px 16px;
+  }
+  .room-topline {
+    padding: 12px 16px;
+    font-size: 8px;
+  }
+  .room-controls .timer-controls .primary {
+    min-width: 172px;
+  }
+  .room-tasks {
+    padding: 0 4px;
+  }
+  .room-tasks h2 {
+    font-size: 24px;
+  }
+  .room-tasks-heading .icon-button {
+    width: 44px;
+    height: 44px;
+  }
+  .room-task h3 {
+    font-size: 14px;
+  }
+  .room-task-check {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .room-task .text-button {
+    min-height: 44px;
+    font-size: 12px;
+  }
+  .room-task-list {
+    margin-top: 12px;
+  }
+  .room-task-list .empty {
+    padding: 24px;
+  }
+  .room-task-list .empty .button {
+    max-width: 280px;
+  }
+  .room-note {
+    font-size: 17px;
+    max-width: 440px;
+  }
+  .room-daily-goal {
+    margin-top: 24px;
+  }
+  .living-progress {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 24px 4px;
+  }
+  .plant-progress {
+    gap: 20px;
+  }
+  .growth-plant {
+    width: 100px;
+    height: 110px;
+  }
+  .plant-progress h2 {
+    font-size: 18px;
+  }
+  .plant-progress p:last-child {
+    font-size: 11px;
+  }
+  .progress-facts {
+    padding: 0 12px;
+  }
+  .progress-facts > div {
+    align-items: center;
+    text-align: center;
+  }
+  .progress-facts span {
+    font-size: 10px;
+  }
+  .week-rhythm {
+    grid-column: auto;
+    gap: 16px;
+  }
+  .companion-toggle {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .room-cycle {
+    font-size: 9px;
+    gap: 8px;
+  }
+  .room-topline .dot {
+    width: 5px;
+    height: 5px;
+  }
+}
+@media (max-width: 400px) {
+  .page {
+    padding-inline: 16px;
+  }
+  .room-heading h1 {
+    font-size: 30px;
+  }
+  .mobile-title-break {
+    display: block;
+  }
+  .room-scene {
+    height: 420px;
+  }
+  .living-room .focus-orb {
+    width: 244px;
+    margin-top: 18px;
+  }
+  .focus-orb .timer-digits {
+    font-size: 54px;
+  }
+  .focus-orb .timer-inner small {
+    font-size: 9px;
+  }
+  .living-room .mode-selector button {
+    padding-inline: 12px;
+  }
+  .room-controls .active-task {
+    font-size: 10px;
+  }
+  .room-controls .timer-controls .primary {
+    min-width: 154px;
+  }
+  .room-controls .timer-controls {
+    gap: 10px;
+  }
+  .room-topline {
+    font-size: 7px;
+  }
+  .week-rhythm .row {
+    min-width: 130px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .living-room *,
+  .living-room *::before,
+  .living-room *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

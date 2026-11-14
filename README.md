@@ -1,29 +1,57 @@
-# Stillpoint — Study Focus
+# FOCUS FLOW � The Living Study Room
 
-Một Pomodoro chỉ dành cho học tập, xây dựng bằng HTML/CSS/JavaScript thuần nên có thể deploy trực tiếp trên Vercel.
+A React + TypeScript productivity app with Focus Timer, Tasks, and Insights.
 
-## Chạy local
+## Run
 
-```bash
-python -m http.server 4173
+Requires Node.js 22.12+ (validated with Node 24).
+
+```sh
+npm ci
+npm run dev
 ```
 
-Mở `http://localhost:4173`.
+Open http://localhost:5173. Production: `npm run build`; deploy `dist/` with SPA fallback to `index.html`. The included vercel.json configures Vercel.
 
-## Deploy Vercel
+## Checks
 
-1. Push thư mục này lên GitHub.
-2. Vào Vercel → **Add New Project** → chọn repository.
-3. Framework Preset: **Other**.
-4. Build Command để trống, Output Directory: `.`.
-5. Deploy.
+```sh
+npm run typecheck
+npm run lint
+npm test
+npx playwright install chromium
+npm run test:e2e
+npm run build
+```
 
-## Có sẵn
+## Architecture
 
-- Timer Pomodoro 25 / 5 / 15 phút với vòng tiến độ.
-- Bắt đầu, tạm dừng, đặt lại và âm báo hoàn thành.
-- Study queue có checkbox và thêm việc.
-- Thay đổi mục tiêu học trong ngày.
-- Thống kê thời gian tập trung trong tuần.
-- Responsive cho desktop và mobile.
+- `src/features/focus/domain/timer-engine.ts`: pure timestamp transitions and injectable clock.
+- `src/stores/app-store.ts`: atomic completion recording, task integration, and settings.
+- `src/services/storage.ts`: validated, versioned browser storage; v0 flat schema migration to the v1 envelope.
+- `src/features/analytics/domain/analytics-calculations.ts`: local-date aggregation, ranges, and streaks.
+- `src/components/ui.tsx`: shared buttons, cards, dialogs, and progress.
+- `src/styles/`: centralized palette and responsive styling; Tailwind Vite integration.
 
+Timer deadlines survive refresh. Reset/skip do not create completed records. Completion IDs prevent duplicate credit. Pause excludes paused time. The next session waits for explicit input unless auto-start is enabled. Restoring an overdue timer records one completed session; it does not fabricate a chain of unattended sessions.
+
+Completed focus duration is allocated to the local completion date, saved on the record. Historical date keys stay stable after timezone changes. Breaks are recorded but excluded from focus metrics. Completing a Pomodoro increments task progress without completing the task.
+
+Data stays in localStorage. Browser storage errors produce an in-app message. No accounts, cloud sync, or backend are included. Use one active tab: concurrent multi-tab editing is not coordinated. Backward clock jumps beyond the session window pause the timer; forward clock jumps are treated as elapsed wall time. Sound and browser notifications depend on browser permissions and autoplay policies.
+
+## Validation record
+
+- 21 Vitest/React Testing Library tests passed.
+- 14 Chromium Playwright tests passed, including refresh/background completion, task lifecycle, keyboard dialog focus, settings, and themes.
+- All three routes checked for horizontal overflow at 360, 375, 390, 430, 768, 1024, 1280, 1440, and 1920px in light and dark themes.
+- TypeScript, ESLint, and production build passed.
+- `npm audit --omit=dev`: zero vulnerabilities. Full audit: seven moderate findings in the development-only typescript-eslint/minimatch chain. Critical test-runner findings were resolved by upgrading Vitest.
+- Firefox/WebKit, real OS notifications/audio, and a full screen-reader audit were not performed.
+
+The original prototype, including the pre-existing modified HTML, is preserved in `legacy/`. The old root app.js/styles.css are retained but not loaded. Legacy demo statistics are not imported as real history.
+
+## Living Study Room design
+
+Original theme-aware SVG illustrations live in src/features/focus/illustrations. The Focus Orb reflects timer state without changing the timestamp engine. The optional cat sleeps, wakes during focus, celebrates completion briefly, and rests during breaks. Its visibility persists in settings; older saved settings remain compatible.
+
+The study plant progresses at 1, 4, 12, and 30 completed focus sessions. Zero completed sessions show a seed. Breaks never contribute to growth. CSS ambient effects respect prefers-reduced-motion. Mobile artwork repositions the cat and plant to keep them visible. Shared morning/midnight environmental tokens and styles are in src/styles/living-room.css.
