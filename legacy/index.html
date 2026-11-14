@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#101216">
+<title>STILLPOINT / Study cockpit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="noise"></div><div class="glow glow-blue"></div><div class="glow glow-orange"></div>
+<main class="app-shell">
+  <header class="topbar">
+    <a class="brand" href="#"><span class="brand-mark">✳</span><span>STILLPOINT</span></a>
+    <div class="top-status"><span class="status-pip"></span><span>STUDY COCKPIT</span><span class="slash">/</span><span id="today">13.11.2026</span></div>
+    <button class="sound-control" id="soundToggle" aria-label="Bật âm thanh"><span class="sound-bars"><i></i><i></i><i></i></span><span id="soundText">ÂM THANH: TẮT</span></button>
+  </header>
+
+  <section class="masthead">
+    <div class="mast-copy"><div class="overline">01 / FOCUS PROTOCOL</div><h1>Học một việc.<br><em>Nhớ lâu hơn.</em></h1><p>Stillpoint biến mỗi phiên Pomodoro thành một vòng học hoàn chỉnh: đặt mục tiêu, tập trung, rồi tự kiểm tra điều vừa học.</p></div>
+    <div class="day-card"><span class="day-label">HÔM NAY</span><strong>04</strong><span>phiên đã hoàn tất</span><div class="day-dots"><i class="done"></i><i class="done"></i><i class="done"></i><i></i></div><small>mục tiêu ngày: 06 phiên</small></div>
+  </section>
+
+  <section class="cockpit">
+    <div class="contract panel">
+      <div class="panel-title"><span>FOCUS CONTRACT</span><span class="contract-lock">● KHÓA MỤC TIÊU</span></div>
+      <div class="contract-number">01</div>
+      <h2 id="goalTitle">Ôn chương 04:<br><em>Biến đổi Laplace</em></h2>
+      <p class="contract-note">Trong phiên này, chỉ làm đúng một việc được viết ở đây.</p>
+      <div class="contract-footer"><span id="goalProgressLabel">64% đã hoàn thành</span><button id="changeGoal">ĐỔI MỤC TIÊU ↗</button></div>
+      <div class="thin-progress"><span id="goalBar"></span></div>
+    </div>
+
+    <div class="timer-panel panel">
+      <div class="timer-top"><span><b id="sessionType">FOCUS</b> / VÒNG <b id="sessionNumber">01</b></span><span id="timerState">READY</span></div>
+      <div class="timer-core"><div class="timer-aura"></div><svg class="timer-ring" viewBox="0 0 360 360"><circle class="ring-track" cx="180" cy="180" r="155"/><circle id="progressRing" class="ring-progress" cx="180" cy="180" r="155"/></svg><div class="timer-content"><span id="timerLabel">FOCUS TIME</span><strong id="timer">25:00</strong><small id="timerSub">đặt điện thoại xuống</small></div></div>
+      <div class="timer-actions"><button class="start-button" id="startBtn"><span class="play-icon">▶</span><span id="startText">BẮT ĐẦU PHIÊN</span></button><button class="reset-button" id="resetBtn">ĐẶT LẠI</button></div>
+      <div class="timer-modes"><button class="mode active" data-min="25" data-type="FOCUS">25:00 <small>focus</small></button><button class="mode" data-min="5" data-type="BREAK">05:00 <small>short break</small></button><button class="mode" data-min="15" data-type="BREAK">15:00 <small>long break</small></button></div>
+    </div>
+
+    <div class="recall panel">
+      <div class="panel-title"><span>RECALL CHECKPOINT</span><span class="checkpoint">SAU PHIÊN HỌC</span></div>
+      <div class="recall-line"></div><h3>Điều gì vừa<br><em>ở lại?</em></h3><p>Viết một câu sau phiên học. Đây là phần biến thời gian tập trung thành trí nhớ.</p>
+      <textarea id="recallInput" placeholder="Tôi vừa hiểu rằng..." rows="3"></textarea>
+      <div class="recall-bottom"><span id="recallCount">0 / 140</span><button id="saveRecall">LƯU GHI NHỚ</button></div>
+      <div class="saved-note" id="savedNote">Chưa có ghi nhớ trong phiên này.</div>
+    </div>
+  </section>
+
+  <section class="bottom-grid">
+    <div class="queue panel"><div class="panel-title"><span>STUDY QUEUE</span><button id="addTask">+ THÊM VIỆC</button></div><div id="taskList" class="task-list">
+      <label class="task done"><input type="checkbox" checked><span class="task-check">✓</span><span class="task-copy"><b>Đọc lại ghi chú chương 03</b><small>đã hoàn thành · 25 phút</small></span><span class="task-mark">DONE</span></label>
+      <label class="task current"><input type="checkbox"><span class="task-check"></span><span class="task-copy"><b>Ôn chương 04: Biến đổi Laplace</b><small>đang là mục tiêu · 50 phút</small></span><span class="task-mark">NEXT</span></label>
+      <label class="task"><input type="checkbox"><span class="task-check"></span><span class="task-copy"><b>Làm bài tập 4.1 — 4.5</b><small>ước tính · 45 phút</small></span><span class="task-mark">QUEUE</span></label>
+    </div></div>
+    <div class="week panel"><div class="panel-title"><span>STUDY RHYTHM</span><span class="trend">+18% TUẦN NÀY</span></div><div class="week-number"><strong>08<span>h</span> 40<span>m</span></strong><small>thời gian tập trung<br>trong 7 ngày</small></div><div class="mini-bars"><i style="height:32%"><b>T2</b></i><i style="height:54%"><b>T3</b></i><i style="height:43%"><b>T4</b></i><i class="today-bar" style="height:75%"><b>T5</b></i><i style="height:18%"><b>T6</b></i><i style="height:5%"><b>T7</b></i><i style="height:12%"><b>CN</b></i></div></div>
+  </section>
+  <footer><span>STILLPOINT / STUDY ONLY</span><span>ONE SESSION. ONE IDEA. <b>✳</b></span></footer>
+</main>
+<dialog id="goalDialog"><form method="dialog"><span class="dialog-kicker">FOCUS CONTRACT</span><h3>Mục tiêu duy nhất của phiên tới?</h3><input id="goalInput" placeholder="Ví dụ: Đọc chương 05 — Chuỗi Fourier" autocomplete="off"><div class="dialog-actions"><button value="cancel" class="reset-button">HỦY</button><button value="save" class="start-button">LƯU MỤC TIÊU</button></div></form></dialog>
+<audio id="chime" preload="auto" src="chime.wav"></audio><script src="app.js"></script>
+</body></html>
+
+
