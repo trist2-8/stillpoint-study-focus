@@ -21,7 +21,7 @@ export default function ReferenceRoom({
   return (
     <svg
       className="reference-room-art"
-      viewBox="0 0 450 650"
+      viewBox="-100 -35 560 715"
       fill="none"
       aria-hidden="true"
     >

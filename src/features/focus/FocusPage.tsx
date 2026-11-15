@@ -109,40 +109,46 @@ export default function FocusPage() {
   };
   return (
     <div className="flow-focus-page">
-      <h1 className="sr-only">Phòng học tập trung</h1>
-      <div className="flow-welcome">
-        <Sun className="sun-badge" />
-        <div>
-          <strong>Một khoảng yên để học.</strong>
-          <span>Chọn một việc, dành trọn một phiên.</span>
+      <header className="flow-header">
+        <div className="flow-welcome">
+          <Sun className="sun-badge" />
+          <div>
+            <h1>Một khoảng yên để học.</h1>
+            <span>Chọn một việc, dành trọn một phiên.</span>
+          </div>
         </div>
-      </div>
-      <div className="flow-top-actions">
-        <time dateTime={new Date(now).toISOString()}>
-          <CalendarDays size={23} />
-          {new Date(now).toLocaleDateString("vi-VN", {
-            weekday: "short",
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-          })}
-        </time>
-        <IconButton label="Bật thông báo" onClick={() => void notifications()}>
-          <Bell />
-        </IconButton>
-      </div>
+        <div className="flow-top-actions">
+          <time dateTime={new Date(now).toISOString()}>
+            <CalendarDays size={23} />
+            {new Date(now).toLocaleDateString("vi-VN", {
+              weekday: "short",
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })}
+          </time>
+          <IconButton
+            label="Bật thông báo"
+            onClick={() => void notifications()}
+          >
+            <Bell />
+          </IconButton>
+        </div>
+      </header>
       <section className="flow-hero">
         <div className="flow-room-wrap">
-          <ReferenceRoom
-            status={timer.status}
-            mode={timer.mode}
-            companion={settings.companionEnabled !== false}
-          />
-          <blockquote className="flow-quote">
-            Từng trang một.
-            <br />
-            Từng bước một.
-          </blockquote>
+          <div className="flow-scene">
+            <blockquote className="flow-quote">
+              Từng trang một.
+              <br />
+              Từng bước một.
+            </blockquote>
+            <ReferenceRoom
+              status={timer.status}
+              mode={timer.mode}
+              companion={settings.companionEnabled !== false}
+            />
+          </div>
           <div className="flow-orb-area">
             <div
               className="flow-orb focus-orb"
@@ -320,7 +326,6 @@ export default function FocusPage() {
                       })
                     }
                   />
-                  <span />
                 </label>
                 <button
                   className="task-title"

@@ -14,7 +14,7 @@ import {
   Sun,
   Moon,
   Settings,
-  LogOut,
+  PanelLeftOpen,
   X,
 } from "lucide-react";
 import { useApp } from "../stores/app-store";
@@ -175,10 +175,15 @@ export default function App() {
           </button>
           <button
             className="sidebar-collapse"
+            aria-expanded={!collapsed}
             aria-label={collapsed ? "Mở thanh bên" : "Thu gọn thanh bên"}
             onClick={() => setCollapsed(!collapsed)}
           >
-            <LogOut size={23} />
+            {collapsed ? (
+              <PanelLeftOpen size={20} />
+            ) : (
+              <PanelLeftClose size={20} />
+            )}
           </button>
         </div>
       </aside>

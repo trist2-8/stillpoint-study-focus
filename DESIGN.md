@@ -22,3 +22,13 @@
 Đã áp dụng trực tiếp frontend-design (phân cấp và nội dung), UI Craft (bố cục, màu, chữ, khả năng truy cập), design-critic (phát hiện chồng lấn và hành động cạnh tranh), webapp-testing (kiểm tra trình duyệt). Các skill còn lại đã cài để dùng khi phù hợp; Open Design chưa tải kho nội dung thương hiệu riêng.
 
 Kiểm tra bằng Playwright: thao tác đồng hồ, thêm/sửa việc, lưu bảng màu, lịch học sau phiên hoàn tất, ba tuyến trên desktop/mobile trong cả sáng/tối. Không gửi ảnh hoặc dữ liệu học tập lên dịch vụ đánh giá bên ngoài.
+
+## Sửa lỗi căn khung và kiểm định trực tiếp
+
+Skill bổ sung từ alirezarezvani/claude-skills: senior-fullstack, senior-frontend, ui-design-system, ux-researcher-designer và design-qa. Đã đọc và áp dụng hướng dẫn phù hợp với ứng dụng React/Vite hiện có; không thêm máy chủ hoặc thay mô hình lưu dữ liệu chỉ để dùng một skill.
+
+Các lỗi quan sát được trên bản cũ: thanh bên có min-height 730px làm nút thu gọn tràn khỏi khung ở 1280×720; nội dung đồng hồ rộng 84% nhưng neo lệch về trái; nút bắt đầu cao 52px còn nút phụ 44px; hình SVG có tọa độ âm ngoài viewBox; ba file CSS cùng định nghĩa bố cục Focus.
+
+Bố cục hiện tại: reference.css quản lý thanh bên và khung ứng dụng; focus.css quản lý trang tập trung; palettes.css quản lý màu. Tranh và đồng hồ nằm trong hai ô grid riêng. Thanh bên có thể cuộn khi màn hình thấp, các điểm chuyển giữa desktop/mobile thống nhất ở 760px. Đồng hồ, ô chọn việc và nhóm điều khiển cùng một trục. Dùng tiêu đề h1 hiển thị và chừa khoảng cuộn cho thanh điều hướng cố định khi dùng bàn phím.
+
+Kiểm thử hồi quy trong e2e/layout.spec.ts đo: sai lệch tâm đồng hồ dưới 1px; ba nút cùng mép trên/dưới; ô chọn việc và nhóm nút cùng chiều rộng; các khung cùng hàng có cùng mép trên/dưới; nút thu gọn nằm trong thanh bên; không cuộn ngang từ 320 đến 1920px. Bao gồm trạng thái thu gọn, tên việc dài, đồng hồ 180 phút và điều hướng bàn phím trên điện thoại.
