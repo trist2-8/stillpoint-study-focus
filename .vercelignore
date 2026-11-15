@@ -1,0 +1,14 @@
+.layout-edit.json
+test-results/
+playwright-report/
+legacy/
+e2e/
+e2e-cloud/
+supabase/
+**/*.test.ts
+**/*.test.tsx
+vite-local*.log
+.env*
+!.env.example
+app.js
+styles.css

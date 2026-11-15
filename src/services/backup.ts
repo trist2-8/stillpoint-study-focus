@@ -44,7 +44,7 @@ export function exportBackup(data: Data) {
       application: "focus-flow",
       version: 1,
       exportedAt: new Date().toISOString(),
-      data: { ...data, timer: pause(data.timer) },
+      data: { ...portableData(data), timer: pause(data.timer) },
     },
     null,
     2,

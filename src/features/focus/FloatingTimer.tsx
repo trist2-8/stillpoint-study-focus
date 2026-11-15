@@ -38,6 +38,7 @@ function TimerContents({
     String(seconds % 60).padStart(2, "0");
   useEffect(() => {
     popup.document.title = timerTabTitle(timer, now);
+    popup.document.documentElement.lang = language;
   }, [timer, now, popup, language]);
   const mode =
     language === "vi"

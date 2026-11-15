@@ -65,7 +65,7 @@ function Navigation({
   );
 }
 export default function App() {
-  useI18n();
+  const { language } = useI18n();
   const [collapsed, setCollapsed] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const settings = useApp((s) => s.settings);
@@ -109,7 +109,7 @@ export default function App() {
             ? "/favicon.svg"
             : "/favicon-break.svg"
           : "/favicon.svg";
-  }, [timer, now]);
+  }, [timer, now, language]);
   useEffect(() => {
     if (!toast) return;
     const id = setTimeout(() => useApp.getState().notify(""), 6000);

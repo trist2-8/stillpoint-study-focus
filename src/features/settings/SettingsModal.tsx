@@ -165,7 +165,7 @@ export default function SettingsModal({ onClose }: { onClose: () => void }) {
           );
       }
       useApp.getState().settingsSave(draft);
-      useApp.getState().notify(tr("Đã lưu cài đặt phòng học."));
+      useApp.getState().notify(tr("Đã lưu cài đặt phòng học.", draft.language));
       onClose();
     } catch (failure) {
       setError(
@@ -204,8 +204,8 @@ export default function SettingsModal({ onClose }: { onClose: () => void }) {
           <p className="settings-intro">
             {tr(
               "Thiết lập một nhịp học vừa sức với bạn. Mọi thay đổi được lưu khi bạn nhấn",
-            )}
-            {" "}<strong>{tr("Lưu cài đặt")}</strong>.
+            )}{" "}
+            <strong>{tr("Lưu cài đặt")}</strong>.
           </p>
           <section className="settings-block" aria-labelledby="rhythm-heading">
             <div className="settings-block-heading">
@@ -236,7 +236,8 @@ export default function SettingsModal({ onClose }: { onClose: () => void }) {
                 >
                   <strong>{rhythm.label}</strong>
                   <span>
-                    {rhythm.focus} {tr("phút học ·")}\n                    {rhythm.short} {tr("phút nghỉ")}
+                    {rhythm.focus} {tr("phút học ·")} {rhythm.short}{" "}
+                    {tr("phút nghỉ")}
                   </span>
                 </button>
               ))}
@@ -314,7 +315,7 @@ export default function SettingsModal({ onClose }: { onClose: () => void }) {
                 </span>
               </div>
               <p className="settings-note">
-                {tr("Sau mỗi")}\n                {draft.longBreakInterval || "—"}{" "}
+                {tr("Sau mỗi")} {draft.longBreakInterval || "—"}{" "}
                 {tr(
                   "phiên tập trung hoàn tất, nghỉ dài thay cho nghỉ ngắn. Bạn có thể tạm dừng bất cứ lúc nào.",
                 )}

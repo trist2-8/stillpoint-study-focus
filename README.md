@@ -1,19 +1,19 @@
-# FOCUS FLOW � The Living Study Room
+# Focus Flow — Phòng học của bạn
 
-A React + TypeScript productivity app with Focus Timer, Tasks, and Insights.
+Ứng dụng học tập React + TypeScript: Pomodoro, việc học và tiến độ. Giao diện hỗ trợ tiếng Việt/English, ba bảng màu sáng/tối, góc học minh họa và ba cảnh ảnh thư viện, quán cà phê, rừng mưa.
 
-## Run
+## Chạy local
 
-Requires Node.js 22.12+ (validated with Node 24).
+Node.js 22.12 trở lên.
 
 ```sh
 npm ci
 npm run dev
 ```
 
-Open http://localhost:5173. Production: `npm run build`; deploy `dist/` with SPA fallback to `index.html`. The included vercel.json configures Vercel.
+Vite chạy tại http://localhost:5173. Build bằng `npm run build`; thư mục xuất là `dist/`.
 
-## Checks
+## Kiểm tra
 
 ```sh
 npm run typecheck
@@ -21,51 +21,43 @@ npm run lint
 npm test
 npx playwright install chromium
 npm run test:e2e
+npx playwright test --config playwright.cloud.config.ts
 npm run build
 ```
 
-## Architecture
+Kiểm thử gồm vòng lặp Pomodoro, chống ghi nhận trùng, tải lại trang, đổi ngôn ngữ, cảnh ảnh 320–1920px, khôi phục sao lưu, cửa sổ mini và đồng bộ API mô phỏng. Bộ kiểm thử cloud chạy máy chủ riêng cổng 5174 và không gửi dữ liệu ra dịch vụ thật.
 
-- `src/features/focus/domain/timer-engine.ts`: pure timestamp transitions and injectable clock.
-- `src/stores/app-store.ts`: atomic completion recording, task integration, and settings.
-- `src/services/storage.ts`: validated, versioned browser storage; v0 flat schema migration to the v1 envelope.
-- `src/features/analytics/domain/analytics-calculations.ts`: local-date aggregation, ranges, and streaks.
-- `src/components/ui.tsx`: shared buttons, cards, dialogs, and progress.
-- `src/styles/`: centralized palette and responsive styling; Tailwind Vite integration.
+## Các tính năng
 
-Timer deadlines survive refresh. Reset/skip do not create completed records. Completion IDs prevent duplicate credit. Pause excludes paused time. New installations enable automatic focus/break cycles by default; saved preferences are preserved. A full cycle uses short breaks, replaces every configured Nth break with a long break, and then returns to focus. Pausing suspends the loop. When automatic transitions are enabled, elapsed phases are restored from their deadlines after a background gap, counted exactly once. Catch-up is bounded to 1,000 transitions, then pauses for review. Disabling automatic transitions keeps the explicit completion screen.
+- Pomodoro tự chuyển tập trung → nghỉ ngắn; đủ số phiên thì nghỉ dài, sau đó tiếp tục học. Lựa chọn cũ được giữ; bật “Tự động lặp chu kỳ” trong Cài đặt nếu cần.
+- Deadline được lưu theo thời gian thực. Khi tab bị chậm, ứng dụng tính lại theo deadline và ghi mỗi phiên một lần. Sau tối đa 1.000 lần chuyển bù, vòng lặp tạm dừng để kiểm tra. Tạm dừng không tính thời gian đã dừng; reset/bỏ qua không ghi nhận phiên chưa xong.
+- Tiếng Việt/English áp dụng cho UI, tên tab, nhãn truy cập, ngày tháng và thông báo. Tên việc học do người dùng nhập giữ nguyên.
+- Đồng hồ nổi dùng Document Picture-in-Picture nếu trình duyệt hỗ trợ; nếu không, mở cửa sổ mini thông thường. Cửa sổ thường không được bảo đảm luôn nổi trên ứng dụng khác. Đóng trang chính sẽ kết thúc cửa sổ mini.
+- Cảnh ảnh nằm riêng với đồng hồ và chữ. Âm mưa tổng hợp bằng Web Audio chỉ phát sau thao tác bật; có điều chỉnh âm lượng.
+- Xuất/nhập JSON kiểm tra phiên bản và dữ liệu trước khi hiển thị bước xác nhận thay thế. Phiên đang chạy trong tệp được khôi phục ở trạng thái tạm dừng.
+- Cài đặt xem trước bảng màu; Hủy/Esc trả về màu đã lưu. Đổi thời lượng không cắt ngang phiên đang chạy.
 
-Completed focus duration is allocated to the local completion date, saved on the record. Historical date keys stay stable after timezone changes. Breaks are recorded but excluded from focus metrics. Completing a Pomodoro increments task progress without completing the task.
+Dữ liệu local ở localStorage. Hiện chưa phối hợp chỉnh sửa nhiều tab cùng lúc; nên chạy đồng hồ trên một tab chính. Các trình duyệt có thể hạn chế timer, âm thanh và thông báo ở nền. Tên tab không thể tiếp tục hiển thị khi trình duyệt đã đóng.
 
-Data stays in localStorage. Browser storage errors produce an in-app message. No accounts, cloud sync, or backend are included. Use one active tab: concurrent multi-tab editing is not coordinated. Backward clock jumps beyond the session window pause the timer; forward clock jumps are treated as elapsed wall time. Sound and browser notifications depend on browser permissions and autoplay policies. The tab title displays the remaining time first, followed by the Vietnamese phase or paused state; the lotus favicon changes color for breaks. Background tab scheduling can be throttled by the browser, so the display catches up from stored timestamps on return. Closing the browser cannot keep a visible countdown running.
+## Kích hoạt đồng bộ Supabase
 
-## Validation record
+Phần client và migration đã có; chưa kết nối dự án Supabase thật. Đồng bộ là thao tác người dùng yêu cầu, không tự tải dữ liệu cá nhân lên khi chưa chọn.
 
-- 21 Vitest/React Testing Library tests passed.
-- 15 Chromium Playwright tests passed, including refresh/background completion, task lifecycle, keyboard dialog focus, settings, and themes.
-- All three routes checked for horizontal overflow at 360, 375, 390, 430, 768, 1024, 1280, 1440, and 1920px in light and dark themes.
-- TypeScript, ESLint, and production build passed.
-- `npm audit --omit=dev`: zero vulnerabilities. Full audit: seven moderate findings in the development-only typescript-eslint/minimatch chain. Critical test-runner findings were resolved by upgrading Vitest.
-- Firefox/WebKit, real OS notifications/audio, and a full screen-reader audit were not performed.
+1. Chọn một dự án Supabase thuộc tài khoản của bạn.
+2. Chạy `supabase/migrations/202611150001_study_backups.sql` trên dự án đó. Migration tạo bảng theo user, bật RLS và hàm cập nhật có kiểm tra revision. Mỗi tài khoản chỉ được truy cập dữ liệu của mình.
+3. Sao chép `.env.example` thành `.env.local`, đặt `VITE_SUPABASE_URL` và `VITE_SUPABASE_ANON_KEY`. Chỉ dùng khóa public/anon; không đặt service-role key trong biến bắt đầu bằng VITE_.
+4. Bật đăng nhập email và thêm URL local/production vào Auth → URL Configuration.
+5. Đặt cùng hai biến môi trường public trên Vercel rồi build lại.
+6. Kiểm tra bằng hai tài khoản thật để xác nhận cách ly dữ liệu và hai thiết bị để xác nhận tải/lưu. Các kiểm tra này chưa được thực hiện vì thiếu dự án thật.
 
-The original prototype, including the pre-existing modified HTML, is preserved in `legacy/`. The old root app.js/styles.css are retained but not loaded. Legacy demo statistics are not imported as real history.
+Khi đã kết nối: Cài đặt → Đồng bộ & sao lưu → đăng nhập bằng liên kết email → Kiểm tra bản đám mây → Lưu hoặc Tải về. Lưu gửi revision đã đọc; nếu thiết bị khác vừa cập nhật thì thao tác bị từ chối để tránh ghi đè. Tải về cần xác nhận thay thế. Đồng hồ đang chạy không được chia sẻ lên cloud.
 
-## Living Study Room design
+## Git và Vercel
 
-Original theme-aware SVG illustrations live in src/features/focus/illustrations. The Focus Orb reflects timer state without changing the timestamp engine. The optional cat sleeps, wakes during focus, celebrates completion briefly, and rests during breaks. Its visibility persists in settings; older saved settings remain compatible.
+Mã đã push lên nhánh `codex/focus-flow-release` của `trist2-8/stillpoint-study-focus`. Lịch sử local và nhánh main gốc khác nhau nên chưa ghi đè main.
 
-The study plant progresses at 1, 4, 12, and 30 completed focus sessions. Zero completed sessions show a seed. Breaks never contribute to growth. CSS ambient effects respect prefers-reduced-motion. Mobile artwork repositions the cat and plant to keep them visible. Shared morning/midnight environmental tokens and styles are in src/styles/living-room.css.
+`vercel.json` cấu hình Vite và SPA fallback. `.vercelignore` loại dữ liệu kiểm thử, file tạm và biến môi trường local khỏi gói tải lên. Triển khai production chưa hoàn tất: bước cấp quyền chạy lệnh triển khai bị hết thời gian. Sau khi quyền chạy và cấu hình Supabase sẵn sàng, chạy `npx vercel --prod`, rồi kiểm tra URL production, tải trực tiếp /tasks, /insights, ảnh và favicon.
 
-## Giao diện hiện tại
+## Tài nguyên
 
-Toàn bộ giao diện sử dụng tiếng Việt, bao gồm Việc học, Cài đặt, thông báo và hộp thoại. Lịch học trên Focus và Tiến độ dùng chung số phiên tập trung hoàn tất; chọn một ô để xem chi tiết.
-
-Cài đặt → Bảng màu có Hoa oải hương, Đêm xanh và Rừng yên tĩnh; mỗi bảng màu hỗ trợ sáng/tối và lưu lựa chọn trên trình duyệt. Mặc định người mới dùng giao diện tối. Cài đặt có thể mở cả từ thanh điều hướng di động.
-
-Hướng thiết kế và các skill đã dùng được ghi trong DESIGN.md. Kiểm thử responsive bao phủ 320–1920px, ba trang, ba bảng màu và hai chế độ sáng/tối; có kiểm tra tỷ lệ tương phản chữ chú thích lịch học tối thiểu 4.5:1.
-
-## Settings review
-
-Settings now offer rhythm presets, numeric durations, a cycle preview, theme and palette cards, daily goals, sound preview, and browser notification options. Appearance changes preview locally and revert on Cancel/Escape; Save applies the draft atomically after validation and permission checks. The dialog keeps its header and actions visible while its content scrolls. Existing saved auto-start choices are respected; enable “Tự động lặp chu kỳ” to opt in.
-
-Git push and Vercel deployment remain pending user review.
+Ảnh tải từ Unsplash; URL gốc được ghi tại `public/rooms/SOURCES.md`. Tạo ảnh qua Fosta đã thử nhưng thất bại do cấu hình thiếu khóa; không có ảnh AI được tạo trong lần cập nhật này. Minh họa góc học mặc định là SVG có sẵn trong dự án.
