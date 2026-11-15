@@ -1,3 +1,4 @@
+import { locale, getLanguage } from "../../../i18n";
 import type { FocusSession } from "../../../types";
 export function dateKey(time: number | Date) {
   const d = new Date(time);
@@ -10,7 +11,7 @@ export function days(count: number, now = new Date()) {
     d.setDate(d.getDate() - count + 1 + i);
     return {
       date: dateKey(d),
-      label: d.toLocaleDateString("vi-VN", { month: "short", day: "numeric" }),
+      label: d.toLocaleDateString(locale(), { month: "short", day: "numeric" }),
       minutes: 0,
       sessions: 0,
     };
@@ -51,5 +52,7 @@ export function streak(sessions: FocusSession[], now = new Date()) {
 }
 export function formatMinutes(minutes: number) {
   const m = Math.round(minutes);
+  if (getLanguage() === "en")
+    return m >= 60 ? `${Math.floor(m / 60)} hr ${m % 60} min` : `${m} min`;
   return m >= 60 ? `${Math.floor(m / 60)} giờ ${m % 60} phút` : `${m} phút`;
 }

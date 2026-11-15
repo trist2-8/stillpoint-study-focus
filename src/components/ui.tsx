@@ -1,3 +1,4 @@
+import { tr, useI18n } from "../i18n";
 import {
   useEffect,
   useRef,
@@ -10,6 +11,7 @@ export function Button({
   primary = false,
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & { primary?: boolean }) {
+  useI18n();
   return (
     <button
       {...props}
@@ -24,6 +26,7 @@ export function IconButton({
   children,
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & { label: string }) {
+  useI18n();
   return (
     <button {...props} className="icon-button" aria-label={label} title={label}>
       {children}
@@ -48,6 +51,7 @@ export function PageTitle({
   subtitle: string;
   children?: ReactNode;
 }) {
+  useI18n();
   return (
     <div className="page-heading">
       <div>
@@ -97,11 +101,16 @@ export function Modal({
   title,
   onClose,
   children,
+  className,
+  closeDisabled = false,
 }: {
   title: string;
   onClose: () => void;
   children: ReactNode;
+  className?: string;
+  closeDisabled?: boolean;
 }) {
+  useI18n();
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;
@@ -116,9 +125,13 @@ export function Modal({
     <dialog
       ref={ref}
       aria-label={title}
-      onCancel={onClose}
+      className={className}
+      onCancel={(event) => {
+        event.preventDefault();
+        if (!closeDisabled) onClose();
+      }}
       onClick={(e) => {
-        if (e.target === ref.current) {
+        if (!closeDisabled && e.target === ref.current) {
           const r = ref.current.getBoundingClientRect();
           if (
             e.clientX < r.left ||
@@ -132,7 +145,11 @@ export function Modal({
     >
       <div className="modal-header">
         <h2>{title}</h2>
-        <IconButton label="Đóng hộp thoại" onClick={onClose}>
+        <IconButton
+          label={tr("Đóng hộp thoại")}
+          disabled={closeDisabled}
+          onClick={onClose}
+        >
           <X />
         </IconButton>
       </div>
@@ -151,12 +168,13 @@ export function ConfirmDialog({
   onClose: () => void;
   onConfirm: () => void;
 }) {
+  useI18n();
   return (
     <Modal title={title} onClose={onClose}>
       <p className="muted">{message}</p>
       <div className="form-actions">
         <Button autoFocus onClick={onClose}>
-          Hủy
+          {tr("Hủy")}
         </Button>
         <Button
           primary
@@ -165,7 +183,7 @@ export function ConfirmDialog({
             onClose();
           }}
         >
-          Xác nhận
+          {tr("Xác nhận")}
         </Button>
       </div>
     </Modal>

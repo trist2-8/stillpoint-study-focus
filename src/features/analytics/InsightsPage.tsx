@@ -1,3 +1,4 @@
+import { trf, tr, useI18n } from "../../i18n";
 import { useMemo, useState } from "react";
 import {
   BarChart,
@@ -30,11 +31,15 @@ const tooltipStyle = {
   fontSize: 12,
 };
 export default function InsightsPage() {
+  const { language } = useI18n();
   const sessions = useApp((s) => s.sessions);
   const tasks = useApp((s) => s.tasks);
   const [range, setRange] = useState(7);
-  const data = useMemo(() => aggregate(sessions, range), [sessions, range]);
-  const week = useMemo(() => aggregate(sessions, 7), [sessions]);
+  const data = useMemo(
+    () => aggregate(sessions, range),
+    [sessions, range, language],
+  );
+  const week = useMemo(() => aggregate(sessions, 7), [sessions, language]);
   const count = data.reduce((n, d) => n + d.sessions, 0);
   const minutes = data.reduce((n, d) => n + d.minutes, 0);
   const distribution = useMemo(() => {
@@ -49,11 +54,11 @@ export default function InsightsPage() {
         continue;
       const label =
         tasks.find((t) => t.id === s.taskId)?.title ??
-        (s.taskId ? "Việc đã lưu" : "Tập trung tự do");
+        (s.taskId ? tr("Việc đã lưu") : tr("Tập trung tự do"));
       groups.set(label, (groups.get(label) ?? 0) + 1);
     }
     return Array.from(groups, ([name, value]) => ({ name, value }));
-  }, [sessions, tasks, data]);
+  }, [sessions, tasks, data, language]);
   const colors = [
     "var(--primary)",
     "var(--accent)",
@@ -62,26 +67,28 @@ export default function InsightsPage() {
   ];
   const empty = (
     <div className="chart-empty">
-      <p>Nhịp học của bạn sẽ dần hiện ra ở đây.</p>
-      <small>Hoàn thành một phiên để xem tiến độ.</small>
+      <p>{tr("Nhịp học của bạn sẽ dần hiện ra ở đây.")}</p>
+      <small>{tr("Hoàn thành một phiên để xem tiến độ.")}</small>
     </div>
   );
   return (
     <>
       <PageTitle
-        title="Xem bạn đã đi xa đến đâu."
-        subtitle="Những khoảnh khắc tập trung nhỏ sẽ tạo nên điều có ý nghĩa."
+        title={tr("Xem bạn đã đi xa đến đâu.")}
+        subtitle={tr(
+          "Những khoảnh khắc tập trung nhỏ sẽ tạo nên điều có ý nghĩa.",
+        )}
       >
         <select
           className="input"
           style={{ width: 130 }}
-          aria-label="Khoảng thời gian tiến độ"
+          aria-label={tr("Khoảng thời gian tiến độ")}
           value={range}
           onChange={(e) => setRange(Number(e.target.value))}
         >
-          <option value={7}>7 ngày qua</option>
-          <option value={30}>30 ngày qua</option>
-          <option value={90}>90 ngày qua</option>
+          <option value={7}>{tr("7 ngày qua")}</option>
+          <option value={30}>{tr("30 ngày qua")}</option>
+          <option value={90}>{tr("90 ngày qua")}</option>
         </select>
       </PageTitle>
       <div className="stats-grid">
@@ -89,23 +96,27 @@ export default function InsightsPage() {
           {
             icon: Clock3,
             value: formatMinutes(minutes),
-            label: "Tổng thời gian tập trung",
+            label: tr("Tổng thời gian tập trung"),
           },
-          { icon: CircleCheck, value: count, label: "Pomodoro đã hoàn tất" },
+          {
+            icon: CircleCheck,
+            value: count,
+            label: tr("Pomodoro đã hoàn tất"),
+          },
           {
             icon: Timer,
             value: formatMinutes(count ? minutes / count : 0),
-            label: "Phiên trung bình",
+            label: tr("Phiên trung bình"),
           },
           {
             icon: ListTodo,
             value: `${tasks.length ? Math.round((tasks.filter((t) => t.isCompleted).length / tasks.length) * 100) : 0}%`,
-            label: "Tỷ lệ hoàn thành việc học",
+            label: tr("Tỷ lệ hoàn thành việc học"),
           },
           {
             icon: Flame,
-            value: `${streak(sessions)} ngày`,
-            label: "Chuỗi ngày học hiện tại",
+            value: trf("{0} ngày", [streak(sessions)]),
+            label: tr("Chuỗi ngày học hiện tại"),
           },
         ].map(({ icon: Icon, value, label }) => (
           <Card className="stat-card" key={label}>
@@ -119,9 +130,12 @@ export default function InsightsPage() {
       </div>
       <div className="chart-grid">
         <Card>
-          <h2>Thời gian tập trung theo tuần</h2>
-          <small>Bảy ngày qua, từng phiên một.</small>
-          <div aria-label="Biểu đồ thời gian tập trung bảy ngày qua" role="img">
+          <h2>{tr("Thời gian tập trung theo tuần")}</h2>
+          <small>{tr("Bảy ngày qua, từng phiên một.")}</small>
+          <div
+            aria-label={tr("Biểu đồ thời gian tập trung bảy ngày qua")}
+            role="img"
+          >
             {week.some((d) => d.minutes) ? (
               <div className="chart">
                 <ResponsiveContainer width="100%" height="100%">
@@ -140,7 +154,7 @@ export default function InsightsPage() {
                     />
                     <Tooltip contentStyle={tooltipStyle} />
                     <Bar
-                      name="Phút tập trung"
+                      name={tr("Phút tập trung")}
                       dataKey="minutes"
                       fill="var(--primary)"
                       radius={[5, 5, 0, 0]}
@@ -156,9 +170,19 @@ export default function InsightsPage() {
           </div>
         </Card>
         <Card>
-          <h2>Xu hướng tập trung</h2>
-          <small>Phút tập trung mỗi ngày · {range} ngày</small>
-          <div aria-label="Daily focus minutes trend" role="img">
+          <h2>{tr("Xu hướng tập trung")}</h2>
+          <small>
+            {tr("Phút tập trung mỗi ngày ·")}
+            {range} {tr("ngày")}
+          </small>
+          <div
+            aria-label={
+              language === "en"
+                ? "Daily focus minutes trend"
+                : "Xu hướng số phút tập trung mỗi ngày"
+            }
+            role="img"
+          >
             {count ? (
               <div className="chart">
                 <ResponsiveContainer width="100%" height="100%">
@@ -178,7 +202,7 @@ export default function InsightsPage() {
                     />
                     <Tooltip contentStyle={tooltipStyle} />
                     <Line
-                      name="Phút tập trung"
+                      name={tr("Phút tập trung")}
                       dataKey="minutes"
                       type="monotone"
                       stroke="var(--primary)"
@@ -195,14 +219,14 @@ export default function InsightsPage() {
           </div>
         </Card>
         <Card>
-          <h2>Sự tập trung của bạn đi đâu</h2>
-          <small>Phiên tập trung hoàn tất theo việc</small>
+          <h2>{tr("Sự tập trung của bạn đi đâu")}</h2>
+          <small>{tr("Phiên tập trung hoàn tất theo việc")}</small>
           {count ? (
             <>
               <div
                 className="chart"
                 role="img"
-                aria-label="Phân bố phiên học theo việc"
+                aria-label={tr("Phân bố phiên học theo việc")}
               >
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
@@ -246,32 +270,34 @@ export default function InsightsPage() {
           )}
         </Card>
         <Card>
-          <h2>Lịch học của bạn</h2>
+          <h2>{tr("Lịch học của bạn")}</h2>
           <small>
-            {range} ngày qua · {data[0].label} — {data[data.length - 1].label}
+            {range} {tr("ngày qua ·")}
+            {data[0].label} — {data[data.length - 1].label}
           </small>
           <ActivityHeatmap days={data} />
           <p className="muted" style={{ fontSize: 12, marginTop: 24 }}>
-            Tiến bộ không cần một chuỗi ngày hoàn hảo. Điều quan trọng là bạn
-            quay lại.
+            {tr(
+              "Tiến bộ không cần một chuỗi ngày hoàn hảo. Điều quan trọng là bạn quay lại.",
+            )}
           </p>
         </Card>
       </div>
       <details
         style={{ marginTop: 24, fontSize: 12, color: "var(--text-muted)" }}
       >
-        <summary>Xem tổng từng ngày và cách tính</summary>
+        <summary>{tr("Xem tổng từng ngày và cách tính")}</summary>
         <p>
-          Chỉ phiên tập trung đã hoàn tất mới được tính. Mỗi phiên thuộc về ngày
-          hoàn tất theo giờ địa phương. Việc học tính trên toàn bộ danh sách
-          hiện tại. Chuỗi ngày gồm hôm nay hoặc kết thúc từ hôm qua.
+          {tr(
+            "Chỉ phiên tập trung đã hoàn tất mới được tính. Mỗi phiên thuộc về ngày hoàn tất theo giờ địa phương. Việc học tính trên toàn bộ danh sách hiện tại. Chuỗi ngày gồm hôm nay hoặc kết thúc từ hôm qua.",
+          )}
         </p>
         <table style={{ width: "100%", marginTop: 12 }}>
           <thead>
             <tr>
-              <th>Ngày</th>
-              <th>Phút tập trung</th>
-              <th>Số phiên</th>
+              <th>{tr("Ngày")}</th>
+              <th>{tr("Phút tập trung")}</th>
+              <th>{tr("Số phiên")}</th>
             </tr>
           </thead>
           <tbody>

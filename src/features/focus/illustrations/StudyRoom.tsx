@@ -160,22 +160,23 @@ export default function StudyRoom({
         fill="var(--room-curtain)"
         opacity=".65"
       />
-      <g className="room-houseplant"><g
-        fill="none"
-        stroke="var(--room-leaf-dark)"
-        strokeWidth="3"
-        strokeLinecap="round"
-      >
-        <path d="M94 478Q76 405 102 338M94 443Q51 413 48 376M99 415Q145 386 145 351" />
-      </g>
-      <g fill="var(--room-leaf)">
-        <path d="M103 386Q65 359 104 330Q123 356 103 386Z" />
-        <path d="M85 422Q40 417 42 370Q76 381 85 422Z" />
-        <path d="M102 416Q108 365 150 346Q162 396 102 416Z" />
-        <path d="M91 452Q40 452 29 416Q72 408 91 452Z" />
-      </g>
-      <path d="M59 456H121L113 501H69Z" fill="var(--room-pot)" />
-      <path d="M57 454H123V463H57Z" fill="var(--room-pot-rim)" />
+      <g className="room-houseplant">
+        <g
+          fill="none"
+          stroke="var(--room-leaf-dark)"
+          strokeWidth="3"
+          strokeLinecap="round"
+        >
+          <path d="M94 478Q76 405 102 338M94 443Q51 413 48 376M99 415Q145 386 145 351" />
+        </g>
+        <g fill="var(--room-leaf)">
+          <path d="M103 386Q65 359 104 330Q123 356 103 386Z" />
+          <path d="M85 422Q40 417 42 370Q76 381 85 422Z" />
+          <path d="M102 416Q108 365 150 346Q162 396 102 416Z" />
+          <path d="M91 452Q40 452 29 416Q72 408 91 452Z" />
+        </g>
+        <path d="M59 456H121L113 501H69Z" fill="var(--room-pot)" />
+        <path d="M57 454H123V463H57Z" fill="var(--room-pot-rim)" />
       </g>
       <path d="M60 509H741L766 535H35Z" fill="var(--room-wood)" />
       <path d="M35 535H766V548H35Z" fill="var(--room-wood-edge)" />

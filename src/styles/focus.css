@@ -231,6 +231,13 @@
 .task-picker-menu button:hover {
   background: var(--primary-soft);
 }
+.flow-cycle-note {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+  text-align: center;
+  color: var(--text-secondary);
+}
 .flow-controls {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 48px 48px;

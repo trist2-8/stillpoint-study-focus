@@ -1,0 +1,213 @@
+.mini-message { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); z-index: 60; max-width: calc(100% - 32px); padding: 12px 16px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); color: var(--text-primary); display:flex; align-items:center; gap:12px; font-size:13px; }
+.mini-message button { background:none; border:0; min-width:32px; min-height:32px; }
+.room-choices {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.room-choices label {
+  position: relative;
+  cursor: pointer;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--surface-secondary);
+  min-width: 0;
+}
+.room-choices label:has(input:checked) {
+  border-color: var(--primary);
+}
+.room-choices input {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+.room-choices label:has(input:focus-visible) {
+  outline: 3px solid var(--primary);
+  outline-offset: 3px;
+}
+.room-choices img,
+.room-default {
+  display: block;
+  width: 100%;
+  height: 90px;
+  object-fit: cover;
+}
+.room-default {
+  display: grid;
+  place-items: center;
+  font-size: 36px;
+  background: var(--primary-soft);
+}
+.room-choices strong {
+  display: block;
+  padding: 10px;
+  font-size: 13px;
+}
+.language-choice {
+  max-width: 320px;
+  margin-bottom: 20px;
+}
+.scene-photo {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: 12px;
+}
+.scene-photo img {
+  width: 100%;
+  height: 310px;
+  object-fit: cover;
+  border-radius: 14px;
+}
+.scene-photo figcaption {
+  font-size: 14px;
+  font-weight: 550;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.scene-photo figcaption span {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+.ambient-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ambient-control button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1px solid var(--border);
+  padding: 8px;
+  border-radius: 10px;
+  min-height: 44px;
+  font-size: 12px;
+}
+.ambient-control input {
+  min-width: 60px;
+  width: 85px;
+  accent-color: var(--primary);
+}
+.ambient-control small {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+.floating-control {
+  width: 100%;
+  text-align: center;
+}
+.floating-control .button {
+  justify-content: center;
+  width: 100%;
+  font-size: 13px;
+  min-height: 44px;
+}
+.floating-control small {
+  display: block;
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 6px;
+}
+.data-settings {
+  margin-top: 28px;
+  padding-top: 28px;
+  border-top: 1px solid var(--border);
+}
+.data-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.data-actions .button {
+  font-size: 13px;
+  min-height: 44px;
+  white-space: normal;
+}
+.cloud-panel,
+.backup-confirm {
+  margin-top: 20px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-secondary);
+}
+.cloud-panel h4 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+.cloud-panel .field {
+  margin-bottom: 12px;
+}
+.cloud-account {
+  overflow-wrap: anywhere;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+.cloud-panel > .data-actions + .data-actions {
+  margin-top: 12px;
+}
+.backup-confirm p {
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+.data-settings .button.primary {
+  background: var(--primary-hover);
+  color: white;
+}
+:root[data-theme="dark"] .data-settings .button.primary {
+  background: var(--primary);
+  color: var(--background);
+}
+@media (max-width: 900px) {
+  .flow-room-wrap:not([data-scene="study"]) .flow-scene {
+    display: flex;
+    gap: 12px;
+  }
+  .flow-room-wrap:not([data-scene="study"]) .flow-quote {
+    display: none;
+  }
+  .scene-photo img {
+    height: 170px;
+  }
+  .scene-photo {
+    gap: 8px;
+  }
+  .ambient-control {
+    justify-content: center;
+  }
+  .flow-room-wrap:not([data-scene="study"]) {
+    gap: 24px;
+  }
+}
+@media (max-width: 700px) {
+  .room-choices {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .room-choices img,
+  .room-default {
+    height: 86px;
+  }
+  .data-actions {
+    flex-direction: column;
+  }
+  .data-actions .button {
+    justify-content: center;
+  }
+  .cloud-panel,
+  .backup-confirm {
+    padding: 14px;
+  }
+}

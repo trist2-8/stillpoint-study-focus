@@ -43,12 +43,14 @@ test("companion visibility persists and plant grows only after focus completion"
     "aria-label",
     /1 phiên tập trung đã hoàn tất/,
   );
-  await page.getByRole("button", { name: "Tiếp theo: Nghỉ ngắn" }).click();
+  await expect(page.getByLabel("Chế độ phiên")).toHaveValue("SHORT_BREAK");
   await expect(page.locator(".study-cat")).toHaveAttribute(
     "data-state",
     "resting",
   );
-  await page.getByRole("button", { name: "Bắt đầu nghỉ", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "Tạm dừng", exact: true }),
+  ).toBeVisible();
   await page.clock.fastForward(5 * 60000);
   await expect(page.locator(".growth-plant")).toHaveAttribute(
     "data-stage",

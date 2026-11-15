@@ -1125,17 +1125,70 @@ dialog::backdrop {
   }
 }
 
-.activity-map { margin-top: 16px; }
-.activity-description, .activity-detail { color: var(--text-secondary); font-size: 12px; line-height: 1.6; }
-.activity-grid { display: grid; grid-template-columns: repeat(15, minmax(0, 1fr)); gap: 5px; margin: 16px 0; }
-.activity-grid button { aspect-ratio: 1; max-height: 32px; min-width: 0; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; }
-.activity-grid button, .activity-legend i { background: var(--surface-secondary); }
-.activity-map [data-level="1"] { background: color-mix(in srgb, var(--primary) 28%, var(--surface)); }
-.activity-map [data-level="2"] { background: color-mix(in srgb, var(--primary) 50%, var(--surface)); }
-.activity-map [data-level="3"] { background: color-mix(in srgb, var(--primary) 74%, var(--surface)); }
-.activity-map [data-level="4"] { background: var(--primary); }
-.activity-grid button:focus-visible, .activity-grid button[aria-pressed="true"] { outline: 2px solid var(--text-primary); outline-offset: 2px; }
-.activity-legend { display: flex; align-items: center; gap: 5px; color: var(--text-secondary); font-size: 11px; }
-.activity-legend i { display: block; width: 12px; height: 12px; border-radius: 2px; border: 1px solid var(--border); }
-.activity-detail { min-height: 38px; margin-top: 12px; }
-@media (max-width: 500px) { .activity-grid { grid-template-columns: repeat(10, minmax(0, 1fr)); } }
+.activity-map {
+  margin-top: 16px;
+}
+.activity-description,
+.activity-detail {
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.activity-grid {
+  display: grid;
+  grid-template-columns: repeat(15, minmax(0, 1fr));
+  gap: 5px;
+  margin: 16px 0;
+}
+.activity-grid button {
+  aspect-ratio: 1;
+  max-height: 32px;
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.activity-grid button,
+.activity-legend i {
+  background: var(--surface-secondary);
+}
+.activity-map [data-level="1"] {
+  background: color-mix(in srgb, var(--primary) 28%, var(--surface));
+}
+.activity-map [data-level="2"] {
+  background: color-mix(in srgb, var(--primary) 50%, var(--surface));
+}
+.activity-map [data-level="3"] {
+  background: color-mix(in srgb, var(--primary) 74%, var(--surface));
+}
+.activity-map [data-level="4"] {
+  background: var(--primary);
+}
+.activity-grid button:focus-visible,
+.activity-grid button[aria-pressed="true"] {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+}
+.activity-legend {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+.activity-legend i {
+  display: block;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  border: 1px solid var(--border);
+}
+.activity-detail {
+  min-height: 38px;
+  margin-top: 12px;
+}
+@media (max-width: 500px) {
+  .activity-grid {
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+  }
+}

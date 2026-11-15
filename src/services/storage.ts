@@ -26,6 +26,13 @@ export function validSettings(v: unknown): v is UserSettings {
     return false;
   if (!object(v) || !["light", "dark", "system"].includes(String(v.theme)))
     return false;
+  if (v.language !== undefined && !["vi", "en"].includes(String(v.language)))
+    return false;
+  if (
+    v.scene !== undefined &&
+    !["study", "library", "cafe", "forest"].includes(String(v.scene))
+  )
+    return false;
   if (
     v.palette !== undefined &&
     !["lavender", "midnight", "forest"].includes(String(v.palette))
@@ -72,7 +79,7 @@ export function validTask(v: unknown): v is StudyTask {
       (typeof v.dueAt === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v.dueAt)))
   );
 }
-function validSession(v: unknown): v is FocusSession {
+export function validSession(v: unknown): v is FocusSession {
   return (
     object(v) &&
     typeof v.id === "string" &&
@@ -126,7 +133,12 @@ export function decode(raw: string | null): Data {
           : null;
     if (!object(data)) return fallback;
     const settings = validSettings(data.settings)
-      ? data.settings
+      ? {
+          ...defaults,
+          ...data.settings,
+          language: data.settings.language ?? defaults.language,
+          scene: data.settings.scene ?? defaults.scene,
+        }
       : fallback.settings;
     const tasks = Array.isArray(data.tasks) ? data.tasks.filter(validTask) : [];
     const sessions = Array.isArray(data.sessions)

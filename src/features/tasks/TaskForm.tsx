@@ -1,3 +1,4 @@
+import { tr, useI18n } from "../../i18n";
 import { useState } from "react";
 import { Button, Modal } from "../../components/ui";
 import { useApp } from "../../stores/app-store";
@@ -9,6 +10,7 @@ export function TaskForm({
   task: StudyTask | null;
   onClose: () => void;
 }) {
+  useI18n();
   const [draft, setDraft] = useState<StudyTask>(
     task ?? {
       id: crypto.randomUUID(),
@@ -25,12 +27,15 @@ export function TaskForm({
   );
   const [error, setError] = useState("");
   return (
-    <Modal title={task ? "Sửa việc học" : "Thêm việc học"} onClose={onClose}>
+    <Modal
+      title={task ? tr("Sửa việc học") : tr("Thêm việc học")}
+      onClose={onClose}
+    >
       <form
         onSubmit={(e) => {
           e.preventDefault();
           if (!draft.title.trim()) {
-            setError("Hãy nhập tên việc học.");
+            setError(tr("Hãy nhập tên việc học."));
             return;
           }
           useApp.getState().putTask({
@@ -40,13 +45,15 @@ export function TaskForm({
           });
           useApp
             .getState()
-            .notify(task ? "Đã cập nhật việc học." : "Đã thêm việc học.");
+            .notify(
+              task ? tr("Đã cập nhật việc học.") : tr("Đã thêm việc học."),
+            );
           onClose();
         }}
       >
         <div className="form-grid">
           <label className="field full">
-            Tên việc học
+            {tr("Tên việc học")}
             <input
               autoFocus
               className="input"
@@ -54,11 +61,11 @@ export function TaskForm({
               maxLength={160}
               value={draft.title}
               onChange={(e) => setDraft({ ...draft, title: e.target.value })}
-              placeholder="Bạn muốn học gì?"
+              placeholder={tr("Bạn muốn học gì?")}
             />
           </label>
           <label className="field full">
-            Mô tả (không bắt buộc)
+            {tr("Mô tả (không bắt buộc)")}
             <textarea
               className="input"
               rows={3}
@@ -70,7 +77,7 @@ export function TaskForm({
             />
           </label>
           <label className="field">
-            Mức ưu tiên
+            {tr("Mức ưu tiên")}
             <select
               className="input"
               value={draft.priority}
@@ -81,13 +88,13 @@ export function TaskForm({
                 })
               }
             >
-              <option value="low">Thấp</option>
-              <option value="medium">Vừa</option>
+              <option value="low">{tr("Thấp")}</option>
+              <option value="medium">{tr("Vừa")}</option>
               <option value="high">Cao</option>
             </select>
           </label>
           <label className="field">
-            Số phiên dự kiến
+            {tr("Số phiên dự kiến")}
             <input
               className="input"
               type="number"
@@ -105,7 +112,7 @@ export function TaskForm({
             />
           </label>
           <label className="field full">
-            Hạn hoàn thành (không bắt buộc)
+            {tr("Hạn hoàn thành (không bắt buộc)")}
             <input
               className="input"
               type="date"
@@ -123,10 +130,10 @@ export function TaskForm({
         )}
         <div className="form-actions">
           <Button type="button" onClick={onClose}>
-            Hủy
+            {tr("Hủy")}
           </Button>
           <Button primary type="submit">
-            {task ? "Lưu thay đổi" : "Tạo việc học"}
+            {task ? tr("Lưu thay đổi") : tr("Tạo việc học")}
           </Button>
         </div>
       </form>

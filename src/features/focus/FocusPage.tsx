@@ -1,5 +1,8 @@
-﻿import { useEffect, useMemo, useState } from "react";
+import { ScenePhoto, AmbientAudio } from "./RoomScenes";
+import { trf, tr, useI18n, locale } from "../../i18n";
+import { useEffect, useMemo, useState } from "react";
 import {
+  PictureInPicture2,
   Plus,
   Play,
   Pause,
@@ -32,12 +35,14 @@ import ReferenceRoom from "./illustrations/ReferenceRoom";
 import GrowthPlant from "./illustrations/GrowthPlant";
 import { TaskForm } from "../tasks/TaskForm";
 
-const modeName: Record<Mode, string> = {
-  FOCUS: "Phiên tập trung",
-  SHORT_BREAK: "Nghỉ ngắn",
-  LONG_BREAK: "Nghỉ dài",
-};
 export default function FocusPage() {
+  const { language } = useI18n();
+  const modeName: Record<Mode, string> = {
+    FOCUS: tr("Phiên tập trung"),
+    SHORT_BREAK: tr("Nghỉ ngắn"),
+    LONG_BREAK: tr("Nghỉ dài"),
+  };
+
   const { timer, settings, sessions, tasks } = useApp();
   const [now, setNow] = useState(Date.now());
   const [adding, setAdding] = useState(false);
@@ -59,11 +64,11 @@ export default function FocusPage() {
   const today = new Date(now).toDateString();
   const week = useMemo(
     () => aggregate(sessions, 7, new Date(today)),
-    [sessions, today],
+    [sessions, today, language],
   );
   const activity = useMemo(
     () => aggregate(sessions, 30, new Date(today)),
-    [sessions, today],
+    [sessions, today, language],
   );
   const completed = sessions.filter(
     (s) => s.type === "FOCUS" && s.status === "COMPLETED",
@@ -81,17 +86,17 @@ export default function FocusPage() {
     .reduce((sum, s) => sum + s.actualDurationMs / 60000, 0);
   const startLabel =
     timer.status === "RUNNING"
-      ? "Tạm dừng"
+      ? tr("Tạm dừng")
       : timer.status === "PAUSED"
-        ? "Tiếp tục"
+        ? tr("Tiếp tục")
         : timer.status === "COMPLETED"
-          ? `Tiếp theo: ${modeName[next]}`
+          ? trf("Tiếp theo: {0}", [modeName[next]])
           : timer.mode === "FOCUS"
-            ? "Bắt đầu tập trung"
-            : "Bắt đầu nghỉ";
+            ? tr("Bắt đầu tập trung")
+            : tr("Bắt đầu nghỉ");
   const notifications = async () => {
     if (!("Notification" in window)) {
-      useApp.getState().notify("Trình duyệt này không hỗ trợ thông báo.");
+      useApp.getState().notify(tr("Trình duyệt này không hỗ trợ thông báo."));
       return;
     }
     const permission = await Notification.requestPermission();
@@ -103,8 +108,8 @@ export default function FocusPage() {
       .getState()
       .notify(
         permission === "granted"
-          ? "Đã bật thông báo kết thúc phiên."
-          : "Bạn có thể bật thông báo trong cài đặt trình duyệt.",
+          ? tr("Đã bật thông báo kết thúc phiên.")
+          : tr("Bạn có thể bật thông báo trong cài đặt trình duyệt."),
       );
   };
   return (
@@ -113,14 +118,14 @@ export default function FocusPage() {
         <div className="flow-welcome">
           <Sun className="sun-badge" />
           <div>
-            <h1>Một khoảng yên để học.</h1>
-            <span>Chọn một việc, dành trọn một phiên.</span>
+            <h1>{tr("Một khoảng yên để học.")}</h1>
+            <span>{tr("Chọn một việc, dành trọn một phiên.")}</span>
           </div>
         </div>
         <div className="flow-top-actions">
           <time dateTime={new Date(now).toISOString()}>
             <CalendarDays size={23} />
-            {new Date(now).toLocaleDateString("vi-VN", {
+            {new Date(now).toLocaleDateString(locale(), {
               weekday: "short",
               month: "short",
               day: "numeric",
@@ -128,7 +133,7 @@ export default function FocusPage() {
             })}
           </time>
           <IconButton
-            label="Bật thông báo"
+            label={tr("Bật thông báo")}
             onClick={() => void notifications()}
           >
             <Bell />
@@ -136,18 +141,23 @@ export default function FocusPage() {
         </div>
       </header>
       <section className="flow-hero">
-        <div className="flow-room-wrap">
+        <div className="flow-room-wrap" data-scene={settings.scene ?? "study"}>
           <div className="flow-scene">
             <blockquote className="flow-quote">
-              Từng trang một.
+              {tr("Từng trang một.")}
               <br />
-              Từng bước một.
+              {tr("Từng bước một.")}
             </blockquote>
-            <ReferenceRoom
-              status={timer.status}
-              mode={timer.mode}
-              companion={settings.companionEnabled !== false}
-            />
+            {settings.scene && settings.scene !== "study" ? (
+              <ScenePhoto />
+            ) : (
+              <ReferenceRoom
+                status={timer.status}
+                mode={timer.mode}
+                companion={settings.companionEnabled !== false}
+              />
+            )}
+            <AmbientAudio />
           </div>
           <div className="flow-orb-area">
             <div
@@ -179,7 +189,7 @@ export default function FocusPage() {
               </svg>
               <div className="orb-content">
                 <select
-                  aria-label="Chế độ phiên"
+                  aria-label={tr("Chế độ phiên")}
                   value={timer.mode}
                   onChange={(e) =>
                     request(() =>
@@ -201,8 +211,8 @@ export default function FocusPage() {
                 </strong>
                 <span>
                   {timer.mode === "FOCUS"
-                    ? "Từng bước một."
-                    : "Nghỉ ngơi một chút."}
+                    ? tr("Từng bước một.")
+                    : tr("Nghỉ ngơi một chút.")}
                 </span>
               </div>
             </div>
@@ -213,7 +223,9 @@ export default function FocusPage() {
                 aria-expanded={choosing}
               >
                 <Folder size={22} />
-                <span>{activeTask?.title ?? "Chọn việc cho phiên này"}</span>
+                <span>
+                  {activeTask?.title ?? tr("Chọn việc cho phiên này")}
+                </span>
                 <ChevronRight size={22} />
               </button>
               {choosing && (
@@ -239,7 +251,7 @@ export default function FocusPage() {
                       setAdding(true);
                     }}
                   >
-                    + Thêm việc học
+                    {tr("+ Thêm việc học")}
                   </button>
                 </div>
               )}
@@ -266,15 +278,15 @@ export default function FocusPage() {
                   <Play fill="currentColor" />
                 )}
                 {timer.status === "RUNNING"
-                  ? "Tạm dừng"
+                  ? tr("Tạm dừng")
                   : timer.status === "PAUSED"
-                    ? "Tiếp tục"
+                    ? tr("Tiếp tục")
                     : timer.status === "COMPLETED"
-                      ? "Tiếp theo"
-                      : "Bắt đầu"}
+                      ? tr("Tiếp theo")
+                      : tr("Bắt đầu")}
               </Button>
               <IconButton
-                label="Đặt lại phiên"
+                label={tr("Đặt lại phiên")}
                 onClick={() =>
                   request(() => useApp.getState().timerAction("reset"))
                 }
@@ -282,7 +294,7 @@ export default function FocusPage() {
                 <RotateCcw />
               </IconButton>
               <IconButton
-                label="Bỏ qua phiên"
+                label={tr("Bỏ qua phiên")}
                 onClick={() =>
                   request(() => useApp.getState().timerAction("skip"))
                 }
@@ -290,22 +302,41 @@ export default function FocusPage() {
                 <SkipForward />
               </IconButton>
             </div>
+            <div className="floating-control">
+              <button
+                className="button"
+                type="button"
+                onClick={() =>
+                  window.dispatchEvent(new Event("focus-flow:open-mini"))
+                }
+              >
+                <PictureInPicture2 size={18} />
+                {language === "vi" ? "Đồng hồ nổi" : "Floating timer"}
+              </button>
+            </div>
+            <p className="flow-cycle-note">
+              {settings.autoStartBreaks && settings.autoStartFocus
+                ? tr("Tự động lặp chu kỳ · Nghỉ dài sau mỗi ") +
+                  settings.longBreakInterval +
+                  tr(" phiên")
+                : tr("Chuyển phiên theo cài đặt của bạn")}
+            </p>
           </div>
         </div>
         <aside className="flow-tasks">
           <div className="flow-panel-title">
-            <h2>Việc học của bạn</h2>
+            <h2>{tr("Việc học của bạn")}</h2>
             <Button primary onClick={() => setAdding(true)}>
               <Plus />
-              Thêm việc
+              {tr("Thêm việc")}
             </Button>
           </div>
           <p className="flow-summary">
-            <b>{completedTasks}</b> / {tasks.length} việc đã hoàn thành
+            <b>{completedTasks}</b> / {tasks.length} {tr("việc đã hoàn thành")}
           </p>
           <ProgressBar
             value={tasks.length ? (completedTasks / tasks.length) * 100 : 0}
-            label="Việc học đã hoàn thành"
+            label={tr("Việc học đã hoàn thành")}
           />
           <div className="flow-task-list">
             {tasks.slice(0, 4).map((task) => (
@@ -315,7 +346,7 @@ export default function FocusPage() {
               >
                 <label>
                   <input
-                    aria-label={`${task.isCompleted ? "Mở lại" : "Hoàn thành"} ${task.title}`}
+                    aria-label={`${task.isCompleted ? tr("Mở lại") : tr("Hoàn thành")} ${task.title}`}
                     type="checkbox"
                     checked={task.isCompleted}
                     onChange={() =>
@@ -337,12 +368,12 @@ export default function FocusPage() {
                 </button>
                 {!task.isCompleted && task.priority !== "low" && (
                   <span className={`priority-tag ${task.priority}`}>
-                    {task.priority === "high" ? "Cao" : "Vừa"}
+                    {task.priority === "high" ? "Cao" : tr("Vừa")}
                   </span>
                 )}
                 <button
                   className="task-options"
-                  aria-label={`Sửa ${task.title}`}
+                  aria-label={trf("Sửa {0}", [task.title])}
                   onClick={() => setEditing(task.id)}
                 >
                   <MoreVertical size={21} />
@@ -354,38 +385,43 @@ export default function FocusPage() {
                 className="flow-empty-task"
                 onClick={() => setAdding(true)}
               >
-                Bạn muốn học gì trong phiên này?
-                <span>+ Thêm việc học đầu tiên</span>
+                {tr("Bạn muốn học gì trong phiên này?")}
+                <span>{tr("+ Thêm việc học đầu tiên")}</span>
               </button>
             )}
           </div>
           <Link className="flow-link" to="/tasks">
-            Xem tất cả việc học <ChevronRight size={16} />
+            {tr("Xem tất cả việc học")}
+            <ChevronRight size={16} />
           </Link>
         </aside>
       </section>
       <section className="flow-bottom">
         <article className="flow-card progress-card">
           <div className="flow-card-head">
-            <h2>Nhịp học trong tuần</h2>
-            <span>7 ngày qua</span>
+            <h2>{tr("Nhịp học trong tuần")}</h2>
+            <span>{tr("7 ngày qua")}</span>
           </div>
           <div
             className="week-chart"
             role="img"
-            aria-label={`Thời gian học bảy ngày qua: ${week.map((day) => `${day.label}: ${formatMinutes(day.minutes)}`).join(", ")}`}
+            aria-label={trf("Thời gian học bảy ngày qua: {0}", [
+              week
+                .map((day) => `${day.label}: ${formatMinutes(day.minutes)}`)
+                .join(", "),
+            ])}
           >
             {week.map((d) => (
               <div key={d.date}>
                 <span
-                  title={`${d.minutes} phút`}
+                  title={trf("{0} phút", [d.minutes])}
                   style={{
                     minHeight: d.minutes ? 8 : 0,
                     height: `${(d.minutes / Math.max(1, ...week.map((x) => x.minutes))) * 100}%`,
                   }}
                 />
                 <small>
-                  {new Date(`${d.date}T12:00:00`).toLocaleDateString("vi-VN", {
+                  {new Date(`${d.date}T12:00:00`).toLocaleDateString(locale(), {
                     weekday: "short",
                   })}
                 </small>
@@ -394,23 +430,23 @@ export default function FocusPage() {
           </div>
           {!week.some((day) => day.minutes) && (
             <p className="flow-chart-empty">
-              Hoàn tất một phiên để bắt đầu ghi lại nhịp học.
+              {tr("Hoàn tất một phiên để bắt đầu ghi lại nhịp học.")}
             </p>
           )}
         </article>
         <article className="flow-card analytics-card">
           <div className="flow-card-head">
-            <h2>Tích lũy từng phiên</h2>
+            <h2>{tr("Tích lũy từng phiên")}</h2>
             <span className="trend-chip">
-              {streak(sessions)} ngày liên tiếp
+              {streak(sessions)} {tr("ngày liên tiếp")}
             </span>
           </div>
           <strong className="analytics-number">
             {formatMinutes(totalMinutes)}
           </strong>
-          <small>Thời gian tập trung đã hoàn tất</small>
+          <small>{tr("Thời gian tập trung đã hoàn tất")}</small>
           <span className="analytics-caption">
-            {completed} phiên học · Cây lớn lên sau mỗi phiên hoàn tất.
+            {completed} {tr("phiên học · Cây lớn lên sau mỗi phiên hoàn tất.")}
           </span>
 
           <div className="growth-mini">
@@ -419,8 +455,8 @@ export default function FocusPage() {
         </article>
         <article className="flow-card heat-card">
           <div className="flow-card-head">
-            <h2>Lịch học của bạn</h2>
-            <span>30 ngày qua</span>
+            <h2>{tr("Lịch học của bạn")}</h2>
+            <span>{tr("30 ngày qua")}</span>
           </div>
           <ActivityHeatmap days={activity} />
         </article>
@@ -434,8 +470,8 @@ export default function FocusPage() {
       )}
       {confirm && (
         <ConfirmDialog
-          title="Rời phiên hiện tại?"
-          message="Phiên chưa hoàn tất sẽ không được tính vào tiến độ."
+          title={tr("Rời phiên hiện tại?")}
+          message={tr("Phiên chưa hoàn tất sẽ không được tính vào tiến độ.")}
           onClose={() => setConfirm(null)}
           onConfirm={confirm}
         />

@@ -1,3 +1,4 @@
+import { trf, useI18n } from "../../../i18n";
 export function growthStage(completed: number) {
   return completed <= 0
     ? 0
@@ -10,13 +11,17 @@ export function growthStage(completed: number) {
           : 4;
 }
 export default function GrowthPlant({ completed }: { completed: number }) {
+  useI18n();
   const stage = growthStage(completed);
   return (
     <svg
       viewBox="0 0 150 150"
       className="growth-plant"
       role="img"
-      aria-label={`Cây học tập: giai đoạn ${stage} trên 4, ${completed} phiên tập trung đã hoàn tất`}
+      aria-label={trf(
+        "Cây học tập: giai đoạn {0} trên 4, {1} phiên tập trung đã hoàn tất",
+        [stage, completed],
+      )}
       data-stage={stage}
     >
       <ellipse cx="75" cy="136" rx="45" ry="6" fill="var(--room-shadow)" />

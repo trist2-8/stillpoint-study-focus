@@ -1,4 +1,6 @@
 export type Mode = "FOCUS" | "SHORT_BREAK" | "LONG_BREAK";
+export type Language = "vi" | "en";
+export type RoomScene = "study" | "library" | "cafe" | "forest";
 export interface StudyTask {
   id: string;
   title: string;
@@ -24,6 +26,8 @@ export interface FocusSession {
 }
 export interface UserSettings {
   theme: "light" | "dark" | "system";
+  language: Language;
+  scene: RoomScene;
   focusDuration: number;
   shortBreakDuration: number;
   longBreakDuration: number;
@@ -50,13 +54,15 @@ export interface TimerState {
 }
 export const defaults: UserSettings = {
   theme: "dark",
+  language: "vi",
+  scene: "study",
   palette: "lavender",
   focusDuration: 25,
   shortBreakDuration: 5,
   longBreakDuration: 15,
   longBreakInterval: 4,
-  autoStartBreaks: false,
-  autoStartFocus: false,
+  autoStartBreaks: true,
+  autoStartFocus: true,
   dailyFocusGoal: 120,
   dailySessionGoal: 6,
   soundEnabled: false,

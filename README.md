@@ -33,11 +33,11 @@ npm run build
 - `src/components/ui.tsx`: shared buttons, cards, dialogs, and progress.
 - `src/styles/`: centralized palette and responsive styling; Tailwind Vite integration.
 
-Timer deadlines survive refresh. Reset/skip do not create completed records. Completion IDs prevent duplicate credit. Pause excludes paused time. The next session waits for explicit input unless auto-start is enabled. Restoring an overdue timer records one completed session; it does not fabricate a chain of unattended sessions.
+Timer deadlines survive refresh. Reset/skip do not create completed records. Completion IDs prevent duplicate credit. Pause excludes paused time. New installations enable automatic focus/break cycles by default; saved preferences are preserved. A full cycle uses short breaks, replaces every configured Nth break with a long break, and then returns to focus. Pausing suspends the loop. When automatic transitions are enabled, elapsed phases are restored from their deadlines after a background gap, counted exactly once. Catch-up is bounded to 1,000 transitions, then pauses for review. Disabling automatic transitions keeps the explicit completion screen.
 
 Completed focus duration is allocated to the local completion date, saved on the record. Historical date keys stay stable after timezone changes. Breaks are recorded but excluded from focus metrics. Completing a Pomodoro increments task progress without completing the task.
 
-Data stays in localStorage. Browser storage errors produce an in-app message. No accounts, cloud sync, or backend are included. Use one active tab: concurrent multi-tab editing is not coordinated. Backward clock jumps beyond the session window pause the timer; forward clock jumps are treated as elapsed wall time. Sound and browser notifications depend on browser permissions and autoplay policies.
+Data stays in localStorage. Browser storage errors produce an in-app message. No accounts, cloud sync, or backend are included. Use one active tab: concurrent multi-tab editing is not coordinated. Backward clock jumps beyond the session window pause the timer; forward clock jumps are treated as elapsed wall time. Sound and browser notifications depend on browser permissions and autoplay policies. The tab title displays the remaining time first, followed by the Vietnamese phase or paused state; the lotus favicon changes color for breaks. Background tab scheduling can be throttled by the browser, so the display catches up from stored timestamps on return. Closing the browser cannot keep a visible countdown running.
 
 ## Validation record
 
@@ -63,3 +63,9 @@ Toàn bộ giao diện sử dụng tiếng Việt, bao gồm Việc học, Cài 
 Cài đặt → Bảng màu có Hoa oải hương, Đêm xanh và Rừng yên tĩnh; mỗi bảng màu hỗ trợ sáng/tối và lưu lựa chọn trên trình duyệt. Mặc định người mới dùng giao diện tối. Cài đặt có thể mở cả từ thanh điều hướng di động.
 
 Hướng thiết kế và các skill đã dùng được ghi trong DESIGN.md. Kiểm thử responsive bao phủ 320–1920px, ba trang, ba bảng màu và hai chế độ sáng/tối; có kiểm tra tỷ lệ tương phản chữ chú thích lịch học tối thiểu 4.5:1.
+
+## Settings review
+
+Settings now offer rhythm presets, numeric durations, a cycle preview, theme and palette cards, daily goals, sound preview, and browser notification options. Appearance changes preview locally and revert on Cancel/Escape; Save applies the draft atomically after validation and permission checks. The dialog keeps its header and actions visible while its content scrolls. Existing saved auto-start choices are respected; enable “Tự động lặp chu kỳ” to opt in.
+
+Git push and Vercel deployment remain pending user review.

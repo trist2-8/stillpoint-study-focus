@@ -4,3 +4,7 @@ test-results/
 playwright-report/
 *.tsbuildinfo
 vite-local*.log
+.env
+.env.local
+.env.*.local
+.vercel/

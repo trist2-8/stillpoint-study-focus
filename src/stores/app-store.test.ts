@@ -19,11 +19,92 @@ beforeEach(() => {
   vi.setSystemTime(new Date(2026, 10, 14, 10));
   localStorage.clear();
   useApp.setState({
-    settings: { ...defaults },
+    settings: { ...defaults, autoStartBreaks: false, autoStartFocus: false },
     tasks: [],
     sessions: [],
     timer: idle("FOCUS", defaults),
     toast: "",
+  });
+});
+
+describe("automatic cycle", () => {
+  it("runs two cycles with long breaks and credits only completed focus sessions", () => {
+    useApp.getState().settingsSave({
+      ...defaults,
+      focusDuration: 1,
+      shortBreakDuration: 1,
+      longBreakDuration: 2,
+      longBreakInterval: 2,
+      autoStartBreaks: true,
+      autoStartFocus: true,
+    });
+    useApp.getState().putTask(task);
+    useApp.getState().selectTask(task.id);
+    useApp.getState().timerAction("start");
+    for (let cycle = 0; cycle < 2; cycle++) {
+      vi.advanceTimersByTime(60000);
+      useApp.getState().tick();
+      expect(useApp.getState().timer.mode).toBe("SHORT_BREAK");
+      vi.advanceTimersByTime(60000);
+      useApp.getState().tick();
+      expect(useApp.getState().timer.mode).toBe("FOCUS");
+      vi.advanceTimersByTime(60000);
+      useApp.getState().tick();
+      expect(useApp.getState().timer.mode).toBe("LONG_BREAK");
+      vi.advanceTimersByTime(120000);
+      useApp.getState().tick();
+      expect(useApp.getState().timer.mode).toBe("FOCUS");
+      expect(useApp.getState().timer.status).toBe("RUNNING");
+    }
+    expect(useApp.getState().tasks[0].completedPomodoros).toBe(4);
+    expect(useApp.getState().sessions).toHaveLength(8);
+  });
+  it("catches up after background throttling using exact deadlines without duplicate records", () => {
+    useApp.getState().settingsSave({
+      ...defaults,
+      focusDuration: 1,
+      shortBreakDuration: 1,
+      longBreakDuration: 2,
+      longBreakInterval: 2,
+    });
+    useApp.getState().timerAction("start");
+    const startedAt = Date.now();
+    vi.advanceTimersByTime(330000);
+    useApp.getState().tick();
+    expect(useApp.getState().timer.mode).toBe("FOCUS");
+    expect(useApp.getState().timer.deadlineAt).toBe(startedAt + 360000);
+    expect(
+      useApp
+        .getState()
+        .sessions.map((session) => session.completedAt - startedAt),
+    ).toEqual([60000, 120000, 180000, 300000]);
+    useApp.getState().tick();
+    expect(useApp.getState().sessions).toHaveLength(4);
+  });
+  it("pause stops the loop and a running duration is preserved when settings change", () => {
+    useApp.getState().settingsSave({ ...defaults, focusDuration: 1 });
+    useApp.getState().timerAction("start");
+    const deadline = useApp.getState().timer.deadlineAt;
+    useApp
+      .getState()
+      .settingsSave({ ...useApp.getState().settings, focusDuration: 50 });
+    expect(useApp.getState().timer.deadlineAt).toBe(deadline);
+    vi.advanceTimersByTime(10000);
+    useApp.getState().timerAction("pause");
+    vi.advanceTimersByTime(3600000);
+    useApp.getState().tick();
+    expect(useApp.getState().sessions).toHaveLength(0);
+    expect(useApp.getState().timer.remainingMs).toBe(50000);
+    useApp.getState().timerAction("start");
+    vi.advanceTimersByTime(50000);
+    useApp.getState().tick();
+    expect(useApp.getState().timer.mode).toBe("SHORT_BREAK");
+    useApp
+      .getState()
+      .settingsSave({ ...useApp.getState().settings, autoStartFocus: false });
+    vi.advanceTimersByTime(300000);
+    useApp.getState().tick();
+    expect(useApp.getState().timer.status).toBe("COMPLETED");
   });
 });
 afterEach(() => vi.useRealTimers());

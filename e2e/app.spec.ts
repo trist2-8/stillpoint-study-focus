@@ -54,10 +54,8 @@ test("mobile settings persist palette, theme and durations", async ({
   await page.goto("/");
   await page.getByRole("button", { name: "Mở cài đặt", exact: true }).click();
   await page.getByLabel("Tập trung (phút)", { exact: true }).fill("1");
-  await page
-    .getByLabel("Chế độ sáng tối", { exact: true })
-    .selectOption("light");
-  await page.getByLabel("Bảng màu", { exact: true }).selectOption("forest");
+  await page.getByRole("radio", { name: "Sáng", exact: true }).check();
+  await page.getByRole("radio", { name: /Rừng yên tĩnh/ }).check();
   await page.getByRole("button", { name: "Lưu cài đặt" }).click();
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("data-palette", "forest");
@@ -96,8 +94,9 @@ test("deadline restoration and both calendars reflect only completed focus sessi
   await page.evaluate(() =>
     document.dispatchEvent(new Event("visibilitychange")),
   );
+  await expect(page.getByLabel("Chế độ phiên")).toHaveValue("SHORT_BREAK");
   await expect(
-    page.getByRole("button", { name: "Tiếp theo: Nghỉ ngắn" }),
+    page.getByRole("button", { name: "Tạm dừng", exact: true }),
   ).toBeVisible();
   await expect(
     page.locator('.activity-grid button[data-level="1"]'),

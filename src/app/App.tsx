@@ -1,3 +1,5 @@
+import FloatingTimer from "../features/focus/FloatingTimer";
+import { tr, useI18n, locale, setLanguage } from "../i18n";
 import { lazy, Suspense, useEffect, useState } from "react";
 import {
   NavLink,
@@ -20,13 +22,15 @@ import {
 import { useApp } from "../stores/app-store";
 import { IconButton } from "../components/ui";
 import FocusPage from "../features/focus/FocusPage";
-import SettingsModal from "../features/settings/SettingsModal";
+const SettingsModal = lazy(() => import("../features/settings/SettingsModal"));
+import { applyAppearance } from "../features/settings/appearance";
+import { timerTabTitle } from "../features/focus/domain/timer-tab";
 const TasksPage = lazy(() => import("../features/tasks/TasksPage"));
 const InsightsPage = lazy(() => import("../features/analytics/InsightsPage"));
 const links = [
-  { path: "/", label: "Tập trung", icon: Play },
-  { path: "/tasks", label: "Việc học", icon: ListTodo },
-  { path: "/insights", label: "Tiến độ", icon: ChartNoAxesCombined },
+  { path: "/", label: tr("Tập trung"), icon: Play },
+  { path: "/tasks", label: tr("Việc học"), icon: ListTodo },
+  { path: "/insights", label: tr("Tiến độ"), icon: ChartNoAxesCombined },
 ];
 function Navigation({
   mobile = false,
@@ -35,35 +39,38 @@ function Navigation({
   mobile?: boolean;
   onSettings?: () => void;
 }) {
+  useI18n();
   return (
     <nav
-      aria-label={mobile ? "Điều hướng di động" : "Điều hướng chính"}
+      aria-label={mobile ? tr("Điều hướng di động") : tr("Điều hướng chính")}
       className={mobile ? "mobile-nav" : "nav"}
     >
       {links.map(({ path, label, icon: Icon }) => (
-        <NavLink end={path === "/"} key={path} to={path} title={label}>
+        <NavLink end={path === "/"} key={path} to={path} title={tr(label)}>
           <Icon size={20} />
-          <span className="nav-label">{label}</span>
+          <span className="nav-label">{tr(label)}</span>
         </NavLink>
       ))}
       {mobile && (
         <button
           className="mobile-settings"
-          aria-label="Mở cài đặt"
+          aria-label={tr("Mở cài đặt")}
           onClick={onSettings}
         >
           <Settings size={20} />
-          <span>Cài đặt</span>
+          <span>{tr("Cài đặt")}</span>
         </button>
       )}
     </nav>
   );
 }
 export default function App() {
+  useI18n();
   const [collapsed, setCollapsed] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const settings = useApp((s) => s.settings);
   const toast = useApp((s) => s.toast);
+  const timer = useApp((state) => state.timer);
   const location = useLocation();
   const [now, setNow] = useState(new Date());
   useEffect(() => {
@@ -82,22 +89,27 @@ export default function App() {
     };
   }, []);
   useEffect(() => {
+    setLanguage(settings.language ?? "vi");
+    document.documentElement.lang = settings.language ?? "vi";
+  }, [settings.language]);
+  useEffect(() => {
     const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const apply = () => {
-      document.documentElement.dataset.theme =
-        settings.theme === "system"
-          ? media.matches
-            ? "dark"
-            : "light"
-          : settings.theme;
-    };
+    const apply = () => applyAppearance(settings);
     apply();
     media.addEventListener("change", apply);
     return () => media.removeEventListener("change", apply);
-  }, [settings.theme]);
+  }, [settings.theme, settings.palette]);
   useEffect(() => {
-    document.documentElement.dataset.palette = settings.palette ?? "lavender";
-  }, [settings.palette]);
+    document.title = timerTabTitle(timer, now.getTime());
+    const favicon = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+    if (favicon)
+      favicon.href =
+        timer.status === "RUNNING"
+          ? timer.mode === "FOCUS"
+            ? "/favicon.svg"
+            : "/favicon-break.svg"
+          : "/favicon.svg";
+  }, [timer, now]);
   useEffect(() => {
     if (!toast) return;
     const id = setTimeout(() => useApp.getState().notify(""), 6000);
@@ -114,7 +126,11 @@ export default function App() {
       className={`shell reference-shell ${collapsed ? "collapsed" : ""} ${location.pathname === "/" ? "is-focus" : ""}`}
     >
       <aside className="sidebar">
-        <NavLink to="/" className="brand" aria-label="Trang chủ Focus Flow">
+        <NavLink
+          to="/"
+          className="brand"
+          aria-label={tr("Trang chủ Focus Flow")}
+        >
           <span className="brand-icon">
             <svg viewBox="0 0 100 80" aria-hidden="true">
               <defs>
@@ -136,31 +152,31 @@ export default function App() {
         </NavLink>
         <div>
           <p className="brand-tagline">
-            Tìm nhịp học của bạn.
+            {tr("Tìm nhịp học của bạn.")}
             <br />
-            Từng phiên học, từng bước tiến.
+            {tr("Từng phiên học, từng bước tiến.")}
           </p>
           <Navigation />
           <button
             className="sidebar-settings"
-            aria-label="Mở cài đặt"
+            aria-label={tr("Mở cài đặt")}
             onClick={() => setSettingsOpen(true)}
           >
             <Settings size={22} />
-            <span className="nav-label">Cài đặt</span>
+            <span className="nav-label">{tr("Cài đặt")}</span>
           </button>
         </div>
         <div className="sidebar-bottom">
           <button
             className="theme-switch"
-            aria-label="Đổi giao diện sáng tối"
+            aria-label={tr("Đổi giao diện sáng tối")}
             onClick={toggleTheme}
           >
             <span className="theme-options">
               <Sun size={21} />
               <Moon size={21} />
             </span>
-            <span className="nav-label">Sáng / Tối</span>
+            <span className="nav-label">{tr("Sáng / Tối")}</span>
           </button>
           <button
             className="profile text-button"
@@ -170,13 +186,16 @@ export default function App() {
               🌸
             </span>
             <span style={{ textAlign: "left" }}>
-              Góc học của bạn<small>Từng bước một.</small>
+              {tr("Góc học của bạn")}
+              <small>{tr("Từng bước một.")}</small>
             </span>
           </button>
           <button
             className="sidebar-collapse"
             aria-expanded={!collapsed}
-            aria-label={collapsed ? "Mở thanh bên" : "Thu gọn thanh bên"}
+            aria-label={
+              collapsed ? tr("Mở thanh bên") : tr("Thu gọn thanh bên")
+            }
             onClick={() => setCollapsed(!collapsed)}
           >
             {collapsed ? (
@@ -191,33 +210,34 @@ export default function App() {
         <header className="header">
           <div className="header-left">
             <IconButton
-              label={collapsed ? "Mở thanh bên" : "Thu gọn thanh bên"}
+              label={collapsed ? tr("Mở thanh bên") : tr("Thu gọn thanh bên")}
               onClick={() => setCollapsed(!collapsed)}
             >
               <PanelLeftClose />
             </IconButton>
             <span>
-              Phòng học của bạn <span style={{ margin: "0 12px" }}> / </span>
+              {tr("Phòng học của bạn")}
+              <span style={{ margin: "0 12px" }}> / </span>
               <strong>
                 {links.find((l) => l.path === location.pathname)?.label ??
-                  "Tập trung"}
+                  tr("Tập trung")}
               </strong>
             </span>
           </div>
           <div className="header-actions">
             <time dateTime={now.toISOString()}>
-              {now.toLocaleDateString("vi-VN", {
+              {now.toLocaleDateString(locale(), {
                 weekday: "short",
                 month: "long",
                 day: "numeric",
                 year: "numeric",
               })}
             </time>
-            <IconButton label="Đổi sáng tối" onClick={toggleTheme}>
+            <IconButton label={tr("Đổi sáng tối")} onClick={toggleTheme}>
               {settings.theme === "dark" ? <Moon /> : <Sun />}
             </IconButton>
             <IconButton
-              label="Mở cài đặt"
+              label={tr("Mở cài đặt")}
               onClick={() => setSettingsOpen(true)}
             >
               <Settings />
@@ -225,7 +245,7 @@ export default function App() {
           </div>
         </header>
         <main className="page">
-          <Suspense fallback={<p role="status">Đang mở phòng học…</p>}>
+          <Suspense fallback={<p role="status">{tr("Đang mở phòng học…")}</p>}>
             <Routes>
               <Route path="/" element={<FocusPage />} />
               <Route path="/tasks" element={<TasksPage />} />
@@ -234,18 +254,23 @@ export default function App() {
             </Routes>
           </Suspense>
           <footer className="footer">
-            <span>Từng việc một. Bạn đang làm rất tốt.</span>
-            <span>Focus Flow · Phòng học của bạn</span>
+            <span>{tr("Từng việc một. Bạn đang làm rất tốt.")}</span>
+            <span>{tr("Focus Flow · Phòng học của bạn")}</span>
           </footer>
         </main>
       </div>
       <Navigation mobile onSettings={() => setSettingsOpen(true)} />
-      {settingsOpen && <SettingsModal onClose={() => setSettingsOpen(false)} />}
+      <FloatingTimer />
+      {settingsOpen && (
+        <Suspense fallback={null}>
+          <SettingsModal onClose={() => setSettingsOpen(false)} />
+        </Suspense>
+      )}
       {toast && (
         <div className="toast" role="status">
           <span>{toast}</span>
           <button
-            aria-label="Đóng thông báo"
+            aria-label={tr("Đóng thông báo")}
             onClick={() => useApp.getState().notify("")}
           >
             <X size={16} />

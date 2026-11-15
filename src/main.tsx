@@ -7,6 +7,8 @@ import "./styles/living-room.css";
 import "./styles/reference.css";
 import "./styles/focus.css";
 import "./styles/palettes.css";
+import "./styles/settings.css";
+import "./styles/features.css";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>

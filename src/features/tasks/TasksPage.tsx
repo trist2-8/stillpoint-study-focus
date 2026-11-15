@@ -1,3 +1,4 @@
+import { trf, tr, useI18n } from "../../i18n";
 import { TaskForm } from "./TaskForm";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -14,6 +15,7 @@ import {
 import { useApp } from "../../stores/app-store";
 import type { StudyTask } from "../../types";
 export default function TasksPage() {
+  useI18n();
   const tasks = useApp((s) => s.tasks);
   const [form, setForm] = useState<StudyTask | null | undefined>(undefined);
   const [query, setQuery] = useState("");
@@ -47,51 +49,54 @@ export default function TasksPage() {
   return (
     <>
       <PageTitle
-        title="Việc học, từng bước một."
-        subtitle={`${tasks.filter((t) => t.isCompleted).length} / ${tasks.length} việc đã hoàn thành. Chọn một việc để bắt đầu phiên học.`}
+        title={tr("Việc học, từng bước một.")}
+        subtitle={trf(
+          "{0} / {1} việc đã hoàn thành. Chọn một việc để bắt đầu phiên học.",
+          [tasks.filter((t) => t.isCompleted).length, tasks.length],
+        )}
       >
         <Button primary onClick={() => setForm(null)}>
-          <Plus /> Thêm việc
+          <Plus /> {tr("Thêm việc")}
         </Button>
       </PageTitle>
       <div className="toolbar">
         <input
           className="input search"
-          aria-label="Tìm việc học"
-          placeholder="Tìm trong danh sách việc học…"
+          aria-label={tr("Tìm việc học")}
+          placeholder={tr("Tìm trong danh sách việc học…")}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
         <select
           className="input"
-          aria-label="Lọc việc học"
+          aria-label={tr("Lọc việc học")}
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
         >
-          <option value="all">Tất cả việc học</option>
-          <option value="active">Đang thực hiện</option>
-          <option value="completed">Đã hoàn thành</option>
+          <option value="all">{tr("Tất cả việc học")}</option>
+          <option value="active">{tr("Đang thực hiện")}</option>
+          <option value="completed">{tr("Đã hoàn thành")}</option>
         </select>
         <select
           className="input"
-          aria-label="Lọc mức ưu tiên"
+          aria-label={tr("Lọc mức ưu tiên")}
           value={priority}
           onChange={(e) => setPriority(e.target.value)}
         >
-          <option value="all">Tất cả mức ưu tiên</option>
+          <option value="all">{tr("Tất cả mức ưu tiên")}</option>
           <option value="high">Cao</option>
-          <option value="medium">Vừa</option>
-          <option value="low">Thấp</option>
+          <option value="medium">{tr("Vừa")}</option>
+          <option value="low">{tr("Thấp")}</option>
         </select>
         <select
           className="input"
-          aria-label="Sắp xếp việc học"
+          aria-label={tr("Sắp xếp việc học")}
           value={sort}
           onChange={(e) => setSort(e.target.value)}
         >
-          <option value="newest">Mới nhất</option>
-          <option value="priority">Mức ưu tiên</option>
-          <option value="due">Hạn hoàn thành</option>
+          <option value="newest">{tr("Mới nhất")}</option>
+          <option value="priority">{tr("Mức ưu tiên")}</option>
+          <option value="due">{tr("Hạn hoàn thành")}</option>
         </select>
       </div>
       <div className="task-list">
@@ -102,7 +107,8 @@ export default function TasksPage() {
           >
             <label style={{ minWidth: 28, minHeight: 44 }}>
               <span className="sr-only">
-                {task.isCompleted ? "Mở lại" : "Hoàn thành"} {task.title}
+                {task.isCompleted ? tr("Mở lại") : tr("Hoàn thành")}{" "}
+                {task.title}
               </span>
               <input
                 type="checkbox"
@@ -122,19 +128,29 @@ export default function TasksPage() {
               {task.description && <p>{task.description}</p>}
               <div className="task-meta">
                 <span className={`badge ${task.priority}`}>
-                  Mức ưu tiên:{" "}
-                  {{ high: "Cao", medium: "Vừa", low: "Thấp" }[task.priority]}
+                  {tr("Mức ưu tiên:")}{" "}
+                  {
+                    { high: "Cao", medium: tr("Vừa"), low: tr("Thấp") }[
+                      task.priority
+                    ]
+                  }
                 </span>
                 <span>
-                  {task.completedPomodoros} / {task.estimatedPomodoros} phiên
+                  {task.completedPomodoros} / {task.estimatedPomodoros}{" "}
+                  {tr("phiên")}
                 </span>
-                {task.dueAt && <span>Hạn: {task.dueAt}</span>}
+                {task.dueAt && (
+                  <span>
+                    {tr("Hạn:")}
+                    {task.dueAt}
+                  </span>
+                )}
               </div>
               <ProgressBar
                 value={
                   (task.completedPomodoros / task.estimatedPomodoros) * 100
                 }
-                label={`${task.title} · tiến độ tập trung`}
+                label={trf("{0} · tiến độ tập trung", [task.title])}
               />
             </div>
             <div className="task-actions">
@@ -147,17 +163,17 @@ export default function TasksPage() {
                     else start(task);
                   }}
                 >
-                  <Play /> Bắt đầu tập trung
+                  <Play /> {tr("Bắt đầu tập trung")}
                 </Button>
               )}
               <IconButton
-                label={`Sửa ${task.title}`}
+                label={trf("Sửa {0}", [task.title])}
                 onClick={() => setForm(task)}
               >
                 <Pencil />
               </IconButton>
               <IconButton
-                label={`Xóa ${task.title}`}
+                label={trf("Xóa {0}", [task.title])}
                 onClick={() => setDeleting(task)}
               >
                 <Trash2 />
@@ -171,17 +187,19 @@ export default function TasksPage() {
           <EmptyState
             title={
               tasks.length
-                ? "Không có việc học phù hợp."
-                : "Bắt đầu với một việc học."
+                ? tr("Không có việc học phù hợp.")
+                : tr("Bắt đầu với một việc học.")
             }
           >
             <p>
               {tasks.length
-                ? "Thử từ khóa hoặc bộ lọc khác để tìm việc học."
-                : "Thêm việc cần học, chọn mức ưu tiên và bắt đầu một phiên Pomodoro."}
+                ? tr("Thử từ khóa hoặc bộ lọc khác để tìm việc học.")
+                : tr(
+                    "Thêm việc cần học, chọn mức ưu tiên và bắt đầu một phiên Pomodoro.",
+                  )}
             </p>
             <Button primary onClick={() => setForm(null)}>
-              <Plus /> Thêm việc học
+              <Plus /> {tr("Thêm việc học")}
             </Button>
           </EmptyState>
         </Card>
@@ -191,16 +209,21 @@ export default function TasksPage() {
       )}
       {deleting && (
         <ConfirmDialog
-          title="Xóa việc học này?"
-          message={`“${deleting.title}” sẽ bị xóa. Các phiên đã hoàn tất vẫn được giữ trong Tiến độ.`}
+          title={tr("Xóa việc học này?")}
+          message={trf(
+            "“{0}” sẽ bị xóa. Các phiên đã hoàn tất vẫn được giữ trong Tiến độ.",
+            [deleting.title],
+          )}
           onClose={() => setDeleting(null)}
           onConfirm={() => useApp.getState().deleteTask(deleting.id)}
         />
       )}
       {starting && (
         <ConfirmDialog
-          title="Đổi việc đang tập trung?"
-          message="Phiên chưa hoàn tất sẽ không được ghi lại. Bạn cần bấm Bắt đầu để học việc mới."
+          title={tr("Đổi việc đang tập trung?")}
+          message={tr(
+            "Phiên chưa hoàn tất sẽ không được ghi lại. Bạn cần bấm Bắt đầu để học việc mới.",
+          )}
           onClose={() => setStarting(null)}
           onConfirm={() => start(starting)}
         />
