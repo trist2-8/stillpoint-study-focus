@@ -42,7 +42,7 @@ Data stays in localStorage. Browser storage errors produce an in-app message. No
 ## Validation record
 
 - 21 Vitest/React Testing Library tests passed.
-- 14 Chromium Playwright tests passed, including refresh/background completion, task lifecycle, keyboard dialog focus, settings, and themes.
+- 15 Chromium Playwright tests passed, including refresh/background completion, task lifecycle, keyboard dialog focus, settings, and themes.
 - All three routes checked for horizontal overflow at 360, 375, 390, 430, 768, 1024, 1280, 1440, and 1920px in light and dark themes.
 - TypeScript, ESLint, and production build passed.
 - `npm audit --omit=dev`: zero vulnerabilities. Full audit: seven moderate findings in the development-only typescript-eslint/minimatch chain. Critical test-runner findings were resolved by upgrading Vitest.
@@ -55,3 +55,11 @@ The original prototype, including the pre-existing modified HTML, is preserved i
 Original theme-aware SVG illustrations live in src/features/focus/illustrations. The Focus Orb reflects timer state without changing the timestamp engine. The optional cat sleeps, wakes during focus, celebrates completion briefly, and rests during breaks. Its visibility persists in settings; older saved settings remain compatible.
 
 The study plant progresses at 1, 4, 12, and 30 completed focus sessions. Zero completed sessions show a seed. Breaks never contribute to growth. CSS ambient effects respect prefers-reduced-motion. Mobile artwork repositions the cat and plant to keep them visible. Shared morning/midnight environmental tokens and styles are in src/styles/living-room.css.
+
+## Giao diện hiện tại
+
+Toàn bộ giao diện sử dụng tiếng Việt, bao gồm Việc học, Cài đặt, thông báo và hộp thoại. Lịch học trên Focus và Tiến độ dùng chung số phiên tập trung hoàn tất; chọn một ô để xem chi tiết.
+
+Cài đặt → Bảng màu có Hoa oải hương, Đêm xanh và Rừng yên tĩnh; mỗi bảng màu hỗ trợ sáng/tối và lưu lựa chọn trên trình duyệt. Mặc định người mới dùng giao diện tối. Cài đặt có thể mở cả từ thanh điều hướng di động.
+
+Hướng thiết kế và các skill đã dùng được ghi trong DESIGN.md. Kiểm thử responsive bao phủ 320–1920px, ba trang, ba bảng màu và hai chế độ sáng/tối; có kiểm tra tỷ lệ tương phản chữ chú thích lịch học tối thiểu 4.5:1.

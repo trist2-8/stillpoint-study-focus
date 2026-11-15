@@ -35,6 +35,7 @@ export interface UserSettings {
   soundEnabled: boolean;
   notificationEnabled: boolean;
   companionEnabled?: boolean;
+  palette?: "lavender" | "midnight" | "forest";
 }
 export interface TimerState {
   mode: Mode;
@@ -48,7 +49,8 @@ export interface TimerState {
   sessionId: string;
 }
 export const defaults: UserSettings = {
-  theme: "system",
+  theme: "dark",
+  palette: "lavender",
   focusDuration: 25,
   shortBreakDuration: 5,
   longBreakDuration: 15,

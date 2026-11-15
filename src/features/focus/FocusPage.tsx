@@ -1,25 +1,21 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+﻿import { useEffect, useMemo, useState } from "react";
 import {
+  Plus,
   Play,
   Pause,
   RotateCcw,
   SkipForward,
-  ListTodo,
-  ArrowRight,
-  Plus,
-  Leaf,
-  Clock3,
-  Flame,
-  CircleCheck,
-  Coffee,
-  Cat,
+  Bell,
+  CalendarDays,
+  MoreVertical,
+  Folder,
+  ChevronRight,
+  Sun,
 } from "lucide-react";
 import { useApp } from "../../stores/app-store";
 import {
   Button,
   ConfirmDialog,
-  EmptyState,
   IconButton,
   ProgressBar,
 } from "../../components/ui";
@@ -29,245 +25,258 @@ import {
   formatMinutes,
   streak,
 } from "../analytics/domain/analytics-calculations";
+import ActivityHeatmap from "../analytics/ActivityHeatmap";
+import { Link } from "react-router-dom";
 import type { Mode } from "../../types";
-import StudyRoom from "./illustrations/StudyRoom";
-import GrowthPlant, { growthStage } from "./illustrations/GrowthPlant";
+import ReferenceRoom from "./illustrations/ReferenceRoom";
+import GrowthPlant from "./illustrations/GrowthPlant";
 import { TaskForm } from "../tasks/TaskForm";
-const names: Record<Mode, string> = {
-  FOCUS: "Focus",
-  SHORT_BREAK: "Short break",
-  LONG_BREAK: "Long break",
+
+const modeName: Record<Mode, string> = {
+  FOCUS: "Phiên tập trung",
+  SHORT_BREAK: "Nghỉ ngắn",
+  LONG_BREAK: "Nghỉ dài",
 };
 export default function FocusPage() {
-  const timer = useApp((s) => s.timer),
-    settings = useApp((s) => s.settings),
-    sessions = useApp((s) => s.sessions),
-    tasks = useApp((s) => s.tasks);
+  const { timer, settings, sessions, tasks } = useApp();
   const [now, setNow] = useState(Date.now());
-  const [confirm, setConfirm] = useState<null | (() => void)>(null);
   const [adding, setAdding] = useState(false);
+  const [editing, setEditing] = useState<string | null>(null);
+  const [choosing, setChoosing] = useState(false);
+  const [confirm, setConfirm] = useState<null | (() => void)>(null);
   useEffect(() => {
-    if (timer.status !== "RUNNING") return;
-    const refresh = () => setNow(Date.now());
-    refresh();
-    const id = setInterval(refresh, 250);
-    document.addEventListener("visibilitychange", refresh);
-    return () => {
-      clearInterval(id);
-      document.removeEventListener("visibilitychange", refresh);
+    const tick = () => {
+      useApp.getState().tick();
+      setNow(Date.now());
     };
-  }, [timer.status]);
-  const ms = remaining(timer, { now: () => now }),
-    seconds = Math.ceil(ms / 1000);
+    tick();
+    const id = window.setInterval(tick, 250);
+    return () => window.clearInterval(id);
+  }, []);
+  const ms = remaining(timer, { now: () => now });
+  const seconds = Math.max(0, Math.ceil(ms / 1000));
   const display = `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
-  const today = aggregate(sessions, 1)[0],
-    week = aggregate(sessions, 7);
-  const total = sessions.filter(
+  const today = new Date(now).toDateString();
+  const week = useMemo(
+    () => aggregate(sessions, 7, new Date(today)),
+    [sessions, today],
+  );
+  const activity = useMemo(
+    () => aggregate(sessions, 30, new Date(today)),
+    [sessions, today],
+  );
+  const completed = sessions.filter(
     (s) => s.type === "FOCUS" && s.status === "COMPLETED",
   ).length;
-  const task = tasks.find((t) => t.id === timer.currentTaskId),
-    cycle = total % settings.longBreakInterval;
-  const next = nextMode(timer.mode, total, settings.longBreakInterval);
-  const request = (fn: () => void) => {
-    if (timer.status === "RUNNING" || timer.status === "PAUSED")
-      setConfirm(() => fn);
-    else fn();
+  const activeTask = tasks.find((t) => t.id === timer.currentTaskId);
+  const completedTasks = tasks.filter((t) => t.isCompleted).length;
+  const next = nextMode(timer.mode, completed, settings.longBreakInterval);
+  const request = (fn: () => void) =>
+    timer.status === "RUNNING" || timer.status === "PAUSED"
+      ? setConfirm(() => fn)
+      : fn();
+
+  const totalMinutes = sessions
+    .filter((s) => s.type === "FOCUS" && s.status === "COMPLETED")
+    .reduce((sum, s) => sum + s.actualDurationMs / 60000, 0);
+  const startLabel =
+    timer.status === "RUNNING"
+      ? "Tạm dừng"
+      : timer.status === "PAUSED"
+        ? "Tiếp tục"
+        : timer.status === "COMPLETED"
+          ? `Tiếp theo: ${modeName[next]}`
+          : timer.mode === "FOCUS"
+            ? "Bắt đầu tập trung"
+            : "Bắt đầu nghỉ";
+  const notifications = async () => {
+    if (!("Notification" in window)) {
+      useApp.getState().notify("Trình duyệt này không hỗ trợ thông báo.");
+      return;
+    }
+    const permission = await Notification.requestPermission();
+    useApp.getState().settingsSave({
+      ...settings,
+      notificationEnabled: permission === "granted",
+    });
+    useApp
+      .getState()
+      .notify(
+        permission === "granted"
+          ? "Đã bật thông báo kết thúc phiên."
+          : "Bạn có thể bật thông báo trong cài đặt trình duyệt.",
+      );
   };
-  const companion = settings.companionEnabled !== false;
-  const activeTasks = tasks.filter((t) => !t.isCompleted);
-  const stage = growthStage(total);
   return (
-    <div className="living-focus">
-      <div className="room-heading">
+    <div className="flow-focus-page">
+      <h1 className="sr-only">Phòng học tập trung</h1>
+      <div className="flow-welcome">
+        <Sun className="sun-badge" />
         <div>
-          <p className="eyebrow">YOUR LITTLE CORNER OF CALM</p>
-          <h1>
-            A little focus.
-            <br className="mobile-title-break" /> A little <em>growth.</em>
-          </h1>
-          <p>Leave the noise outside. There’s room for you here.</p>
+          <strong>Một khoảng yên để học.</strong>
+          <span>Chọn một việc, dành trọn một phiên.</span>
         </div>
-        <span className="world-label">
-          <span className="world-light">Lavender morning</span>
-          <span className="world-dark">Moonlit lavender</span>
-          <i className="dot" />
-        </span>
       </div>
-      <div className="living-layout">
-        <section
-          className="living-room"
-          aria-label="Living study room"
-          data-status={timer.status}
-          data-mode={timer.mode}
-        >
-          <div className="room-topline">
-            <span>
-              <i className="dot" /> THE LIVING STUDY ROOM
-            </span>
-            <button
-              className="companion-toggle"
-              aria-label={
-                companion ? "Hide study companion" : "Show study companion"
-              }
-              aria-pressed={companion}
-              title={
-                companion ? "Hide study companion" : "Show study companion"
-              }
-              onClick={() =>
-                useApp
-                  .getState()
-                  .settingsSave({ ...settings, companionEnabled: !companion })
-              }
+      <div className="flow-top-actions">
+        <time dateTime={new Date(now).toISOString()}>
+          <CalendarDays size={23} />
+          {new Date(now).toLocaleDateString("vi-VN", {
+            weekday: "short",
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          })}
+        </time>
+        <IconButton label="Bật thông báo" onClick={() => void notifications()}>
+          <Bell />
+        </IconButton>
+      </div>
+      <section className="flow-hero">
+        <div className="flow-room-wrap">
+          <ReferenceRoom
+            status={timer.status}
+            mode={timer.mode}
+            companion={settings.companionEnabled !== false}
+          />
+          <blockquote className="flow-quote">
+            Từng trang một.
+            <br />
+            Từng bước một.
+          </blockquote>
+          <div className="flow-orb-area">
+            <div
+              className="flow-orb focus-orb"
+              data-status={timer.status}
+              data-mode={timer.mode}
             >
-              <Cat size={17} />
-              <span>Companion {companion ? "on" : "off"}</span>
-            </button>
-          </div>
-          <div className="room-scene">
-            <StudyRoom
-              status={timer.status}
-              mode={timer.mode}
-              companion={companion}
-            />
-            <div className="orb-workspace">
-              <div className="mode-selector" aria-label="Session mode">
-                {(Object.keys(names) as Mode[]).map((mode) => (
+              <div className="orb-glow orb-halo" />
+              <svg viewBox="0 0 400 400" aria-hidden="true">
+                <defs>
+                  <linearGradient id="ring-purple" x1="0" y1="0" x2="1" y2="1">
+                    <stop stopColor="#ab73ff" />
+                    <stop offset=".55" stopColor="#8050f7" />
+                    <stop offset="1" stopColor="#e5b4ff" />
+                  </linearGradient>
+                </defs>
+                <circle cx="200" cy="200" r="184" className="orb-track" />
+                <circle
+                  cx="200"
+                  cy="200"
+                  r="184"
+                  className="orb-progress"
+                  strokeDasharray={2 * Math.PI * 184}
+                  strokeDashoffset={
+                    2 * Math.PI * 184 * (1 - ms / timer.durationMs)
+                  }
+                />
+                <circle cx="254" cy="24" r="11" className="orb-dot" />
+              </svg>
+              <div className="orb-content">
+                <select
+                  aria-label="Chế độ phiên"
+                  value={timer.mode}
+                  onChange={(e) =>
+                    request(() =>
+                      useApp.getState().setMode(e.target.value as Mode),
+                    )
+                  }
+                >
+                  {Object.entries(modeName).map(([value, name]) => (
+                    <option key={value} value={value}>
+                      {name}
+                    </option>
+                  ))}
+                </select>
+                <strong
+                  role="timer"
+                  aria-label={`${modeName[timer.mode]} ${display}`}
+                >
+                  {display}
+                </strong>
+                <span>
+                  {timer.mode === "FOCUS"
+                    ? "Từng bước một."
+                    : "Nghỉ ngơi một chút."}
+                </span>
+              </div>
+            </div>
+            <div className="task-picker">
+              <button
+                className="flow-current-task"
+                onClick={() => setChoosing(!choosing)}
+                aria-expanded={choosing}
+              >
+                <Folder size={22} />
+                <span>{activeTask?.title ?? "Chọn việc cho phiên này"}</span>
+                <ChevronRight size={22} />
+              </button>
+              {choosing && (
+                <div className="task-picker-menu">
+                  {tasks
+                    .filter((t) => !t.isCompleted)
+                    .map((task) => (
+                      <button
+                        key={task.id}
+                        onClick={() =>
+                          request(() => {
+                            useApp.getState().selectTask(task.id);
+                            setChoosing(false);
+                          })
+                        }
+                      >
+                        {task.title}
+                      </button>
+                    ))}
                   <button
-                    key={mode}
-                    aria-pressed={timer.mode === mode}
                     onClick={() => {
-                      if (mode !== timer.mode)
-                        request(() => useApp.getState().setMode(mode));
+                      setChoosing(false);
+                      setAdding(true);
                     }}
                   >
-                    {names[mode]}
+                    + Thêm việc học
                   </button>
-                ))}
-              </div>
-              <div
-                className="timer-circle focus-orb"
-                data-mode={timer.mode}
-                data-status={timer.status}
-              >
-                <div className="orb-halo" />
-                <svg viewBox="0 0 340 340" aria-hidden="true">
-                  <circle
-                    className="timer-track"
-                    cx="170"
-                    cy="170"
-                    r="154"
-                    fill="none"
-                    strokeWidth="1.5"
-                  />
-                  <circle
-                    className="timer-progress"
-                    cx="170"
-                    cy="170"
-                    r="154"
-                    fill="none"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeDasharray={2 * Math.PI * 154}
-                    strokeDashoffset={
-                      2 * Math.PI * 154 * (1 - ms / timer.durationMs)
-                    }
-                  />
-                  <circle
-                    className="orb-particle"
-                    cx={
-                      170 +
-                      154 * Math.cos((2 * Math.PI * ms) / timer.durationMs)
-                    }
-                    cy={
-                      170 +
-                      154 * Math.sin((2 * Math.PI * ms) / timer.durationMs)
-                    }
-                    r="4"
-                  />
-                </svg>
-                <div className="timer-inner">
-                  <Leaf size={20} />
-                  <div className="timer-caption">
-                    {timer.status === "COMPLETED"
-                      ? "A moment well spent"
-                      : timer.mode === "FOCUS"
-                        ? "Let the world wait"
-                        : "Breathe. Just be."}
-                  </div>
-                  <div
-                    className="timer-digits"
-                    role="timer"
-                    aria-label={`${names[timer.mode]} time remaining`}
-                  >
-                    {display}
-                  </div>
-                  <small>
-                    {timer.status === "RUNNING"
-                      ? "One thing. One quiet moment."
-                      : timer.status === "PAUSED"
-                        ? "Your little world can wait."
-                        : timer.status === "COMPLETED"
-                          ? "Look at you, growing."
-                          : "Settle in. Begin when you’re ready."}
-                  </small>
                 </div>
-              </div>
-              <p className="sr-only" aria-live="polite">
-                {names[timer.mode]} session {timer.status.toLowerCase()}
-              </p>
+              )}
             </div>
-          </div>
-          <div className="room-controls">
-            <div className="active-task">
-              <ListTodo size={14} />
-              <span>
-                {task
-                  ? task.title
-                  : "An open moment. Choose a task, or simply begin."}
-              </span>
-            </div>
-            <div className="timer-controls">
+            <div className="flow-controls">
+              <Button
+                primary
+                aria-label={startLabel}
+                onClick={() =>
+                  useApp
+                    .getState()
+                    .timerAction(
+                      timer.status === "RUNNING"
+                        ? "pause"
+                        : timer.status === "COMPLETED"
+                          ? "next"
+                          : "start",
+                    )
+                }
+              >
+                {timer.status === "RUNNING" ? (
+                  <Pause fill="currentColor" />
+                ) : (
+                  <Play fill="currentColor" />
+                )}
+                {timer.status === "RUNNING"
+                  ? "Tạm dừng"
+                  : timer.status === "PAUSED"
+                    ? "Tiếp tục"
+                    : timer.status === "COMPLETED"
+                      ? "Tiếp theo"
+                      : "Bắt đầu"}
+              </Button>
               <IconButton
-                label="Reset timer"
+                label="Đặt lại phiên"
                 onClick={() =>
                   request(() => useApp.getState().timerAction("reset"))
                 }
               >
                 <RotateCcw />
               </IconButton>
-              <Button
-                primary
-                onClick={() =>
-                  useApp
-                    .getState()
-                    .timerAction(
-                      timer.status === "COMPLETED"
-                        ? "next"
-                        : timer.status === "RUNNING"
-                          ? "pause"
-                          : "start",
-                    )
-                }
-              >
-                {timer.status === "RUNNING" ? (
-                  <Pause />
-                ) : timer.status === "COMPLETED" ? (
-                  <Coffee />
-                ) : (
-                  <Play />
-                )}
-                {timer.status === "RUNNING"
-                  ? "Pause"
-                  : timer.status === "PAUSED"
-                    ? "Resume"
-                    : timer.status === "COMPLETED"
-                      ? `Next: ${names[next]}`
-                      : timer.mode === "FOCUS"
-                        ? "Start focus"
-                        : "Start break"}
-              </Button>
               <IconButton
-                label="Skip session"
+                label="Bỏ qua phiên"
                 onClick={() =>
                   request(() => useApp.getState().timerAction("skip"))
                 }
@@ -275,200 +284,153 @@ export default function FocusPage() {
                 <SkipForward />
               </IconButton>
             </div>
-            <div className="room-cycle">
-              <div
-                className="session-dots"
-                aria-label={`${cycle} of ${settings.longBreakInterval} sessions toward a long break`}
-              >
-                {Array.from({ length: settings.longBreakInterval }, (_, i) => (
-                  <i key={i} className={i < cycle ? "done" : ""} />
-                ))}
-              </div>
-              <span>
-                A longer exhale every {settings.longBreakInterval} sessions
-              </span>
-            </div>
           </div>
-        </section>
-        <aside className="room-tasks">
-          <div className="room-tasks-heading">
-            <div>
-              <p className="eyebrow">ONE THING AT A TIME</p>
-              <h2>Today’s intentions</h2>
-            </div>
-            <IconButton label="Add task" onClick={() => setAdding(true)}>
+        </div>
+        <aside className="flow-tasks">
+          <div className="flow-panel-title">
+            <h2>Việc học của bạn</h2>
+            <Button primary onClick={() => setAdding(true)}>
               <Plus />
-            </IconButton>
+              Thêm việc
+            </Button>
           </div>
-          <p className="intentions-summary">
-            {activeTasks.length} waiting ·{" "}
-            {tasks.filter((t) => t.isCompleted).length} complete
+          <p className="flow-summary">
+            <b>{completedTasks}</b> / {tasks.length} việc đã hoàn thành
           </p>
-          <div className="room-task-list">
-            {activeTasks.slice(0, 4).map((t) => (
-              <article
-                className={`room-task ${task?.id === t.id ? "selected" : ""}`}
-                key={t.id}
+          <ProgressBar
+            value={tasks.length ? (completedTasks / tasks.length) * 100 : 0}
+            label="Việc học đã hoàn thành"
+          />
+          <div className="flow-task-list">
+            {tasks.slice(0, 4).map((task) => (
+              <div
+                className={`flow-task ${task.isCompleted ? "is-done" : ""}`}
+                key={task.id}
               >
-                <label className="room-task-check">
+                <label>
                   <input
+                    aria-label={`${task.isCompleted ? "Mở lại" : "Hoàn thành"} ${task.title}`}
                     type="checkbox"
-                    aria-label={`Complete ${t.title}`}
-                    checked={t.isCompleted}
+                    checked={task.isCompleted}
                     onChange={() =>
                       useApp.getState().putTask({
-                        ...t,
-                        isCompleted: true,
+                        ...task,
+                        isCompleted: !task.isCompleted,
                         updatedAt: Date.now(),
                       })
                     }
                   />
+                  <span />
                 </label>
-                <div>
-                  <h3>{t.title}</h3>
-                  <span className="task-session-count">
-                    {t.completedPomodoros} / {t.estimatedPomodoros} sessions{" "}
-                    <span
-                      className={`priority-dot ${t.priority}`}
-                      title={`${t.priority} priority`}
-                    />
+                <button
+                  className="task-title"
+                  onClick={() =>
+                    request(() => useApp.getState().selectTask(task.id))
+                  }
+                >
+                  {task.title}
+                </button>
+                {!task.isCompleted && task.priority !== "low" && (
+                  <span className={`priority-tag ${task.priority}`}>
+                    {task.priority === "high" ? "Cao" : "Vừa"}
                   </span>
-                  <button
-                    className="text-button"
-                    onClick={() =>
-                      request(() => useApp.getState().selectTask(t.id))
-                    }
-                  >
-                    <Play size={12} />
-                    {task?.id === t.id
-                      ? "Selected for focus"
-                      : "Make this my focus"}
-                  </button>
-                </div>
-              </article>
+                )}
+                <button
+                  className="task-options"
+                  aria-label={`Sửa ${task.title}`}
+                  onClick={() => setEditing(task.id)}
+                >
+                  <MoreVertical size={21} />
+                </button>
+              </div>
             ))}
-            {!activeTasks.length && (
-              <EmptyState title="A fresh page, just for you.">
-                <p>Give your next quiet moment a little intention.</p>
-                <Button onClick={() => setAdding(true)}>
-                  <Plus /> Add an intention
-                </Button>
-              </EmptyState>
+            {!tasks.length && (
+              <button
+                className="flow-empty-task"
+                onClick={() => setAdding(true)}
+              >
+                Bạn muốn học gì trong phiên này?
+                <span>+ Thêm việc học đầu tiên</span>
+              </button>
             )}
           </div>
-          <Link to="/tasks" className="text-button all-intentions">
-            All your tasks <ArrowRight size={14} />
+          <Link className="flow-link" to="/tasks">
+            Xem tất cả việc học <ChevronRight size={16} />
           </Link>
-          <div className="room-daily-goal">
-            <div className="row">
-              <Leaf size={17} />
-              <h3>A gentle goal</h3>
-            </div>
-            <div className="daily-goal-value">
-              <strong>{today.sessions}</strong>
-              <span>/ {settings.dailySessionGoal} focus sessions</span>
-            </div>
-            <ProgressBar
-              value={(today.sessions / settings.dailySessionGoal) * 100}
-              label="Daily session goal"
-            />
-            <p>
-              {today.sessions >= settings.dailySessionGoal
-                ? "You made space for yourself. Well done."
-                : "No rush. Every little moment counts."}
-            </p>
-          </div>
-          <blockquote className="room-note">
-            “Almost everything will work again if you unplug it for a few
-            minutes, including you.”<cite>A LITTLE REMINDER TO BREATHE</cite>
-          </blockquote>
         </aside>
-      </div>
-      <section
-        className="living-progress"
-        aria-label="Your real study progress"
-      >
-        <div className="plant-progress">
-          <GrowthPlant completed={total} />
-          <div>
-            <p className="eyebrow">GROW AT YOUR OWN PACE</p>
-            <h2>
-              {
-                [
-                  "Every garden starts somewhere.",
-                  "A small beginning.",
-                  "Taking root, finding rhythm.",
-                  "Quietly, you’re growing.",
-                  "Look how far you’ve grown.",
-                ][stage]
-              }
-            </h2>
-            <p>
-              {total === 0
-                ? "Your first focus session plants the beginning."
-                : `${total} completed focus sessions. A little more life, one moment at a time.`}
-            </p>
+      </section>
+      <section className="flow-bottom">
+        <article className="flow-card progress-card">
+          <div className="flow-card-head">
+            <h2>Nhịp học trong tuần</h2>
+            <span>7 ngày qua</span>
           </div>
-        </div>
-        <div className="progress-facts">
-          {[
-            {
-              icon: Clock3,
-              value: formatMinutes(today.minutes),
-              label: "Focused today",
-            },
-            {
-              icon: CircleCheck,
-              value: today.sessions,
-              label: "Little steps today",
-            },
-            {
-              icon: Flame,
-              value: `${streak(sessions)} days`,
-              label: "Coming back to yourself",
-            },
-          ].map(({ icon: Icon, value, label }) => (
-            <div key={label}>
-              <Icon size={16} />
-              <strong>{value}</strong>
-              <span>{label}</span>
-            </div>
-          ))}
-        </div>
-        <div className="week-rhythm">
-          <div className="row">
-            <span className="eyebrow">YOUR WEEK, GENTLY</span>
-            <Link to="/insights" aria-label="View study insights">
-              <ArrowRight size={16} />
-            </Link>
-          </div>
-          <div className="rhythm-bars">
+          <div
+            className="week-chart"
+            role="img"
+            aria-label={`Thời gian học bảy ngày qua: ${week.map((day) => `${day.label}: ${formatMinutes(day.minutes)}`).join(", ")}`}
+          >
             {week.map((d) => (
-              <div
-                key={d.date}
-                title={`${d.label}: ${formatMinutes(d.minutes)}`}
-              >
+              <div key={d.date}>
                 <span
+                  title={`${d.minutes} phút`}
                   style={{
-                    height: `${Math.max(3, (d.minutes / Math.max(1, ...week.map((day) => day.minutes))) * 44)}px`,
+                    minHeight: d.minutes ? 8 : 0,
+                    height: `${(d.minutes / Math.max(1, ...week.map((x) => x.minutes))) * 100}%`,
                   }}
-                  data-empty={d.minutes === 0}
                 />
                 <small>
-                  {new Date(`${d.date}T12:00:00`).toLocaleDateString("en", {
-                    weekday: "narrow",
+                  {new Date(`${d.date}T12:00:00`).toLocaleDateString("vi-VN", {
+                    weekday: "short",
                   })}
                 </small>
               </div>
             ))}
           </div>
-        </div>
+          {!week.some((day) => day.minutes) && (
+            <p className="flow-chart-empty">
+              Hoàn tất một phiên để bắt đầu ghi lại nhịp học.
+            </p>
+          )}
+        </article>
+        <article className="flow-card analytics-card">
+          <div className="flow-card-head">
+            <h2>Tích lũy từng phiên</h2>
+            <span className="trend-chip">
+              {streak(sessions)} ngày liên tiếp
+            </span>
+          </div>
+          <strong className="analytics-number">
+            {formatMinutes(totalMinutes)}
+          </strong>
+          <small>Thời gian tập trung đã hoàn tất</small>
+          <span className="analytics-caption">
+            {completed} phiên học · Cây lớn lên sau mỗi phiên hoàn tất.
+          </span>
+
+          <div className="growth-mini">
+            <GrowthPlant completed={completed} />
+          </div>
+        </article>
+        <article className="flow-card heat-card">
+          <div className="flow-card-head">
+            <h2>Lịch học của bạn</h2>
+            <span>30 ngày qua</span>
+          </div>
+          <ActivityHeatmap days={activity} />
+        </article>
       </section>
       {adding && <TaskForm task={null} onClose={() => setAdding(false)} />}
+      {editing && (
+        <TaskForm
+          task={tasks.find((t) => t.id === editing) ?? null}
+          onClose={() => setEditing(null)}
+        />
+      )}
       {confirm && (
         <ConfirmDialog
-          title="Leave this session?"
-          message="This unfinished session will be discarded and won’t count toward your progress."
+          title="Rời phiên hiện tại?"
+          message="Phiên chưa hoàn tất sẽ không được tính vào tiến độ."
           onClose={() => setConfirm(null)}
           onConfirm={confirm}
         />

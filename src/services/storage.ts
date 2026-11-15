@@ -26,6 +26,11 @@ export function validSettings(v: unknown): v is UserSettings {
     return false;
   if (!object(v) || !["light", "dark", "system"].includes(String(v.theme)))
     return false;
+  if (
+    v.palette !== undefined &&
+    !["lavender", "midnight", "forest"].includes(String(v.palette))
+  )
+    return false;
   return (
     ["focusDuration", "shortBreakDuration", "longBreakDuration"].every(
       (k) => finite(v[k]) && Number.isInteger(v[k]) && v[k] >= 1 && v[k] <= 180,

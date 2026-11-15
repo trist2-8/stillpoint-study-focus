@@ -16,7 +16,7 @@ export default function GrowthPlant({ completed }: { completed: number }) {
       viewBox="0 0 150 150"
       className="growth-plant"
       role="img"
-      aria-label={`Study plant: growth stage ${stage} of 4, ${completed} completed focus sessions`}
+      aria-label={`Cây học tập: giai đoạn ${stage} trên 4, ${completed} phiên tập trung đã hoàn tất`}
       data-stage={stage}
     >
       <ellipse cx="75" cy="136" rx="45" ry="6" fill="var(--room-shadow)" />

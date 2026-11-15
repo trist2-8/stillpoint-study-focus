@@ -25,15 +25,12 @@ export function TaskForm({
   );
   const [error, setError] = useState("");
   return (
-    <Modal
-      title={task ? "Edit your task" : "Make room for a new task"}
-      onClose={onClose}
-    >
+    <Modal title={task ? "Sửa việc học" : "Thêm việc học"} onClose={onClose}>
       <form
         onSubmit={(e) => {
           e.preventDefault();
           if (!draft.title.trim()) {
-            setError("Give your task a title.");
+            setError("Hãy nhập tên việc học.");
             return;
           }
           useApp.getState().putTask({
@@ -43,13 +40,13 @@ export function TaskForm({
           });
           useApp
             .getState()
-            .notify(task ? "Task updated." : "Your next step is ready.");
+            .notify(task ? "Đã cập nhật việc học." : "Đã thêm việc học.");
           onClose();
         }}
       >
         <div className="form-grid">
           <label className="field full">
-            Task title
+            Tên việc học
             <input
               autoFocus
               className="input"
@@ -57,11 +54,11 @@ export function TaskForm({
               maxLength={160}
               value={draft.title}
               onChange={(e) => setDraft({ ...draft, title: e.target.value })}
-              placeholder="What would you like to work on?"
+              placeholder="Bạn muốn học gì?"
             />
           </label>
           <label className="field full">
-            Description (optional)
+            Mô tả (không bắt buộc)
             <textarea
               className="input"
               rows={3}
@@ -73,7 +70,7 @@ export function TaskForm({
             />
           </label>
           <label className="field">
-            Priority
+            Mức ưu tiên
             <select
               className="input"
               value={draft.priority}
@@ -84,13 +81,13 @@ export function TaskForm({
                 })
               }
             >
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
+              <option value="low">Thấp</option>
+              <option value="medium">Vừa</option>
+              <option value="high">Cao</option>
             </select>
           </label>
           <label className="field">
-            Estimated Pomodoros
+            Số phiên dự kiến
             <input
               className="input"
               type="number"
@@ -108,7 +105,7 @@ export function TaskForm({
             />
           </label>
           <label className="field full">
-            Due date (optional)
+            Hạn hoàn thành (không bắt buộc)
             <input
               className="input"
               type="date"
@@ -126,10 +123,10 @@ export function TaskForm({
         )}
         <div className="form-actions">
           <Button type="button" onClick={onClose}>
-            Cancel
+            Hủy
           </Button>
           <Button primary type="submit">
-            {task ? "Save changes" : "Create task"}
+            {task ? "Lưu thay đổi" : "Tạo việc học"}
           </Button>
         </div>
       </form>

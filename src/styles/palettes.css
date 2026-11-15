@@ -1,0 +1,197 @@
+:root[data-palette="midnight"] {
+  --background: #e9eff7;
+  --surface: #f8faff;
+  --surface-secondary: #dde6f3;
+  --primary: #295fc2;
+  --primary-hover: #234f9f;
+  --primary-soft: #dbe7ff;
+  --accent: #aec8ff;
+  --text-primary: #15263e;
+  --text-secondary: #435a77;
+  --border: #bfccdf;
+}
+:root[data-palette="forest"] {
+  --background: #e8efe9;
+  --surface: #f7faf5;
+  --surface-secondary: #dfe9df;
+  --primary: #276347;
+  --primary-hover: #1e5239;
+  --primary-soft: #d2e6d8;
+  --accent: #a5cfb4;
+  --text-primary: #163325;
+  --text-secondary: #425d4c;
+  --border: #b9cdbe;
+}
+:root[data-theme="dark"] {
+  --primary: #a68be8;
+  --primary-hover: #c5b0ff;
+  --text-secondary: #d6cbe6;
+}
+:root[data-theme="dark"][data-palette="midnight"] {
+  --background: #111b2b;
+  --surface: #19273b;
+  --surface-secondary: #23344c;
+  --primary: #83aef9;
+  --primary-hover: #afccff;
+  --primary-soft: #273e60;
+  --accent: #456da8;
+  --text-primary: #eff5ff;
+  --text-secondary: #c1cfe3;
+  --border: #3b506c;
+}
+:root[data-theme="dark"][data-palette="forest"] {
+  --background: #13231c;
+  --surface: #1c3026;
+  --surface-secondary: #284033;
+  --primary: #90c8a4;
+  --primary-hover: #b7e1c5;
+  --primary-soft: #2c4b39;
+  --accent: #508363;
+  --text-primary: #eff8f1;
+  --text-secondary: #c3d7c9;
+  --border: #405f4c;
+}
+:root[data-palette] .reference-shell .sidebar,
+:root[data-palette] .flow-tasks,
+:root[data-palette] .flow-card {
+  background: var(--surface);
+  border-color: var(--border);
+}
+:root[data-palette] .flow-welcome {
+  background: none;
+}
+:root[data-palette] .orb-content select,
+:root[data-palette] .flow-current-task,
+:root[data-palette] .flow-controls .icon-button {
+  background: var(--surface-secondary);
+  color: var(--text-primary);
+  border-color: var(--border);
+}
+:root[data-palette] .flow-card-head .trend-chip {
+  background: var(--primary-soft);
+  color: var(--text-primary) !important;
+}
+:root[data-palette] .flow-empty-task {
+  color: var(--text-secondary);
+  border-color: var(--border);
+}
+:root[data-palette] .flow-empty-task span,
+:root[data-palette] .flow-link {
+  color: var(--primary-hover);
+}
+:root[data-palette] .flow-controls .primary,
+:root[data-palette] .flow-panel-title .primary,
+:root[data-palette] .nav a.active {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: none;
+}
+:root[data-theme="dark"][data-palette] .flow-controls .primary,
+:root[data-theme="dark"][data-palette] .flow-panel-title .primary,
+:root[data-theme="dark"][data-palette] .nav a.active {
+  color: var(--background);
+}
+:root[data-palette] .reference-shell .sidebar {
+  box-shadow: none;
+}
+:root[data-palette] .reference-shell .mobile-nav {
+  background: var(--surface);
+  border-color: var(--border);
+}
+:root[data-palette] .reference-shell .mobile-nav a.active {
+  background: var(--primary-soft);
+  color: var(--text-primary);
+}
+:root[data-palette] .theme-switch,
+:root[data-palette] .theme-options {
+  background: var(--primary-soft);
+  color: var(--text-primary);
+}
+:root[data-palette] .flow-quote {
+  color: var(--text-primary);
+}
+:root[data-palette] .orb-progress {
+  stroke: var(--primary);
+  filter: none;
+}
+:root[data-palette] .orb-track {
+  stroke: var(--border);
+}
+:root[data-palette] .orb-content strong {
+  color: var(--text-primary);
+  text-shadow: none;
+}
+:root[data-palette] .analytics-caption,
+:root[data-palette] .flow-card > small {
+  color: var(--text-secondary);
+}
+:root[data-palette="midnight"] body,
+:root[data-palette="forest"] body {
+  background: var(--background);
+}
+:root[data-palette="midnight"] .reference-shell::before,
+:root[data-palette="forest"] .reference-shell::before,
+:root[data-palette="midnight"] .reference-shell::after,
+:root[data-palette="forest"] .reference-shell::after {
+  display: none;
+}
+:root[data-palette="midnight"] .reference-room-art {
+  filter: hue-rotate(310deg) saturate(0.45);
+}
+:root[data-palette="forest"] .reference-room-art {
+  filter: hue-rotate(120deg) saturate(0.35);
+}
+:root[data-palette="midnight"] .brand-icon,
+:root[data-palette="forest"] .brand-icon {
+  filter: grayscale(1);
+}
+.reference-shell .page,
+.flow-focus-page {
+  min-width: 0;
+}
+.flow-card h2,
+.flow-panel-title h2 {
+  text-wrap: balance;
+}
+
+.mobile-settings {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--text-primary);
+  background: none;
+  border: 0;
+  min-width: 56px;
+  min-height: 48px;
+  padding: 8px;
+  font-size: 11px;
+}
+
+:root[data-palette] .flow-empty-task {
+  background: var(--surface-secondary);
+}
+:root[data-palette] .orb-dot {
+  fill: var(--primary);
+  filter: none;
+}
+:root[data-palette] .flow-top-actions .icon-button {
+  background: var(--surface-secondary);
+  box-shadow: none;
+}
+:root[data-palette] .flow-tasks .progress {
+  background: var(--surface-secondary);
+}
+:root[data-palette] .flow-tasks .progress span {
+  background: var(--primary);
+}
+:root[data-palette] .flow-panel-title .button.primary {
+  background: var(--primary);
+}
+:root[data-palette] .flow-controls .button.primary {
+  background: var(--primary);
+}
+:root[data-palette] .flow-card {
+  box-shadow: none;
+}

@@ -16,6 +16,7 @@ import {
 import { Clock3, CircleCheck, Timer, ListTodo, Flame } from "lucide-react";
 import { Card, PageTitle } from "../../components/ui";
 import { useApp } from "../../stores/app-store";
+import ActivityHeatmap from "./ActivityHeatmap";
 import {
   aggregate,
   formatMinutes,
@@ -48,7 +49,7 @@ export default function InsightsPage() {
         continue;
       const label =
         tasks.find((t) => t.id === s.taskId)?.title ??
-        (s.taskId ? "Archived task" : "Open focus");
+        (s.taskId ? "Việc đã lưu" : "Tập trung tự do");
       groups.set(label, (groups.get(label) ?? 0) + 1);
     }
     return Array.from(groups, ([name, value]) => ({ name, value }));
@@ -61,26 +62,26 @@ export default function InsightsPage() {
   ];
   const empty = (
     <div className="chart-empty">
-      <p>Your rhythm will take shape here.</p>
-      <small>Complete a focus session to see your progress.</small>
+      <p>Nhịp học của bạn sẽ dần hiện ra ở đây.</p>
+      <small>Hoàn thành một phiên để xem tiến độ.</small>
     </div>
   );
   return (
     <>
       <PageTitle
-        title="See how far you’ve come."
-        subtitle="Small moments of focus add up to something meaningful."
+        title="Xem bạn đã đi xa đến đâu."
+        subtitle="Những khoảnh khắc tập trung nhỏ sẽ tạo nên điều có ý nghĩa."
       >
         <select
           className="input"
           style={{ width: 130 }}
-          aria-label="Analytics date range"
+          aria-label="Khoảng thời gian tiến độ"
           value={range}
           onChange={(e) => setRange(Number(e.target.value))}
         >
-          <option value={7}>Last 7 days</option>
-          <option value={30}>Last 30 days</option>
-          <option value={90}>Last 90 days</option>
+          <option value={7}>7 ngày qua</option>
+          <option value={30}>30 ngày qua</option>
+          <option value={90}>90 ngày qua</option>
         </select>
       </PageTitle>
       <div className="stats-grid">
@@ -88,23 +89,23 @@ export default function InsightsPage() {
           {
             icon: Clock3,
             value: formatMinutes(minutes),
-            label: "Total focus time",
+            label: "Tổng thời gian tập trung",
           },
-          { icon: CircleCheck, value: count, label: "Completed Pomodoros" },
+          { icon: CircleCheck, value: count, label: "Pomodoro đã hoàn tất" },
           {
             icon: Timer,
             value: formatMinutes(count ? minutes / count : 0),
-            label: "Average session",
+            label: "Phiên trung bình",
           },
           {
             icon: ListTodo,
             value: `${tasks.length ? Math.round((tasks.filter((t) => t.isCompleted).length / tasks.length) * 100) : 0}%`,
-            label: "Task completion · all tasks",
+            label: "Tỷ lệ hoàn thành việc học",
           },
           {
             icon: Flame,
-            value: `${streak(sessions)} days`,
-            label: "Current study streak",
+            value: `${streak(sessions)} ngày`,
+            label: "Chuỗi ngày học hiện tại",
           },
         ].map(({ icon: Icon, value, label }) => (
           <Card className="stat-card" key={label}>
@@ -118,9 +119,9 @@ export default function InsightsPage() {
       </div>
       <div className="chart-grid">
         <Card>
-          <h2>Weekly focus time</h2>
-          <small>Your last seven days, one session at a time.</small>
-          <div aria-label="Weekly focus minutes bar chart" role="img">
+          <h2>Thời gian tập trung theo tuần</h2>
+          <small>Bảy ngày qua, từng phiên một.</small>
+          <div aria-label="Biểu đồ thời gian tập trung bảy ngày qua" role="img">
             {week.some((d) => d.minutes) ? (
               <div className="chart">
                 <ResponsiveContainer width="100%" height="100%">
@@ -139,7 +140,7 @@ export default function InsightsPage() {
                     />
                     <Tooltip contentStyle={tooltipStyle} />
                     <Bar
-                      name="Focus minutes"
+                      name="Phút tập trung"
                       dataKey="minutes"
                       fill="var(--primary)"
                       radius={[5, 5, 0, 0]}
@@ -155,8 +156,8 @@ export default function InsightsPage() {
           </div>
         </Card>
         <Card>
-          <h2>Focus trend</h2>
-          <small>Daily focus minutes · last {range} days</small>
+          <h2>Xu hướng tập trung</h2>
+          <small>Phút tập trung mỗi ngày · {range} ngày</small>
           <div aria-label="Daily focus minutes trend" role="img">
             {count ? (
               <div className="chart">
@@ -177,7 +178,7 @@ export default function InsightsPage() {
                     />
                     <Tooltip contentStyle={tooltipStyle} />
                     <Line
-                      name="Focus minutes"
+                      name="Phút tập trung"
                       dataKey="minutes"
                       type="monotone"
                       stroke="var(--primary)"
@@ -194,14 +195,14 @@ export default function InsightsPage() {
           </div>
         </Card>
         <Card>
-          <h2>Where your focus goes</h2>
-          <small>Completed focus sessions by task</small>
+          <h2>Sự tập trung của bạn đi đâu</h2>
+          <small>Phiên tập trung hoàn tất theo việc</small>
           {count ? (
             <>
               <div
                 className="chart"
                 role="img"
-                aria-label="Session distribution by task"
+                aria-label="Phân bố phiên học theo việc"
               >
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
@@ -245,59 +246,32 @@ export default function InsightsPage() {
           )}
         </Card>
         <Card>
-          <h2>A habit, taking root</h2>
-          <small>Every square is a day. Every session counts.</small>
-          <div
-            className="heatmap"
-            aria-label={`Study activity for the last ${range} days`}
-          >
-            {data.map((d) => (
-              <span
-                key={d.date}
-                tabIndex={0}
-                title={`${d.date}: ${formatMinutes(d.minutes)}, ${d.sessions} sessions`}
-                aria-label={`${d.date}: ${formatMinutes(d.minutes)}, ${d.sessions} sessions`}
-                data-level={
-                  d.minutes === 0
-                    ? 0
-                    : d.minutes < 25
-                      ? 1
-                      : d.minutes < 60
-                        ? 2
-                        : d.minutes < 120
-                          ? 3
-                          : 4
-                }
-              />
-            ))}
-          </div>
-          <div className="heatmap-legend">
-            <span>
-              {data[0].label} — {data[data.length - 1].label}
-            </span>
-            <span>Less ··· More</span>
-          </div>
+          <h2>Lịch học của bạn</h2>
+          <small>
+            {range} ngày qua · {data[0].label} — {data[data.length - 1].label}
+          </small>
+          <ActivityHeatmap days={data} />
           <p className="muted" style={{ fontSize: 12, marginTop: 24 }}>
-            Progress isn’t about a perfect streak. It’s about coming back.
+            Tiến bộ không cần một chuỗi ngày hoàn hảo. Điều quan trọng là bạn
+            quay lại.
           </p>
         </Card>
       </div>
       <details
         style={{ marginTop: 24, fontSize: 12, color: "var(--text-muted)" }}
       >
-        <summary>View daily totals & how they’re calculated</summary>
+        <summary>Xem tổng từng ngày và cách tính</summary>
         <p>
-          Only completed focus sessions count. Each session belongs to its local
-          completion date, saved at completion; historical dates remain stable
-          when you change timezones. Task completion is across all current
-          tasks. The current streak includes today or ends yesterday.
+          Chỉ phiên tập trung đã hoàn tất mới được tính. Mỗi phiên thuộc về ngày
+          hoàn tất theo giờ địa phương. Việc học tính trên toàn bộ danh sách
+          hiện tại. Chuỗi ngày gồm hôm nay hoặc kết thúc từ hôm qua.
         </p>
         <table style={{ width: "100%", marginTop: 12 }}>
           <thead>
             <tr>
-              <th>Date</th>
-              <th>Focus minutes</th>
-              <th>Sessions</th>
+              <th>Ngày</th>
+              <th>Phút tập trung</th>
+              <th>Số phiên</th>
             </tr>
           </thead>
           <tbody>

@@ -117,8 +117,8 @@ export const useApp = create<Store>((set, get) => ({
       timer: auto ? start(idle(next, settings, timer.currentTaskId)) : finished,
       toast:
         timer.mode === "FOCUS"
-          ? "A little more progress. Focus session complete."
-          : "Break complete. Ready for a fresh start?",
+          ? "Đã hoàn tất phiên tập trung. Bạn đã tiến thêm một bước."
+          : "Đã hết giờ nghỉ. Bạn đã sẵn sàng cho phiên học tiếp theo?",
     });
     if (settings.soundEnabled) {
       const audio = new Audio(
@@ -127,7 +127,7 @@ export const useApp = create<Store>((set, get) => ({
       void audio
         .play()
         .catch(() =>
-          get().notify("Session complete. Sound was blocked by your browser."),
+          get().notify("Đã hoàn tất phiên. Trình duyệt đã chặn âm thanh."),
         );
     }
     if (
@@ -136,14 +136,14 @@ export const useApp = create<Store>((set, get) => ({
       Notification.permission === "granted"
     ) {
       try {
-        new Notification("Focus Flow", { body: "Your session is complete." });
+        new Notification("Focus Flow", { body: "Phiên học đã hoàn tất." });
       } catch {
         /* In-app completion remains available. */
       }
     }
   },
   putTask: (task) => {
-    if (!validTask(task)) throw new Error("Invalid task");
+    if (!validTask(task)) throw new Error("Việc học không hợp lệ");
     set({
       tasks: get().tasks.some((t) => t.id === task.id)
         ? get().tasks.map((t) => (t.id === task.id ? task : t))
@@ -160,7 +160,7 @@ export const useApp = create<Store>((set, get) => ({
     }),
   settingsSave: (settings) => {
     if (!validSettings(settings))
-      throw new Error("Please enter valid settings.");
+      throw new Error("Vui lòng nhập cài đặt hợp lệ.");
     set({
       settings,
       timer:
@@ -186,9 +186,9 @@ useApp.subscribe((state, previous) => {
       settings: state.settings,
     });
   } catch {
-    if (!state.toast.includes("saved"))
+    if (!state.toast.includes("Không thể lưu thay đổi"))
       state.notify(
-        "Changes could not be saved. Browser storage may be full or unavailable.",
+        "Không thể lưu thay đổi: bộ nhớ trình duyệt đã đầy hoặc không khả dụng.",
       );
   }
 });

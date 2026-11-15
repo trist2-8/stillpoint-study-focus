@@ -15,15 +15,15 @@ afterEach(cleanup);
 it("validates whitespace titles and saves a valid task", () => {
   const close = vi.fn();
   render(<TaskForm task={null} onClose={close} />);
-  fireEvent.change(screen.getByLabelText("Task title"), {
+  fireEvent.change(screen.getByLabelText("Tên việc học"), {
     target: { value: "   " },
   });
-  fireEvent.submit(screen.getByText("Create task").closest("form")!);
-  expect(screen.getByRole("alert")).toHaveTextContent("Give your task a title");
-  fireEvent.change(screen.getByLabelText("Task title"), {
+  fireEvent.submit(screen.getByText("Tạo việc học").closest("form")!);
+  expect(screen.getByRole("alert")).toHaveTextContent("Hãy nhập tên việc học");
+  fireEvent.change(screen.getByLabelText("Tên việc học"), {
     target: { value: "Read biology" },
   });
-  fireEvent.submit(screen.getByText("Create task").closest("form")!);
+  fireEvent.submit(screen.getByText("Tạo việc học").closest("form")!);
   expect(useApp.getState().tasks.some((t) => t.title === "Read biology")).toBe(
     true,
   );

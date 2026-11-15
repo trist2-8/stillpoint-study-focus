@@ -132,7 +132,7 @@ export function Modal({
     >
       <div className="modal-header">
         <h2>{title}</h2>
-        <IconButton label="Close dialog" onClick={onClose}>
+        <IconButton label="Đóng hộp thoại" onClick={onClose}>
           <X />
         </IconButton>
       </div>
@@ -156,7 +156,7 @@ export function ConfirmDialog({
       <p className="muted">{message}</p>
       <div className="form-actions">
         <Button autoFocus onClick={onClose}>
-          Cancel
+          Hủy
         </Button>
         <Button
           primary
@@ -165,7 +165,7 @@ export function ConfirmDialog({
             onClose();
           }}
         >
-          Confirm
+          Xác nhận
         </Button>
       </div>
     </Modal>

@@ -35,7 +35,7 @@ export default function SettingsModal({ onClose }: { onClose: () => void }) {
     </label>
   );
   return (
-    <Modal title="Make it your rhythm" onClose={onClose}>
+    <Modal title="Cài đặt phòng học" onClose={onClose}>
       <form
         onSubmit={async (e) => {
           e.preventDefault();
@@ -44,48 +44,50 @@ export default function SettingsModal({ onClose }: { onClose: () => void }) {
             let next = draft;
             if (draft.notificationEnabled) {
               if (!("Notification" in window)) {
-                setError("Browser notifications are unavailable here.");
+                setError("Trình duyệt này không hỗ trợ thông báo.");
                 next = { ...draft, notificationEnabled: false };
               } else if (
                 (await Notification.requestPermission()) !== "granted"
               ) {
                 setError(
-                  "Notification permission was not granted. In-app reminders remain available.",
+                  "Chưa được cấp quyền thông báo. Bạn vẫn nhận nhắc nhở trong ứng dụng.",
                 );
                 next = { ...draft, notificationEnabled: false };
               }
             }
             useApp.getState().settingsSave(next);
             if (next.notificationEnabled === draft.notificationEnabled) {
-              useApp.getState().notify("Your preferences are saved.");
+              useApp.getState().notify("Đã lưu cài đặt.");
               onClose();
             } else setDraft(next);
           } catch (err) {
             setError(
-              err instanceof Error ? err.message : "Could not save settings.",
+              err instanceof Error ? err.message : "Không thể lưu cài đặt.",
             );
           }
         }}
       >
-        <p className="muted">A few small adjustments for the way you work.</p>
+        <p className="muted">
+          Điều chỉnh nhịp học và chọn giao diện phù hợp với bạn.
+        </p>
         <div className="settings-section">
-          <h3>Timer</h3>
+          <h3>Đồng hồ</h3>
           <div className="form-grid">
-            {number("focusDuration", "Focus (minutes)", 180)}
-            {number("shortBreakDuration", "Short break (minutes)", 180)}
-            {number("longBreakDuration", "Long break (minutes)", 180)}
-            {number("longBreakInterval", "Long break after sessions", 12)}
+            {number("focusDuration", "Tập trung (phút)", 180)}
+            {number("shortBreakDuration", "Nghỉ ngắn (phút)", 180)}
+            {number("longBreakDuration", "Nghỉ dài (phút)", 180)}
+            {number("longBreakInterval", "Nghỉ dài sau số phiên", 12)}
           </div>
-          {toggle("autoStartBreaks", "Automatically start breaks")}
-          {toggle("autoStartFocus", "Automatically start focus")}
-          <small>Duration changes apply to the next session.</small>
+          {toggle("autoStartBreaks", "Tự động bắt đầu nghỉ")}
+          {toggle("autoStartFocus", "Tự động bắt đầu tập trung")}
+          <small>Thời lượng mới áp dụng từ phiên tiếp theo.</small>
         </div>
         <div className="settings-section">
-          <h3>Appearance</h3>
+          <h3>Giao diện</h3>
           <label className="field">
-            Theme
+            Chế độ sáng tối
             <select
-              aria-label="Theme"
+              aria-label="Chế độ sáng tối"
               className="input"
               value={draft.theme}
               onChange={(e) => {
@@ -96,24 +98,43 @@ export default function SettingsModal({ onClose }: { onClose: () => void }) {
                   .settingsSave({ ...useApp.getState().settings, theme });
               }}
             >
-              <option value="light">Light</option>
-              <option value="dark">Dark</option>
-              <option value="system">System</option>
+              <option value="light">Sáng</option>
+              <option value="dark">Tối</option>
+              <option value="system">Theo hệ thống</option>
             </select>
           </label>
-          {toggle("companionEnabled", "Show study companion")}
+          <label className="field">
+            Bảng màu
+            <select
+              className="input"
+              aria-label="Bảng màu"
+              value={draft.palette ?? "lavender"}
+              onChange={(event) => {
+                const palette = event.target.value as UserSettings["palette"];
+                setDraft({ ...draft, palette });
+                useApp
+                  .getState()
+                  .settingsSave({ ...useApp.getState().settings, palette });
+              }}
+            >
+              <option value="lavender">Hoa oải hương</option>
+              <option value="midnight">Đêm xanh</option>
+              <option value="forest">Rừng yên tĩnh</option>
+            </select>
+          </label>
+          {toggle("companionEnabled", "Hiện mèo đồng hành")}
         </div>
         <div className="settings-section">
-          <h3>Daily goals</h3>
+          <h3>Mục tiêu mỗi ngày</h3>
           <div className="form-grid">
-            {number("dailyFocusGoal", "Focus time (minutes)", 1440)}
-            {number("dailySessionGoal", "Focus sessions", 100)}
+            {number("dailyFocusGoal", "Thời gian tập trung (phút)", 1440)}
+            {number("dailySessionGoal", "Số phiên tập trung", 100)}
           </div>
         </div>
         <div className="settings-section">
-          <h3>Notifications</h3>
-          {toggle("soundEnabled", "Play a gentle completion sound")}
-          {toggle("notificationEnabled", "Browser notifications")}
+          <h3>Thông báo</h3>
+          {toggle("soundEnabled", "Phát âm thanh khi hoàn tất phiên")}
+          {toggle("notificationEnabled", "Thông báo trình duyệt")}
         </div>
         {error && (
           <p role="alert" className="error">
@@ -122,10 +143,10 @@ export default function SettingsModal({ onClose }: { onClose: () => void }) {
         )}
         <div className="form-actions">
           <Button onClick={onClose} type="button">
-            Close
+            Đóng
           </Button>
           <Button primary type="submit">
-            Save preferences
+            Lưu cài đặt
           </Button>
         </div>
       </form>

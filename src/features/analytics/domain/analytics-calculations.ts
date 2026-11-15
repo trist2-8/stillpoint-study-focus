@@ -10,7 +10,7 @@ export function days(count: number, now = new Date()) {
     d.setDate(d.getDate() - count + 1 + i);
     return {
       date: dateKey(d),
-      label: d.toLocaleDateString("en", { month: "short", day: "numeric" }),
+      label: d.toLocaleDateString("vi-VN", { month: "short", day: "numeric" }),
       minutes: 0,
       sessions: 0,
     };
@@ -51,5 +51,5 @@ export function streak(sessions: FocusSession[], now = new Date()) {
 }
 export function formatMinutes(minutes: number) {
   const m = Math.round(minutes);
-  return m >= 60 ? `${Math.floor(m / 60)}h ${m % 60}m` : `${m}m`;
+  return m >= 60 ? `${Math.floor(m / 60)} giờ ${m % 60} phút` : `${m} phút`;
 }

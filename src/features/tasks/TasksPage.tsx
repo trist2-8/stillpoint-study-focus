@@ -47,51 +47,51 @@ export default function TasksPage() {
   return (
     <>
       <PageTitle
-        title="Small steps. Real progress."
-        subtitle={`${tasks.filter((t) => t.isCompleted).length} of ${tasks.length} tasks complete. Make your next step a meaningful one.`}
+        title="Việc học, từng bước một."
+        subtitle={`${tasks.filter((t) => t.isCompleted).length} / ${tasks.length} việc đã hoàn thành. Chọn một việc để bắt đầu phiên học.`}
       >
         <Button primary onClick={() => setForm(null)}>
-          <Plus /> Add task
+          <Plus /> Thêm việc
         </Button>
       </PageTitle>
       <div className="toolbar">
         <input
           className="input search"
-          aria-label="Search tasks"
-          placeholder="Search your tasks…"
+          aria-label="Tìm việc học"
+          placeholder="Tìm trong danh sách việc học…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
         <select
           className="input"
-          aria-label="Filter tasks"
+          aria-label="Lọc việc học"
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
         >
-          <option value="all">All tasks</option>
-          <option value="active">In progress</option>
-          <option value="completed">Completed</option>
+          <option value="all">Tất cả việc học</option>
+          <option value="active">Đang thực hiện</option>
+          <option value="completed">Đã hoàn thành</option>
         </select>
         <select
           className="input"
-          aria-label="Filter priority"
+          aria-label="Lọc mức ưu tiên"
           value={priority}
           onChange={(e) => setPriority(e.target.value)}
         >
-          <option value="all">All priorities</option>
-          <option value="high">High</option>
-          <option value="medium">Medium</option>
-          <option value="low">Low</option>
+          <option value="all">Tất cả mức ưu tiên</option>
+          <option value="high">Cao</option>
+          <option value="medium">Vừa</option>
+          <option value="low">Thấp</option>
         </select>
         <select
           className="input"
-          aria-label="Sort tasks"
+          aria-label="Sắp xếp việc học"
           value={sort}
           onChange={(e) => setSort(e.target.value)}
         >
-          <option value="newest">Newest first</option>
-          <option value="priority">Priority</option>
-          <option value="due">Due date</option>
+          <option value="newest">Mới nhất</option>
+          <option value="priority">Mức ưu tiên</option>
+          <option value="due">Hạn hoàn thành</option>
         </select>
       </div>
       <div className="task-list">
@@ -102,7 +102,7 @@ export default function TasksPage() {
           >
             <label style={{ minWidth: 28, minHeight: 44 }}>
               <span className="sr-only">
-                {task.isCompleted ? "Reopen" : "Complete"} {task.title}
+                {task.isCompleted ? "Mở lại" : "Hoàn thành"} {task.title}
               </span>
               <input
                 type="checkbox"
@@ -122,19 +122,19 @@ export default function TasksPage() {
               {task.description && <p>{task.description}</p>}
               <div className="task-meta">
                 <span className={`badge ${task.priority}`}>
-                  {task.priority} priority
+                  Mức ưu tiên:{" "}
+                  {{ high: "Cao", medium: "Vừa", low: "Thấp" }[task.priority]}
                 </span>
                 <span>
-                  {task.completedPomodoros} / {task.estimatedPomodoros}{" "}
-                  Pomodoros
+                  {task.completedPomodoros} / {task.estimatedPomodoros} phiên
                 </span>
-                {task.dueAt && <span>Due {task.dueAt}</span>}
+                {task.dueAt && <span>Hạn: {task.dueAt}</span>}
               </div>
               <ProgressBar
                 value={
                   (task.completedPomodoros / task.estimatedPomodoros) * 100
                 }
-                label={`${task.title} focus progress`}
+                label={`${task.title} · tiến độ tập trung`}
               />
             </div>
             <div className="task-actions">
@@ -147,17 +147,17 @@ export default function TasksPage() {
                     else start(task);
                   }}
                 >
-                  <Play /> Start focus
+                  <Play /> Bắt đầu tập trung
                 </Button>
               )}
               <IconButton
-                label={`Edit ${task.title}`}
+                label={`Sửa ${task.title}`}
                 onClick={() => setForm(task)}
               >
                 <Pencil />
               </IconButton>
               <IconButton
-                label={`Delete ${task.title}`}
+                label={`Xóa ${task.title}`}
                 onClick={() => setDeleting(task)}
               >
                 <Trash2 />
@@ -171,17 +171,17 @@ export default function TasksPage() {
           <EmptyState
             title={
               tasks.length
-                ? "A little breathing room."
-                : "Big things start with one small task."
+                ? "Không có việc học phù hợp."
+                : "Bắt đầu với một việc học."
             }
           >
             <p>
               {tasks.length
-                ? "No tasks match these filters. Try another search."
-                : "Plan your study session, choose a priority, and take it one Pomodoro at a time."}
+                ? "Thử từ khóa hoặc bộ lọc khác để tìm việc học."
+                : "Thêm việc cần học, chọn mức ưu tiên và bắt đầu một phiên Pomodoro."}
             </p>
             <Button primary onClick={() => setForm(null)}>
-              <Plus /> Add a task
+              <Plus /> Thêm việc học
             </Button>
           </EmptyState>
         </Card>
@@ -191,16 +191,16 @@ export default function TasksPage() {
       )}
       {deleting && (
         <ConfirmDialog
-          title="Delete this task?"
-          message={`“${deleting.title}” will be removed. Its completed focus sessions will stay in Insights.`}
+          title="Xóa việc học này?"
+          message={`“${deleting.title}” sẽ bị xóa. Các phiên đã hoàn tất vẫn được giữ trong Tiến độ.`}
           onClose={() => setDeleting(null)}
           onConfirm={() => useApp.getState().deleteTask(deleting.id)}
         />
       )}
       {starting && (
         <ConfirmDialog
-          title="Switch your focus?"
-          message="Your unfinished session will be discarded. The new task will wait for you to press Start."
+          title="Đổi việc đang tập trung?"
+          message="Phiên chưa hoàn tất sẽ không được ghi lại. Bạn cần bấm Bắt đầu để học việc mới."
           onClose={() => setStarting(null)}
           onConfirm={() => start(starting)}
         />
