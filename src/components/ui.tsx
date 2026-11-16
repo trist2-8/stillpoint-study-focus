@@ -147,9 +147,8 @@ export function Modal({
       <div className="modal-header">
         <h2>{title}</h2>
         <div className="modal-header-actions">
-          {className !== "world-gallery-dialog" && !closeDisabled && (
-            <WorldButton />
-          )}
+          {!className?.split(" ").includes("world-gallery-dialog") &&
+            !closeDisabled && <WorldButton />}
           <IconButton
             label={tr("Đóng hộp thoại")}
             disabled={closeDisabled}

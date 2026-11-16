@@ -100,6 +100,7 @@ export default function SettingsModal({ onClose }: { onClose: () => void }) {
         palette: current.palette,
         favoriteWorlds: current.favoriteWorlds,
         worldMotion: current.worldMotion,
+        studyView: current.studyView,
       }));
     };
     window.addEventListener("focus-flow:world-applied", sync);

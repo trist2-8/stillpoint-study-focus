@@ -144,7 +144,11 @@ for (const width of [320, 390, 768, 1440])
                 timer.left >= scene.left &&
                 timer.right <= scene.right &&
                 controls.bottom <= scene.bottom,
-              overlap: timer.bottom > controls.top,
+              overlap:
+                timer.left < controls.right &&
+                timer.right > controls.left &&
+                timer.top < controls.bottom &&
+                timer.bottom > controls.top,
             };
           });
           expect(geometry.contained).toBe(true);
@@ -165,7 +169,7 @@ test("system lighting, motion preference and manual world choice persist", async
   await page.goto("/");
   await gallery(page);
   await page.getByRole("radio", { name: "Theo hệ thống", exact: true }).check();
-  await apply(page, "Nhà bên rừng");
+  await apply(page, "Hiên mây tím");
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   await page.emulateMedia({ colorScheme: "dark" });
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
@@ -176,7 +180,7 @@ test("system lighting, motion preference and manual world choice persist", async
       .evaluate((element) => getComputedStyle(element).animationName),
   ).toBe("none");
   await page.getByRole("radio", { name: "Giải bài", exact: true }).check();
-  await expect(page.locator("html")).toHaveAttribute("data-world", "forest");
+  await expect(page.locator("html")).toHaveAttribute("data-world", "lavender");
   await gallery(page);
   await page.getByLabel("Chuyển động nhẹ", { exact: true }).uncheck();
   await page

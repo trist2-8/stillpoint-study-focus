@@ -4,7 +4,8 @@ import { Pause, Play, X } from "lucide-react";
 import { useApp } from "../../stores/app-store";
 import { useI18n } from "../../i18n";
 import miniStyles from "./mini-timer.css?inline";
-import WorldScene, { useColorMode } from "../worlds/WorldScene";
+import { useColorMode } from "../worlds/WorldScene";
+import RoomBackdrop from "../worlds/RoomBackdrop";
 import { useWorldAppearance } from "../worlds/world-preview";
 import { worldTokens, worldById } from "./worlds";
 import { remaining } from "./domain/timer-engine";
@@ -80,7 +81,7 @@ function TimerContents({
       style={worldTokens(appearance.world, colorMode)}
     >
       <div className="mini-world">
-        <WorldScene world={appearance.world} mode={colorMode} />
+        <RoomBackdrop world={appearance.world} mode={colorMode} />
       </div>
       <span className="mini-phase">{mode[timer.mode]}</span>
       <div className="mini-digits">

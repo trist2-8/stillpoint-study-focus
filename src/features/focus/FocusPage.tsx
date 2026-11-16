@@ -1,4 +1,4 @@
-import WorldScene, { useColorMode } from "../worlds/WorldScene";
+import { useRoomUi } from "../worlds/room-ui";
 import { useWorldAppearance } from "../worlds/world-preview";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
@@ -26,7 +26,7 @@ import {
   formatMinutes,
 } from "../analytics/domain/analytics-calculations";
 import { TaskForm } from "../tasks/TaskForm";
-import { ScenePhoto, AmbientAudio } from "./RoomScenes";
+import { ScenePhoto } from "./RoomScenes";
 import ReferenceRoom from "./illustrations/ReferenceRoom";
 import Subjects from "../personal/Subjects";
 import SessionNotebook, { NextStepNote } from "../personal/SessionNotebook";
@@ -42,7 +42,7 @@ export default function FocusPage() {
   const { language } = useI18n();
   const copy = useCopy();
   const appearance = useWorldAppearance();
-  const colorMode = useColorMode(appearance.theme);
+  const quiet = useRoomUi((state) => state.quiet);
   const [notesOpen, setNotesOpen] = useState(false);
   const state = useApp();
   const { timer, settings, sessions, tasks } = state;
@@ -149,6 +149,7 @@ export default function FocusPage() {
   return (
     <div
       className="personal-today"
+      data-quiet={quiet}
       data-status={timer.status}
       data-mode={timer.mode}
       data-study-view={appearance.studyView ?? "world"}
@@ -195,14 +196,15 @@ export default function FocusPage() {
           data-scene={settings.scene ?? "study"}
           aria-label={copy("Bàn học hôm nay", "Today's study desk")}
         >
-          <div className="world-stage-scene">
-            <WorldScene world={appearance.world} mode={colorMode} />
-          </div>
           <div className="desk-intention">
             <div className="intention-heading">
               <BookOpen size={18} />
               <span>
-                {subject?.name ?? copy("Góc học chung", "General study")}
+                {(locked
+                  ? personal.subjects.find(
+                      (item) => item.id === timer.subjectId,
+                    )?.name
+                  : subject?.name) ?? copy("Góc học chung", "General study")}
               </span>
             </div>
             <h2>
@@ -231,9 +233,14 @@ export default function FocusPage() {
                     )}
             </p>
             <NextStepNote taskId={locked ? activeTask?.id : mainTask?.id} />
-            <fieldset className="desk-goals" disabled={locked}>
+            <fieldset className="desk-goals">
               <legend>
-                {copy("Phiên này mình sẽ…", "This session, I will…")}
+                {locked
+                  ? copy(
+                      "Mục tiêu cho phiên kế tiếp",
+                      "Goal for the next session",
+                    )
+                  : copy("Phiên này mình sẽ…", "This session, I will…")}
               </legend>
               <div>
                 {goals.map((goal) => (
@@ -249,6 +256,14 @@ export default function FocusPage() {
                 ))}
               </div>
             </fieldset>
+            <button
+              type="button"
+              className="room-add-task"
+              onClick={() => setAdding(true)}
+            >
+              <Plus size={16} />
+              {copy("Thêm việc vào góc học", "Add a task to this space")}
+            </button>
             <div className="desk-room">
               {settings.scene && settings.scene !== "study" ? (
                 <ScenePhoto />
@@ -422,14 +437,11 @@ export default function FocusPage() {
                 : tr("Chuyển phiên theo cài đặt của bạn")}
             </p>
           </div>
-          <div className="world-stage-audio">
-            <AmbientAudio />
-          </div>
         </section>
         <SessionNotebook />
       </div>
       <div className="desk-lower">
-        <section className="desk-task-queue">
+        <section className="desk-task-queue" id="room-task-queue">
           <div className="queue-heading">
             <div>
               <h2>

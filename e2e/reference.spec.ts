@@ -7,6 +7,7 @@ test("reference dashboard supports tasks, timer, theme and responsive layouts", 
   page.on("pageerror", (error) => errors.push(error.message));
   await page.setViewportSize({ width: 1536, height: 1024 });
   await page.goto("/");
+  await page.getByRole("button", { name: "Bàn học", exact: true }).click();
   await expect(page.getByRole("timer")).toHaveText("25:00");
   await page.getByRole("button", { name: "Thêm việc", exact: true }).click();
   await page.getByLabel("Tên việc học").fill("Math Chapter 5");

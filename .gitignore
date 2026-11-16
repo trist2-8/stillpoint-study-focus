@@ -10,3 +10,5 @@ vite-local*.log
 .vercel/
 
 test-results-cloud/
+
+test-results-*/

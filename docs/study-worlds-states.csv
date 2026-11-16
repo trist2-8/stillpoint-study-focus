@@ -21,3 +21,20 @@ Floating timer,action,focus_visible,DONE,src/features/focus/mini-timer.css,
 Floating timer,action,disabled,NA,,Timer is available in every timer state
 Floating timer,action,busy,DONE,src/features/focus/FloatingTimer.tsx,Opening guard prevents duplicate requests
 Floating timer,action,failure,DONE,test:empty favorites and blocked popups show useful recovery,
+Room image import,form,default,DONE,src/features/worlds/WorldGallery.tsx,
+Room image import,form,focus_visible,DONE,src/styles/worlds.css,
+Room image import,form,validation_error,DONE,e2e/personal-rooms.spec.ts,
+Room image import,form,submitting,DONE,src/features/worlds/WorldGallery.tsx,Busy state prevents close and selection during file save
+Room image import,form,success,DONE,e2e/personal-rooms.spec.ts,Reload restores IndexedDB image
+Room image import,form,server_error,NA,,Local-only IndexedDB write catches quota errors with inline feedback
+Sound mixer,control,default,DONE,e2e/personal-rooms.spec.ts,No autoplay after reload
+Sound mixer,control,hover,DONE,src/styles/worlds.css,
+Sound mixer,control,focus_visible,DONE,src/features/sound/SoundMixer.tsx,21 rendered snapshots and keyboard audit
+Sound mixer,control,active,DONE,e2e/personal-rooms.spec.ts,Two real sound files play together
+Sound mixer,control,disabled,DONE,src/features/sound/SoundMixer.tsx,Play mix disabled when no tracks selected
+Sound playback,action,default,DONE,e2e/personal-rooms.spec.ts,
+Sound playback,action,hover,DONE,src/styles/worlds.css,
+Sound playback,action,focus_visible,DONE,src/styles/worlds.css,
+Sound playback,action,disabled,NA,,Individual sound toggles remain available
+Sound playback,action,busy,DONE,src/features/sound/SoundMixer.tsx,Per-track loading status
+Sound playback,action,failure,DONE,e2e/personal-rooms.spec.ts,Failed audio reports error and does not disable other tracks

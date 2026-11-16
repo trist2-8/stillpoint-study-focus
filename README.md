@@ -80,4 +80,14 @@ Nút **Đổi thế giới** mở sáu không gian: Hiên mây tím, Thư viện
 
 Đồng hồ nổi mặc định 280×160, ưu tiên chữ số khi thu nhỏ. Đã có kiểm thử cả Document Picture-in-Picture và cửa sổ dự phòng từ 120×60 đến 320×180, gồm bộ đếm 180 phút. Khi thu nhỏ cửa sổ thành biểu tượng trên thanh tác vụ, hệ điều hành không còn hiển thị nội dung cửa sổ.
 
-Các cảnh dùng thành phần vector trong ứng dụng, không tải tài nguyên Innook. Trang tham khảo không mở được do quyền truy cập lưu trong ứng dụng. Fosta được thử lại ngày 16/11/2026 nhưng thiếu khóa cấu hình, nên không có ảnh AI mới. Tiêu chí PDF được tổng hợp trong AGENTS.md; không cần PDF để tiếp tục phát triển.
+Các cảnh dùng ảnh minh họa sẵn có và vector dự phòng trong ứng dụng, không tải tài nguyên Innook. Trang tham khảo không mở được do quyền truy cập lưu trong ứng dụng. Fosta được thử lại ngày 16/11/2026 nhưng thiếu khóa cấu hình, nên không có ảnh AI mới. Tiêu chí PDF được tổng hợp trong AGENTS.md; không cần PDF để tiếp tục phát triển.
+
+## Phòng học riêng và bộ trộn âm thanh
+
+Chế độ **Toàn cảnh** dùng nền phủ toàn cửa sổ, thanh điều khiển nhỏ phía trên và đồng hồ phía dưới. **Ngắm phòng** ẩn bảng môn/việc/ghi chú nhưng giữ số đếm và điều khiển phiên; **Mở bảng học** khôi phục các bảng.
+
+Trong **Đổi thế giới**, chọn phòng rồi **Chọn ảnh cho phòng** để xem thử PNG/JPG/WebP tối đa 10 MB, ít nhất 600×360 px. Bấm Áp dụng mới lưu ảnh vào IndexedDB trên trình duyệt hiện tại. Hủy bỏ bản xem thử. Ảnh không tải lên máy chủ và chưa nằm trong sao lưu JSON, nên giữ bản gốc bên ngoài. Bộ yêu cầu sáu ảnh nằm ở public/world-image-prompts.md và tải được ngay trong thư viện phòng. Fosta chưa có khóa cấu hình nên phần tranh riêng vẫn cần được tạo từ bộ prompt này.
+
+**Âm thanh** có 7 bản thu (chim, suối, gió, lửa, quán cà phê, đêm hè, mặt nước) và nhiễu nâu tổng hợp. Phối nhiều tiếng, chỉnh từng mức âm lượng hoặc dùng một bộ phối gợi ý. Âm tiếp tục giữa các trang trong ứng dụng; tải lại trang ghi nhớ lựa chọn nhưng không tự phát. Bấm Tắt tất cả để dừng toàn bộ. Nguồn và giấy phép CC0/Public Domain được ghi tại public/audio/SOURCES.md.
+
+Góc học chung và các môn vẫn chọn được khi chạy/tạm dừng. Thao tác này chỉ đổi danh sách việc đang xem; không bỏ phiên, đổi việc của phiên hay viết lại lịch sử. Mục tiêu được chỉnh trong khi chạy áp dụng cho phiên tập trung kế tiếp.

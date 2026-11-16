@@ -136,8 +136,10 @@ export const useApp = create<Store>((set, get) => ({
     const personal = get().personal ?? emptyPersonal;
     if (id !== null && !personal.subjects.some((subject) => subject.id === id))
       return;
-    if (get().timer.status === "RUNNING" || get().timer.status === "PAUSED")
+    if (get().timer.status === "RUNNING" || get().timer.status === "PAUSED") {
+      set({ personal: { ...personal, activeSubjectId: id } });
       return;
+    }
     const selectedTask = get().tasks.find(
       (task) => task.id === get().timer.currentTaskId,
     );
@@ -157,12 +159,7 @@ export const useApp = create<Store>((set, get) => ({
     });
   },
   chooseGoal: (goal) => {
-    if (
-      !goals.includes(goal) ||
-      get().timer.status === "RUNNING" ||
-      get().timer.status === "PAUSED"
-    )
-      return;
+    if (!goals.includes(goal)) return;
     set({ personal: { ...(get().personal ?? emptyPersonal), goal } });
   },
   saveJournal: (journal) => {
@@ -297,7 +294,10 @@ export const useApp = create<Store>((set, get) => ({
             {
               ...idle(next, settings, timer.currentTaskId),
               subjectId: timer.subjectId,
-              goal: timer.goal,
+              goal:
+                next === "FOCUS"
+                  ? (snapshot.personal?.goal ?? timer.goal)
+                  : timer.goal,
             },
             {
               now: () => completedAt,

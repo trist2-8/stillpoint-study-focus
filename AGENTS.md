@@ -40,7 +40,7 @@ A world uses semantic CSS variables or a world data attribute. Do not create six
 - The docked/floating timer must show the countdown at every supported compact size. Never let a resize hide the timer. Fit the actual viewport without body min-width/min-height forcing overflow. The countdown takes priority over metadata and controls; verify 120x60, 160x70, 220x100 and normal sizes.
 - A normal browser popup cannot be guaranteed always-on-top after the browser is minimized. The UI must say when it falls back to a normal popup and must keep the counter visible inside it.
 - Mobile: one primary action per view, fixed navigation must not cover focused controls, no horizontal scroll.
-- Desktop: stable sidebar, a clear study surface, one journal/utility rail, and a separate task queue. Avoid nested card grids for every small detail.
+- Desktop Desk view keeps the stable sidebar and task queue. Immersive view uses a compact top navigation and lower timer dock so the scene fills the viewport. Room view may hide study panels but must never hide the countdown or pause control.
 - Any large illustration or image needs an overlay/surface that preserves text contrast. Do not put important copy directly on a busy image.
 - Use visible focus-visible states and minimum touch targets of 44px for primary controls.
 - Respect prefers-reduced-motion. Decorative animation cannot affect timer logic.
@@ -99,3 +99,11 @@ The built-in image_gen tool is unavailable here. For requested image generation 
 - Inspect a saved result with view_image before reporting success.
 - If it fails, report why. Do not fake generated results with PIL, SVG or canvas unless the user asks for that. Existing code-native scene components are not generated bitmap assets.
 <!-- <<< fosta -->
+
+## Corrections from the user on 16 November 2026
+
+- Build an identity of our own. Reference screenshots communicate depth and atmosphere; never clone Innook or claim its live interactions were inspected when browser permissions blocked observation.
+- A room gallery should let the user inspect substantial images. New artwork must be generated with the approved tool or delivered as exact prompts when generation fails. Do not disguise vector fallbacks as completed artwork.
+- Keep a ready-to-use prompt pack and support importing personal room images locally. Describe image storage and backup limits.
+- Browsing General study or another subject during a session must remain usable. Change the task filter without resetting the active timer or rewriting its subject/task snapshot. Goal changes prepare the next focus session.
+- Provide multiple independently mixed study sounds. No autoplay on reload, a clear pause-all control, per-track volume, source attribution, failure feedback and continuity across internal routes.

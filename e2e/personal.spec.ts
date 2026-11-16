@@ -25,7 +25,7 @@ test("personal study loop remembers subject, task, journal and next step", async
     .click();
   await expect(
     page.getByRole("button", { name: "Góc học chung", exact: true }),
-  ).toBeDisabled();
+  ).toBeEnabled();
   await page
     .getByLabel("Ý nghĩ chen ngang", { exact: true })
     .fill("Tìm cuốn sách tiếp theo");

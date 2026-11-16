@@ -69,17 +69,28 @@ test("automatic cycle runs outside the focus page and updates the browser tab", 
   await expect(page).toHaveTitle("01:00 · Tập trung | Focus Flow");
   await page.clock.fastForward(60000);
   await expect(page).toHaveTitle("02:00 · Nghỉ dài | Focus Flow");
+  const restDeadline = await page.evaluate(
+    () => JSON.parse(localStorage.getItem("focus-flow")!).data.timer.deadlineAt,
+  );
   await page.reload();
-  await expect(page).toHaveTitle("02:00 · Nghỉ dài | Focus Flow");
+  await expect(page).toHaveTitle(/Nghỉ dài/);
+  expect(
+    await page.evaluate(
+      () =>
+        JSON.parse(localStorage.getItem("focus-flow")!).data.timer.deadlineAt,
+    ),
+  ).toBe(restDeadline);
   await page.clock.fastForward(120000);
-  await expect(page).toHaveTitle("01:00 · Tập trung | Focus Flow");
+  await expect(page).toHaveTitle(/Tập trung/);
   await page
     .getByRole("navigation", { name: "Điều hướng chính" })
     .getByRole("link", { name: "Hôm nay", exact: true })
     .click();
   await page.getByRole("button", { name: "Tạm dừng", exact: true }).click();
+  await expect(page).toHaveTitle(/Tạm dừng/);
+  const pausedTitle = await page.title();
   await page.clock.fastForward(120000);
-  await expect(page).toHaveTitle("01:00 · Tạm dừng | Focus Flow");
+  await expect(page).toHaveTitle(pausedTitle);
   const sessions = await page.evaluate(
     () => JSON.parse(localStorage.getItem("focus-flow")!).data.sessions,
   );

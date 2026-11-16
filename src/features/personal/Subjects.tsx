@@ -23,7 +23,6 @@ export default function Subjects() {
         <button
           type="button"
           aria-pressed={personal.activeSubjectId === null}
-          disabled={locked}
           onClick={() => useApp.getState().chooseSubject(null)}
         >
           <BookOpen size={16} />
@@ -33,7 +32,6 @@ export default function Subjects() {
           <button
             type="button"
             key={subject.id}
-            disabled={locked}
             aria-pressed={personal.activeSubjectId === subject.id}
             onClick={() => useApp.getState().chooseSubject(subject.id)}
           >
@@ -65,8 +63,8 @@ export default function Subjects() {
       {locked && (
         <small>
           {copy(
-            "Đang trong phiên. Kết thúc hoặc đặt lại phiên để đổi môn.",
-            "Finish or reset this session before switching subjects.",
+            "Bạn có thể xem và sắp xếp việc học. Phiên đang chạy vẫn giữ nguyên.",
+            "Browse and organize tasks while your current session keeps running.",
           )}
         </small>
       )}

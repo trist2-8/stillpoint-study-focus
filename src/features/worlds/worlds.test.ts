@@ -6,15 +6,13 @@ import { idle, start } from "../focus/domain/timer-engine";
 import { emptyPersonal } from "../personal/domain/personal-study";
 import { studyWorlds, worldTokens } from "../focus/worlds";
 beforeEach(() =>
-  useApp
-    .getState()
-    .restore({
-      settings: { ...defaults },
-      timer: idle("FOCUS", defaults),
-      tasks: [],
-      sessions: [],
-      personal: { ...emptyPersonal },
-    }),
+  useApp.getState().restore({
+    settings: { ...defaults },
+    timer: idle("FOCUS", defaults),
+    tasks: [],
+    sessions: [],
+    personal: { ...emptyPersonal },
+  }),
 );
 describe("presentation isolation", () => {
   it("preserves idle and running timer identity while saving appearance", () => {
@@ -23,13 +21,11 @@ describe("presentation isolation", () => {
     expect(useApp.getState().timer).toBe(initial.timer);
     useApp.setState({ timer: start(initial.timer) });
     const running = useApp.getState();
-    useApp
-      .getState()
-      .appearanceSave({
-        world: "forest",
-        studyView: "desk",
-        worldMotion: false,
-      });
+    useApp.getState().appearanceSave({
+      world: "forest",
+      studyView: "desk",
+      worldMotion: false,
+    });
     const changed = useApp.getState();
     expect(changed.timer).toBe(running.timer);
     expect(changed.tasks).toBe(running.tasks);

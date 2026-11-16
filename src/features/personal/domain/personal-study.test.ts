@@ -102,8 +102,13 @@ describe("personal study data", () => {
     useApp.getState().timerAction("start");
     useApp.getState().chooseSubject(null);
     useApp.getState().chooseGoal("write");
-    expect(useApp.getState().personal?.activeSubjectId).toBe("math");
-    expect(useApp.getState().personal?.goal).toBe("practice");
+    expect(useApp.getState().personal?.activeSubjectId).toBeNull();
+    expect(useApp.getState().personal?.goal).toBe("write");
+    expect(useApp.getState().timer).toMatchObject({
+      subjectId: "math",
+      goal: "practice",
+      status: "RUNNING",
+    });
     vi.advanceTimersByTime(60000);
     useApp.getState().tick();
     useApp.getState().tick();

@@ -1,4 +1,15 @@
-import { Aperture, PanelsTopLeft, Scan, BookOpen } from "lucide-react";
+import { useRoomUi } from "./room-ui";
+import { Link } from "react-router-dom";
+import { SoundLauncher } from "../sound/SoundMixer";
+import {
+  Aperture,
+  PanelsTopLeft,
+  Scan,
+  BookOpen,
+  Settings,
+  ListTodo,
+  ChartNoAxesCombined,
+} from "lucide-react";
 import { useWorldAppearance, openWorldGallery } from "./world-preview";
 import { useApp } from "../../stores/app-store";
 import { worldById } from "../focus/worlds";
@@ -22,11 +33,15 @@ export default function WorldControls({
   focusPage?: boolean;
 }) {
   const appearance = useWorldAppearance();
+  const roomUi = useRoomUi();
   const { language } = useI18n();
   const world = worldById(appearance.world);
   return (
     <div className="world-toolbar">
       <div className="world-identity">
+        <Link className="room-brand" to="/">
+          Focus Flow
+        </Link>
         <Aperture size={18} />
         <span>{language === "vi" ? world.vi : world.en}</span>
         <small>{language === "vi" ? "Không gian của bạn" : "Your space"}</small>
@@ -63,18 +78,69 @@ export default function WorldControls({
             ))}
           </div>
         )}
+        {focusPage && appearance.studyView !== "desk" && (
+          <button
+            type="button"
+            className="room-quiet-toggle"
+            aria-pressed={roomUi.quiet}
+            onClick={roomUi.toggleQuiet}
+          >
+            <Scan size={16} />
+            {language === "vi"
+              ? roomUi.quiet
+                ? "Mở bảng học"
+                : "Ngắm phòng"
+              : roomUi.quiet
+                ? "Study panels"
+                : "Room view"}
+          </button>
+        )}
         <WorldButton />
+        <SoundLauncher />
         {focusPage && (
           <button
             type="button"
             className="world-notebook-toggle"
-            onClick={() =>
-              window.dispatchEvent(new Event("focus-flow:toggle-notes"))
-            }
+            onClick={() => {
+              if (roomUi.quiet) roomUi.toggleQuiet();
+              window.dispatchEvent(new Event("focus-flow:toggle-notes"));
+            }}
           >
             <BookOpen size={17} />
             {language === "vi" ? "Sổ học" : "Notebook"}
           </button>
+        )}
+        {focusPage && (
+          <nav
+            className="room-navigation"
+            aria-label={
+              language === "vi" ? "Điều hướng chính" : "Main navigation"
+            }
+          >
+            <Link
+              to="/tasks"
+              title={language === "vi" ? "Việc học" : "Study tasks"}
+            >
+              <ListTodo size={18} />
+              <span>{language === "vi" ? "Việc học" : "Study tasks"}</span>
+            </Link>
+            <Link
+              to="/insights"
+              title={language === "vi" ? "Tổng kết" : "Reflection"}
+            >
+              <ChartNoAxesCombined size={18} />
+              <span>{language === "vi" ? "Tổng kết" : "Reflection"}</span>
+            </Link>
+            <button
+              type="button"
+              aria-label={language === "vi" ? "Mở cài đặt" : "Open settings"}
+              onClick={() =>
+                window.dispatchEvent(new Event("focus-flow:settings"))
+              }
+            >
+              <Settings size={18} />
+            </button>
+          </nav>
         )}
       </div>
     </div>

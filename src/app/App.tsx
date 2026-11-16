@@ -1,3 +1,7 @@
+import SoundMixer from "../features/sound/SoundMixer";
+import RoomBackdrop from "../features/worlds/RoomBackdrop";
+import { loadRoomImages } from "../features/worlds/room-images";
+import { useColorMode } from "../features/worlds/WorldScene";
 import WorldControls from "../features/worlds/WorldControls";
 import WorldGallery from "../features/worlds/WorldGallery";
 import { useWorldAppearance } from "../features/worlds/world-preview";
@@ -73,6 +77,19 @@ export default function App() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const appearance = useWorldAppearance();
   const [worldsOpen, setWorldsOpen] = useState(false);
+  const [soundsOpen, setSoundsOpen] = useState(false);
+  const colorMode = useColorMode(appearance.theme);
+  useEffect(() => {
+    void loadRoomImages();
+    const sounds = () => setSoundsOpen(true);
+    const settings = () => setSettingsOpen(true);
+    window.addEventListener("focus-flow:sounds", sounds);
+    window.addEventListener("focus-flow:settings", settings);
+    return () => {
+      window.removeEventListener("focus-flow:sounds", sounds);
+      window.removeEventListener("focus-flow:settings", settings);
+    };
+  }, []);
   useEffect(() => {
     const show = () => setWorldsOpen(true);
     window.addEventListener("focus-flow:worlds", show);
@@ -142,6 +159,11 @@ export default function App() {
       className={`shell reference-shell personal-shell ${collapsed ? "collapsed" : ""} ${location.pathname === "/" ? "is-focus" : ""}`}
       data-world={appearance.world}
     >
+      {location.pathname === "/" && appearance.studyView !== "desk" && (
+        <div className="world-stage-scene immersive-backdrop">
+          <RoomBackdrop world={appearance.world} mode={colorMode} />
+        </div>
+      )}
       <a className="skip-content" href="#study-content">
         {language === "vi" ? "Đến nội dung học" : "Skip to study content"}
       </a>
@@ -268,6 +290,17 @@ export default function App() {
         </header>
         <main className="page" id="study-content" tabIndex={-1}>
           <WorldControls focusPage={location.pathname === "/"} />
+          {toast && (
+            <div className="toast" role="status">
+              <span>{toast}</span>
+              <button
+                aria-label={tr("Đóng thông báo")}
+                onClick={() => useApp.getState().notify("")}
+              >
+                <X size={16} />
+              </button>
+            </div>
+          )}
           <Suspense fallback={<p role="status">{tr("Đang mở phòng học…")}</p>}>
             <Routes>
               <Route path="/" element={<FocusPage />} />
@@ -290,17 +323,7 @@ export default function App() {
         </Suspense>
       )}
       {worldsOpen && <WorldGallery onClose={() => setWorldsOpen(false)} />}
-      {toast && (
-        <div className="toast" role="status">
-          <span>{toast}</span>
-          <button
-            aria-label={tr("Đóng thông báo")}
-            onClick={() => useApp.getState().notify("")}
-          >
-            <X size={16} />
-          </button>
-        </div>
-      )}
+      {soundsOpen && <SoundMixer onClose={() => setSoundsOpen(false)} />}
     </div>
   );
 }
