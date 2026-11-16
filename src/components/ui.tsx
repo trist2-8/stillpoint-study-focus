@@ -1,3 +1,4 @@
+import { WorldButton } from "../features/worlds/WorldControls";
 import { tr, useI18n } from "../i18n";
 import {
   useEffect,
@@ -145,13 +146,18 @@ export function Modal({
     >
       <div className="modal-header">
         <h2>{title}</h2>
-        <IconButton
-          label={tr("Đóng hộp thoại")}
-          disabled={closeDisabled}
-          onClick={onClose}
-        >
-          <X />
-        </IconButton>
+        <div className="modal-header-actions">
+          {className !== "world-gallery-dialog" && !closeDisabled && (
+            <WorldButton />
+          )}
+          <IconButton
+            label={tr("Đóng hộp thoại")}
+            disabled={closeDisabled}
+            onClick={onClose}
+          >
+            <X />
+          </IconButton>
+        </div>
       </div>
       <div className="modal-content">{children}</div>
     </dialog>

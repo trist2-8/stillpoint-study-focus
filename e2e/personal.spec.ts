@@ -86,6 +86,7 @@ test("personal study loop remembers subject, task, journal and next step", async
     .getByRole("button", { name: "Góc học chung", exact: true })
     .click();
   await expect(page.locator(".next-step-note")).toHaveCount(0);
+  await page.getByRole("button", { name: "Sổ học", exact: true }).click();
   await expect(page.locator(".notebook-empty")).toBeVisible();
   await page.getByRole("button", { name: "Tiếng Anh", exact: true }).click();
   await expect(page.locator(".next-step-note")).toContainText(
@@ -124,6 +125,7 @@ for (const width of [320, 390, 768, 1280, 1440])
           () => document.documentElement.scrollWidth <= innerWidth,
         ),
       ).toBe(true);
+      await page.getByRole("button", { name: "Bàn học", exact: true }).click();
       const desk = await page.locator(".desk-focus").boundingBox();
       const notebook = await page.locator(".desk-notebook").boundingBox();
       expect(

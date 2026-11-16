@@ -42,6 +42,7 @@ test("room images persist and remain aligned on mobile", async ({
   page,
 }, testInfo) => {
   await page.goto("/");
+  await page.getByRole("button", { name: "Bàn học", exact: true }).click();
   for (const scene of ["Thư viện", "Quán cà phê", "Rừng mưa"]) {
     await page.getByRole("button", { name: "Mở cài đặt", exact: true }).click();
     await page.getByRole("radio", { name: scene, exact: true }).check();

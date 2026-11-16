@@ -71,3 +71,13 @@ Sau một phiên tập trung hoàn tất, sổ ghi nhớ cho phép ghi điều �
 Khay Để sau phiên học ghi nhanh ý nghĩ chen ngang và đánh dấu đã xử lý. Tổng kết tuần tính bảy ngày theo giờ địa phương, chỉ dùng phiên tập trung đã hoàn tất. Khung giờ thường học chỉ xuất hiện từ ba phiên; gợi ý về nhịp học cần ba nhật ký đã lưu và không tự thay thời lượng. Biểu đồ cũ nằm trong mục mở rộng.
 
 Dữ liệu mới nằm ở trường personal trong cùng phong bì localStorage/backup v1; bản cũ không có trường này vẫn nhập được. Các bản sao lưu mới bao gồm môn học, nhật ký, bản nháp và ghi nhanh. Không tạo tài khoản hoặc tải dữ liệu lên cloud để sử dụng các tính năng cá nhân. Đồng bộ sẵn có được chuyển vào mục tùy chọn.
+
+## Thế giới học
+
+Nút **Đổi thế giới** mở sáu không gian: Hiên mây tím, Thư viện tĩnh, Nhà bên rừng, Đài quan sát đêm, Quán bên mưa và Góc ôn thi. Xem thử trực tiếp, đánh dấu yêu thích, chọn sáng/tối/hệ thống và bật/tắt chuyển động. Hủy hoặc Esc trả lại lựa chọn trước đó; Áp dụng lưu trên máy. Giao diện tôn trọng chế độ giảm chuyển động của thiết bị.
+
+**Toàn cảnh** mở cảnh học lớn; **Bàn học** giữ bố cục làm việc ban đầu. **Sổ học** mở nhật ký trong chế độ toàn cảnh; sổ tự hiện khi đến giờ nghỉ. Chọn mục tiêu hoặc môn học không tự đổi thế giới. Thay giao diện không khởi tạo lại timer, bản nháp công việc hay bộ lọc tổng kết.
+
+Đồng hồ nổi mặc định 280×160, ưu tiên chữ số khi thu nhỏ. Đã có kiểm thử cả Document Picture-in-Picture và cửa sổ dự phòng từ 120×60 đến 320×180, gồm bộ đếm 180 phút. Khi thu nhỏ cửa sổ thành biểu tượng trên thanh tác vụ, hệ điều hành không còn hiển thị nội dung cửa sổ.
+
+Các cảnh dùng thành phần vector trong ứng dụng, không tải tài nguyên Innook. Trang tham khảo không mở được do quyền truy cập lưu trong ứng dụng. Fosta được thử lại ngày 16/11/2026 nhưng thiếu khóa cấu hình, nên không có ảnh AI mới. Tiêu chí PDF được tổng hợp trong AGENTS.md; không cần PDF để tiếp tục phát triển.

@@ -10,6 +10,7 @@ import "./styles/palettes.css";
 import "./styles/settings.css";
 import "./styles/features.css";
 import "./styles/personal.css";
+import "./styles/worlds.css";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>

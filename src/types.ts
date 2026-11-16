@@ -1,6 +1,8 @@
 export type Mode = "FOCUS" | "SHORT_BREAK" | "LONG_BREAK";
 export type Language = "vi" | "en";
 export type RoomScene = "study" | "library" | "cafe" | "forest";
+export type StudyWorldId =
+  "lavender" | "academia" | "forest" | "midnight" | "rainy-cafe" | "exam";
 export type StudyGoal = "read" | "practice" | "write" | "memorize" | "review";
 export interface StudySubject {
   id: string;
@@ -60,6 +62,10 @@ export interface FocusSession {
 }
 export interface UserSettings {
   theme: "light" | "dark" | "system";
+  world: StudyWorldId;
+  favoriteWorlds?: StudyWorldId[];
+  worldMotion?: boolean;
+  studyView?: "desk" | "world";
   language: Language;
   scene: RoomScene;
   focusDuration: number;
@@ -90,6 +96,10 @@ export interface TimerState {
 }
 export const defaults: UserSettings = {
   theme: "dark",
+  world: "lavender",
+  favoriteWorlds: ["lavender"],
+  worldMotion: true,
+  studyView: "world",
   language: "vi",
   scene: "study",
   palette: "lavender",

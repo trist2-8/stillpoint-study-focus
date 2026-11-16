@@ -139,6 +139,10 @@ for (const width of [320, 360, 390, 430, 768, 1024, 1280, 1440, 1920]) {
         for (const palette of ["lavender", "midnight", "forest"]) {
           for (const path of ["/", "/tasks", "/insights"]) {
             await page.goto(path);
+            if (path === "/")
+              await page
+                .getByRole("button", { name: "Bàn học", exact: true })
+                .click();
             await page.evaluate(
               ({ theme, palette }) => {
                 document.documentElement.dataset.theme = theme;

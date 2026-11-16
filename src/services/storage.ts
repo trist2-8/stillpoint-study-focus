@@ -1,3 +1,4 @@
+import { isWorldId, resolveWorld } from "../features/focus/worlds";
 import {
   normalizePersonal,
   optionalSubject,
@@ -32,6 +33,20 @@ export function validSettings(v: unknown): v is UserSettings {
   )
     return false;
   if (!object(v) || !["light", "dark", "system"].includes(String(v.theme)))
+    return false;
+  if (v.world !== undefined && !isWorldId(v.world)) return false;
+  if (
+    v.favoriteWorlds !== undefined &&
+    (!Array.isArray(v.favoriteWorlds) ||
+      !v.favoriteWorlds.every((world) => isWorldId(world)))
+  )
+    return false;
+  if (v.worldMotion !== undefined && typeof v.worldMotion !== "boolean")
+    return false;
+  if (
+    v.studyView !== undefined &&
+    !["desk", "world"].includes(String(v.studyView))
+  )
     return false;
   if (v.language !== undefined && !["vi", "en"].includes(String(v.language)))
     return false;
@@ -144,12 +159,23 @@ export function decode(raw: string | null): Data {
           ? envelope.data
           : null;
     if (!object(data)) return fallback;
-    const settings = validSettings(data.settings)
+    const candidate = object(data.settings)
+      ? {
+          ...data.settings,
+          world: resolveWorld(data.settings.world, data.settings.palette),
+          favoriteWorlds: Array.isArray(data.settings.favoriteWorlds)
+            ? data.settings.favoriteWorlds.filter(isWorldId)
+            : defaults.favoriteWorlds,
+        }
+      : data.settings;
+    const settings = validSettings(candidate)
       ? {
           ...defaults,
-          ...data.settings,
-          language: data.settings.language ?? defaults.language,
-          scene: data.settings.scene ?? defaults.scene,
+          ...candidate,
+          language: candidate.language ?? defaults.language,
+          world: candidate.world ?? defaults.world,
+          favoriteWorlds: candidate.favoriteWorlds ?? defaults.favoriteWorlds,
+          scene: candidate.scene ?? defaults.scene,
         }
       : fallback.settings;
     const tasks = Array.isArray(data.tasks) ? data.tasks.filter(validTask) : [];

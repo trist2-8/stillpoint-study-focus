@@ -65,6 +65,7 @@ for (const [width, height] of [
     async ({ page }, testInfo) => {
       await page.setViewportSize({ width, height });
       await page.goto("/");
+      await page.getByRole("button", { name: "Bàn học", exact: true }).click();
       await page.evaluate(() => document.fonts.ready);
       await checkAlignment(page);
       if (width > 760) {
@@ -121,6 +122,7 @@ test("long task titles and maximum timer duration stay inside their controls", a
 }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.goto("/");
+  await page.getByRole("button", { name: "Bàn học", exact: true }).click();
   await page.getByRole("button", { name: "Thêm việc", exact: true }).click();
   const title =
     "Ôn tập chương phương trình lượng giác và hoàn thành toàn bộ bài luyện tập cuối chương";

@@ -37,6 +37,19 @@ interface Store extends Data {
   deleteTask: (id: string) => void;
   settingsSave: (settings: UserSettings) => void;
   restore: (data: Data) => void;
+  appearanceSave: (
+    appearance: Partial<
+      Pick<
+        UserSettings,
+        | "world"
+        | "favoriteWorlds"
+        | "worldMotion"
+        | "studyView"
+        | "theme"
+        | "palette"
+      >
+    >,
+  ) => void;
   putSubject: (subject: StudySubject) => void;
   chooseSubject: (id: string | null) => void;
   chooseGoal: (goal: StudyGoal) => void;
@@ -131,6 +144,9 @@ export const useApp = create<Store>((set, get) => ({
     const subject = personal.subjects.find((item) => item.id === id);
     set({
       personal: { ...personal, activeSubjectId: id },
+      settings: subject
+        ? { ...get().settings, scene: subject.scene }
+        : get().settings,
       timer: idle(
         "FOCUS",
         get().settings,
@@ -138,9 +154,6 @@ export const useApp = create<Store>((set, get) => ({
           ? (selectedTask?.id ?? null)
           : null,
       ),
-      settings: subject
-        ? { ...get().settings, scene: subject.scene }
-        : get().settings,
     });
   },
   chooseGoal: (goal) => {
@@ -150,17 +163,7 @@ export const useApp = create<Store>((set, get) => ({
       get().timer.status === "PAUSED"
     )
       return;
-    const scenes = {
-      read: "library",
-      practice: "cafe",
-      write: "study",
-      memorize: "library",
-      review: "forest",
-    } as const;
-    set({
-      personal: { ...(get().personal ?? emptyPersonal), goal },
-      settings: { ...get().settings, scene: scenes[goal] },
-    });
+    set({ personal: { ...(get().personal ?? emptyPersonal), goal } });
   },
   saveJournal: (journal) => {
     if (
@@ -366,13 +369,22 @@ export const useApp = create<Store>((set, get) => ({
           : get().timer,
     }),
   restore: (data) => set(data),
+  appearanceSave: (appearance) => {
+    const settings = { ...get().settings, ...appearance };
+    if (!validSettings(settings))
+      throw new Error(tr("Vui lòng nhập cài đặt hợp lệ."));
+    set({ settings });
+  },
   settingsSave: (settings) => {
     if (!validSettings(settings))
       throw new Error(tr("Vui lòng nhập cài đặt hợp lệ."));
     set({
       settings,
       timer:
-        get().timer.status === "IDLE"
+        get().timer.status === "IDLE" &&
+        (settings.focusDuration !== get().settings.focusDuration ||
+          settings.shortBreakDuration !== get().settings.shortBreakDuration ||
+          settings.longBreakDuration !== get().settings.longBreakDuration)
           ? idle(get().timer.mode, settings, get().timer.currentTaskId)
           : get().timer,
     });

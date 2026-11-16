@@ -3,6 +3,10 @@ import { createPortal } from "react-dom";
 import { Pause, Play, X } from "lucide-react";
 import { useApp } from "../../stores/app-store";
 import { useI18n } from "../../i18n";
+import miniStyles from "./mini-timer.css?inline";
+import WorldScene, { useColorMode } from "../worlds/WorldScene";
+import { useWorldAppearance } from "../worlds/world-preview";
+import { worldTokens, worldById } from "./worlds";
 import { remaining } from "./domain/timer-engine";
 import { timerTabTitle } from "./domain/timer-tab";
 interface PictureWindow extends Window {
@@ -22,6 +26,9 @@ function TimerContents({
 }) {
   const timer = useApp((state) => state.timer);
   const tasks = useApp((state) => state.tasks);
+  const appearance = useWorldAppearance();
+  const colorMode = useColorMode(appearance.theme);
+  const world = worldById(appearance.world);
   const { language } = useI18n();
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
@@ -54,43 +61,64 @@ function TimerContents({
       : timer.status === "COMPLETED"
         ? "next"
         : "start";
+  const actionLabel =
+    language === "vi"
+      ? timer.status === "RUNNING"
+        ? "Tạm dừng"
+        : timer.status === "COMPLETED"
+          ? "Tiếp theo"
+          : "Tiếp tục"
+      : timer.status === "RUNNING"
+        ? "Pause"
+        : timer.status === "COMPLETED"
+          ? "Next"
+          : "Resume";
   return (
-    <div className="mini-timer">
-      <header>
-        <img src={new URL("/favicon.svg", location.origin).href} alt="" />
-        <span>Focus Flow</span>
+    <div
+      className="mini-timer"
+      data-mode={colorMode}
+      style={worldTokens(appearance.world, colorMode)}
+    >
+      <div className="mini-world">
+        <WorldScene world={appearance.world} mode={colorMode} />
+      </div>
+      <span className="mini-phase">{mode[timer.mode]}</span>
+      <div className="mini-digits">
+        <strong role="timer" aria-label={mode[timer.mode] + " " + display}>
+          {display}
+        </strong>
+      </div>
+      <p
+        className="mini-task"
+        title={tasks.find((task) => task.id === timer.currentTaskId)?.title}
+      >
+        {tasks.find((task) => task.id === timer.currentTaskId)?.title ??
+          (language === "vi" ? world.vi : world.en)}
+      </p>
+      <div className="mini-actions">
         <button
+          className="mini-play"
+          aria-label={actionLabel}
+          title={actionLabel}
+          onClick={() => useApp.getState().timerAction(action)}
+        >
+          {timer.status === "RUNNING" ? (
+            <Pause size={18} />
+          ) : (
+            <Play size={18} />
+          )}
+        </button>
+        <button
+          className="mini-close"
           aria-label={
             language === "vi" ? "Đóng đồng hồ nổi" : "Close floating timer"
           }
+          title={language === "vi" ? "Đóng" : "Close"}
           onClick={onClose}
         >
-          <X size={18} />
+          <X size={17} />
         </button>
-      </header>
-      <span>{mode[timer.mode]}</span>
-      <strong role="timer">{display}</strong>
-      <p>
-        {tasks.find((task) => task.id === timer.currentTaskId)?.title ??
-          (language === "vi" ? "Từng bước một." : "One step at a time.")}
-      </p>
-      <button
-        className="mini-play"
-        onClick={() => useApp.getState().timerAction(action)}
-      >
-        {timer.status === "RUNNING" ? <Pause size={18} /> : <Play size={18} />}{" "}
-        {language === "vi"
-          ? timer.status === "RUNNING"
-            ? "Tạm dừng"
-            : timer.status === "COMPLETED"
-              ? "Tiếp theo"
-              : "Tiếp tục"
-          : timer.status === "RUNNING"
-            ? "Pause"
-            : timer.status === "COMPLETED"
-              ? "Next"
-              : "Resume"}
-      </button>
+      </div>
     </div>
   );
 }
@@ -99,6 +127,7 @@ export default function FloatingTimer() {
   const [popup, setPopup] = useState<Window | null>(null);
   const [message, setMessage] = useState("");
   const opened = useRef<Window | null>(null);
+  const opening = useRef(false);
   useEffect(
     () => () => {
       opened.current?.close();
@@ -110,15 +139,16 @@ export default function FloatingTimer() {
       opened.current.focus();
       return;
     }
+    if (opening.current) return;
+    opening.current = true;
     try {
       const api = (window as PictureWindow).documentPictureInPicture;
       const child = api
-        ? await api.requestWindow({ width: 360, height: 320 })
-        : window.open("", "focus-flow-timer", "popup,width=360,height=320");
+        ? await api.requestWindow({ width: 280, height: 160 })
+        : window.open("", "focus-flow-timer", "popup,width=280,height=160");
       if (!child) throw new Error("blocked");
       const style = child.document.createElement("style");
-      style.textContent =
-        "*{box-sizing:border-box}body{margin:0;background:#251a3a;color:#f6eaff;font:14px/1.5 system-ui,sans-serif}button{font:inherit;cursor:pointer;border:1px solid #80699e;background:transparent;color:inherit;border-radius:10px;padding:8px;min-height:40px}:focus-visible{outline:3px solid #d1bdff;outline-offset:2px}.mini-timer{padding:18px;display:flex;align-items:center;flex-direction:column;gap:8px}.mini-timer header{display:flex;align-items:center;gap:8px;width:100%;margin-bottom:8px}.mini-timer header img{width:26px;height:26px}.mini-timer header button{margin-left:auto;display:grid;place-items:center}.mini-timer strong{font-size:64px;line-height:1.1;font-variant-numeric:tabular-nums}.mini-timer p{margin:0;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mini-play{margin-top:8px;background:#b495f5;color:#251a3a;border:0;display:flex;align-items:center;justify-content:center;gap:8px;width:100%}";
+      style.textContent = miniStyles;
       child.document.head.appendChild(style);
       child.document.documentElement.lang = language;
       child.addEventListener(
@@ -144,6 +174,8 @@ export default function FloatingTimer() {
           ? "Hãy cho phép cửa sổ bật lên để mở đồng hồ mini."
           : "Allow pop-ups to open the mini timer.",
       );
+    } finally {
+      opening.current = false;
     }
   };
   useEffect(() => {

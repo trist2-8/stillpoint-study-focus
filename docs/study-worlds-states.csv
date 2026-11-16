@@ -1,0 +1,23 @@
+surface,kind,state,status,evidence,note
+World gallery,control,default,DONE,test:world preview cancel favorites and reload,
+World gallery,control,hover,DONE,src/styles/worlds.css,
+World gallery,control,focus_visible,DONE,test:empty favorites and blocked popups show useful recovery,Native modal returns focus; rendered keyboard snapshots checked
+World gallery,control,active,DONE,test:six distinct worlds reflow in both lighting modes,
+World gallery,control,disabled,NA,,World choices remain available during a session
+World catalog,data_view,loading,NA,,Catalog is synchronous and local
+World catalog,data_view,empty,DONE,test:empty favorites and blocked popups show useful recovery,
+World catalog,data_view,error,DONE,test:recovers unknown optional world values without losing a session or durations,
+World catalog,data_view,populated,DONE,e2e/worlds.spec.ts,
+World catalog,data_view,long_content,DONE,e2e/worlds.spec.ts,Six localized world labels at 320px
+Immersive study,page,narrow_320,DONE,e2e/worlds.spec.ts,
+Immersive study,page,wide_1440,DONE,e2e/worlds.spec.ts,
+Immersive study,page,long_content,DONE,e2e/layout.spec.ts,Long task title and 180 minute timer
+World scene,media,loading,NA,,Vector is part of the application with no async image request
+World scene,media,error,DONE,src/features/worlds/worlds.test.ts,Unknown world falls back to safe tokens and local scene
+World scene,media,populated,DONE,e2e/worlds.spec.ts,
+Floating timer,action,default,DONE,e2e/worlds.spec.ts,
+Floating timer,action,hover,DONE,src/features/focus/mini-timer.css,Native pointer and tooltip
+Floating timer,action,focus_visible,DONE,src/features/focus/mini-timer.css,
+Floating timer,action,disabled,NA,,Timer is available in every timer state
+Floating timer,action,busy,DONE,src/features/focus/FloatingTimer.tsx,Opening guard prevents duplicate requests
+Floating timer,action,failure,DONE,test:empty favorites and blocked popups show useful recovery,

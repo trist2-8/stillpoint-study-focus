@@ -20,7 +20,8 @@ import { defaults, type UserSettings } from "../../types";
 import { validSettings } from "../../services/storage";
 import DataSettings from "./DataSettings";
 import { rooms } from "../focus/RoomScenes";
-import { applyAppearance } from "./appearance";
+import { WorldButton } from "../worlds/WorldControls";
+import { useWorldPreview } from "../worlds/world-preview";
 
 type NumericSetting =
   | "focusDuration"
@@ -82,13 +83,28 @@ export default function SettingsModal({ onClose }: { onClose: () => void }) {
     return draft[setting] !== (saved[setting] ?? defaults[setting]);
   });
   useEffect(() => {
-    const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const preview = () => applyAppearance(draft);
-    preview();
-    media.addEventListener("change", preview);
-    return () => media.removeEventListener("change", preview);
-  }, [draft.theme, draft.palette]);
-  useEffect(() => () => applyAppearance(useApp.getState().settings), []);
+    useWorldPreview.getState().setPreview({
+      theme: draft.theme,
+      palette: draft.palette,
+      world: draft.world,
+    });
+  }, [draft.theme, draft.palette, draft.world]);
+  useEffect(() => () => useWorldPreview.getState().setPreview(null), []);
+  useEffect(() => {
+    const sync = () => {
+      const current = useApp.getState().settings;
+      setDraft((previous) => ({
+        ...previous,
+        world: current.world,
+        theme: current.theme,
+        palette: current.palette,
+        favoriteWorlds: current.favoriteWorlds,
+        worldMotion: current.worldMotion,
+      }));
+    };
+    window.addEventListener("focus-flow:world-applied", sync);
+    return () => window.removeEventListener("focus-flow:world-applied", sync);
+  }, []);
 
   const number = (
     key: NumericSetting,
@@ -363,8 +379,21 @@ export default function SettingsModal({ onClose }: { onClose: () => void }) {
                 <option value="en">English</option>
               </select>
             </label>
+            <div className="settings-world-entry">
+              <WorldButton />
+              <p className="settings-note">
+                {language === "vi"
+                  ? "Sáu thế giới có cảnh toàn màn hình, ánh sáng và chuyển động riêng. Áp dụng ngay trong cửa sổ xem thử."
+                  : "Six worlds with full scenes, lighting and gentle motion. Apply directly in the preview."}
+              </p>
+            </div>
             <fieldset className="settings-choices">
               <legend>{tr("Cảnh phòng học")}</legend>
+              <p className="settings-note">
+                {language === "vi"
+                  ? "Ảnh minh họa cho chế độ Bàn học."
+                  : "Illustration for Desk view."}
+              </p>
               <div className="room-choices">
                 {rooms.map((room) => (
                   <label key={room.id}>
@@ -406,7 +435,11 @@ export default function SettingsModal({ onClose }: { onClose: () => void }) {
               </div>
             </fieldset>
             <fieldset className="settings-choices">
-              <legend>{tr("Bảng màu")}</legend>
+              <legend>
+                {language === "vi"
+                  ? "Chọn nhanh thế giới"
+                  : "Quick world choices"}
+              </legend>
               <div className="palette-choices">
                 {palettes.map(({ value, label, description }) => (
                   <label
@@ -418,8 +451,10 @@ export default function SettingsModal({ onClose }: { onClose: () => void }) {
                       type="radio"
                       name="palette"
                       value={value}
-                      checked={draft.palette === value}
-                      onChange={() => setDraft({ ...draft, palette: value })}
+                      checked={draft.world === value}
+                      onChange={() =>
+                        setDraft({ ...draft, palette: value, world: value })
+                      }
                     />
                     <span className="palette-preview" aria-hidden="true">
                       <span className="preview-sidebar">

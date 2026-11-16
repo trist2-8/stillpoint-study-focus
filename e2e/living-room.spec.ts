@@ -5,6 +5,7 @@ test("companion visibility persists and plant grows only after focus completion"
 }) => {
   await page.clock.install();
   await page.goto("/");
+  await page.getByRole("button", { name: "Bàn học", exact: true }).click();
   await expect(page.locator(".study-cat")).toHaveAttribute(
     "data-state",
     "sleeping",
@@ -15,6 +16,7 @@ test("companion visibility persists and plant grows only after focus completion"
     "0",
   );
   await page.goto("/");
+  await page.getByRole("button", { name: "Bàn học", exact: true }).click();
   await page.getByRole("button", { name: "Mở cài đặt", exact: true }).click();
   await page.getByLabel("Hiện mèo đồng hành").uncheck();
   await page.getByRole("button", { name: "Lưu cài đặt" }).click();
@@ -65,6 +67,7 @@ test("reduced motion stops ambient animations while timer runs", async ({
 }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
+  await page.getByRole("button", { name: "Bàn học", exact: true }).click();
   await page
     .getByRole("button", { name: "Bắt đầu tập trung", exact: true })
     .click();

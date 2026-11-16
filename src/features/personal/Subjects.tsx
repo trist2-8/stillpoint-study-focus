@@ -152,7 +152,7 @@ function SubjectForm({
           />
         </label>
         <label className="field personal-field">
-          {copy("Cảnh khi mở môn", "Room for this subject")}
+          {copy("Ảnh ở chế độ Bàn học", "Image in Desk view")}
           <select
             className="input"
             value={draft.scene}

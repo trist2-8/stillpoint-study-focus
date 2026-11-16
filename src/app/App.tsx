@@ -1,3 +1,6 @@
+import WorldControls from "../features/worlds/WorldControls";
+import WorldGallery from "../features/worlds/WorldGallery";
+import { useWorldAppearance } from "../features/worlds/world-preview";
 import FloatingTimer from "../features/focus/FloatingTimer";
 import { tr, useI18n, locale, setLanguage } from "../i18n";
 import { lazy, Suspense, useEffect, useState } from "react";
@@ -68,6 +71,13 @@ export default function App() {
   const { language } = useI18n();
   const [collapsed, setCollapsed] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const appearance = useWorldAppearance();
+  const [worldsOpen, setWorldsOpen] = useState(false);
+  useEffect(() => {
+    const show = () => setWorldsOpen(true);
+    window.addEventListener("focus-flow:worlds", show);
+    return () => window.removeEventListener("focus-flow:worlds", show);
+  }, []);
   const settings = useApp((s) => s.settings);
   const toast = useApp((s) => s.toast);
   const timer = useApp((state) => state.timer);
@@ -94,11 +104,17 @@ export default function App() {
   }, [settings.language]);
   useEffect(() => {
     const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const apply = () => applyAppearance(settings);
+    const apply = () => applyAppearance(appearance);
     apply();
     media.addEventListener("change", apply);
     return () => media.removeEventListener("change", apply);
-  }, [settings.theme, settings.palette]);
+  }, [
+    appearance.theme,
+    appearance.palette,
+    appearance.world,
+    appearance.worldMotion,
+    appearance.studyView,
+  ]);
   useEffect(() => {
     document.title = timerTabTitle(timer, now.getTime());
     const favicon = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
@@ -124,7 +140,11 @@ export default function App() {
   return (
     <div
       className={`shell reference-shell personal-shell ${collapsed ? "collapsed" : ""} ${location.pathname === "/" ? "is-focus" : ""}`}
+      data-world={appearance.world}
     >
+      <a className="skip-content" href="#study-content">
+        {language === "vi" ? "Đến nội dung học" : "Skip to study content"}
+      </a>
       <aside className="sidebar">
         <NavLink
           to="/"
@@ -246,7 +266,8 @@ export default function App() {
             </IconButton>
           </div>
         </header>
-        <main className="page">
+        <main className="page" id="study-content" tabIndex={-1}>
+          <WorldControls focusPage={location.pathname === "/"} />
           <Suspense fallback={<p role="status">{tr("Đang mở phòng học…")}</p>}>
             <Routes>
               <Route path="/" element={<FocusPage />} />
@@ -268,6 +289,7 @@ export default function App() {
           <SettingsModal onClose={() => setSettingsOpen(false)} />
         </Suspense>
       )}
+      {worldsOpen && <WorldGallery onClose={() => setWorldsOpen(false)} />}
       {toast && (
         <div className="toast" role="status">
           <span>{toast}</span>

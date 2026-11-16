@@ -1,3 +1,5 @@
+import WorldScene, { useColorMode } from "../worlds/WorldScene";
+import { useWorldAppearance } from "../worlds/world-preview";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -39,8 +41,32 @@ import type { Mode } from "../../types";
 export default function FocusPage() {
   const { language } = useI18n();
   const copy = useCopy();
+  const appearance = useWorldAppearance();
+  const colorMode = useColorMode(appearance.theme);
+  const [notesOpen, setNotesOpen] = useState(false);
   const state = useApp();
   const { timer, settings, sessions, tasks } = state;
+  useEffect(() => {
+    const toggle = () => {
+      if (
+        appearance.studyView === "desk" ||
+        timer.mode !== "FOCUS" ||
+        timer.status === "COMPLETED"
+      )
+        document
+          .querySelector(".desk-notebook")
+          ?.scrollIntoView({ block: "start" });
+      else setNotesOpen((value) => !value);
+    };
+    window.addEventListener("focus-flow:toggle-notes", toggle);
+    return () => window.removeEventListener("focus-flow:toggle-notes", toggle);
+  }, [appearance.studyView, timer.mode, timer.status]);
+  useEffect(() => {
+    if (notesOpen)
+      document
+        .querySelector(".desk-notebook")
+        ?.scrollIntoView({ block: "start" });
+  }, [notesOpen]);
   const personal = state.personal ?? emptyPersonal;
   const [now, setNow] = useState(Date.now());
   const [adding, setAdding] = useState(false);
@@ -125,6 +151,10 @@ export default function FocusPage() {
       className="personal-today"
       data-status={timer.status}
       data-mode={timer.mode}
+      data-study-view={appearance.studyView ?? "world"}
+      data-notes={
+        notesOpen || timer.mode !== "FOCUS" || timer.status === "COMPLETED"
+      }
     >
       <header className="flow-header today-header">
         <div>
@@ -165,6 +195,9 @@ export default function FocusPage() {
           data-scene={settings.scene ?? "study"}
           aria-label={copy("Bàn học hôm nay", "Today's study desk")}
         >
+          <div className="world-stage-scene">
+            <WorldScene world={appearance.world} mode={colorMode} />
+          </div>
           <div className="desk-intention">
             <div className="intention-heading">
               <BookOpen size={18} />
@@ -226,7 +259,6 @@ export default function FocusPage() {
                   companion={settings.companionEnabled !== false}
                 />
               )}
-              <AmbientAudio />
             </div>
             {timer.mode !== "FOCUS" && (
               <p className="break-note">
@@ -390,6 +422,9 @@ export default function FocusPage() {
                 : tr("Chuyển phiên theo cài đặt của bạn")}
             </p>
           </div>
+          <div className="world-stage-audio">
+            <AmbientAudio />
+          </div>
         </section>
         <SessionNotebook />
       </div>
@@ -440,7 +475,7 @@ export default function FocusPage() {
                 </button>
                 {!task.isCompleted && task.priority !== "low" && (
                   <span className={`priority-tag ${task.priority}`}>
-                    {task.priority === "high" ? "Cao" : tr("Vừa")}
+                    {task.priority === "high" ? tr("Cao") : tr("Vừa")}
                   </span>
                 )}
                 <button
