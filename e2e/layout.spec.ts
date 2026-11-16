@@ -7,7 +7,7 @@ async function checkAlignment(page: Page) {
     const orb = box(".flow-orb");
     const digits = box("[role=timer]");
     const room = box(".flow-room-wrap");
-    const tasks = box(".flow-tasks");
+    const tasks = box(".desk-notebook");
     const picker = box(".flow-current-task");
     const controls = box(".flow-controls");
     const buttons = [

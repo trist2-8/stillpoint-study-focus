@@ -10,7 +10,7 @@ test("English applies across routes and survives reload", async ({ page }) => {
     page.getByRole("status").filter({ hasText: "Study room settings saved." }),
   ).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "A quiet space to study." }),
+    page.getByRole("heading", { name: "Your day, your pace." }),
   ).toBeVisible();
   await expect(page.getByLabel("Session mode")).toHaveValue("FOCUS");
   for (const path of ["/tasks", "/insights", "/"]) {
@@ -86,13 +86,11 @@ test("export and restore preview protect existing data", async ({ page }) => {
   const file = await download;
   expect(file.suggestedFilename()).toContain("focus-flow-backup");
   const path = await file.path();
-  await page
-    .getByLabel("Tệp sao lưu", { exact: true })
-    .setInputFiles({
-      name: "bad.json",
-      mimeType: "application/json",
-      buffer: Buffer.from('{"application":"focus-flow","version":1,"data":{}}'),
-    });
+  await page.getByLabel("Tệp sao lưu", { exact: true }).setInputFiles({
+    name: "bad.json",
+    mimeType: "application/json",
+    buffer: Buffer.from('{"application":"focus-flow","version":1,"data":{}}'),
+  });
   await expect(
     page.getByRole("status").filter({ hasText: "Tệp sao lưu không hợp lệ" }),
   ).toBeVisible();

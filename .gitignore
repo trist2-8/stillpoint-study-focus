@@ -8,3 +8,5 @@ vite-local*.log
 .env.local
 .env.*.local
 .vercel/
+
+test-results-cloud/

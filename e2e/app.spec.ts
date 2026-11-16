@@ -80,9 +80,7 @@ test("deadline restoration and both calendars reflect only completed focus sessi
 }) => {
   await page.clock.install();
   await page.goto("/");
-  await expect(
-    page.locator('.activity-grid button[data-level="0"]'),
-  ).toHaveCount(30);
+  await expect(page.locator(".today-progress")).toContainText("0 / 6");
   await page
     .getByRole("button", { name: "Bắt đầu tập trung", exact: true })
     .click();
@@ -98,6 +96,10 @@ test("deadline restoration and both calendars reflect only completed focus sessi
   await expect(
     page.getByRole("button", { name: "Tạm dừng", exact: true }),
   ).toBeVisible();
+  await page.goto("/insights");
+  await page
+    .getByText("Xem biểu đồ và lịch học chi tiết", { exact: true })
+    .click();
   await expect(
     page.locator('.activity-grid button[data-level="1"]'),
   ).toHaveCount(1);
@@ -112,7 +114,10 @@ test("deadline restoration and both calendars reflect only completed focus sessi
   expect(history).toHaveLength(1);
   expect(history[0].actualDurationMs).toBe(1500000);
   await page.goto("/insights");
-  await expect(page.getByText("25 phút", { exact: true })).toHaveCount(2);
+  await expect(page.locator(".review-total")).toContainText("25 phút");
+  await page
+    .getByText("Xem biểu đồ và lịch học chi tiết", { exact: true })
+    .click();
   await page.getByLabel("Khoảng thời gian tiến độ").selectOption("90");
   await expect(page.locator(".activity-grid button")).toHaveCount(90);
   await page.locator('.activity-grid button[data-level="1"]').focus();
@@ -158,7 +163,7 @@ for (const width of [320, 360, 390, 430, 768, 1024, 1280, 1440, 1920]) {
                 card!.y + card!.height,
               );
               const contrast = await page
-                .locator(".activity-description")
+                .locator(".desk-guidance")
                 .evaluate((element) => {
                   const luminance = (color: string) => {
                     const rgb = color
@@ -175,7 +180,7 @@ for (const width of [320, 360, 390, 430, 768, 1024, 1280, 1440, 1920]) {
                   };
                   const text = luminance(getComputedStyle(element).color);
                   const background = luminance(
-                    getComputedStyle(element.closest(".flow-card")!)
+                    getComputedStyle(element.closest(".desk-focus")!)
                       .backgroundColor,
                   );
                   return (

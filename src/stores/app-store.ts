@@ -1,3 +1,11 @@
+import {
+  emptyPersonal,
+  validSubject,
+  validJournal,
+  validDistraction,
+  goals,
+} from "../features/personal/domain/personal-study";
+import type { StudySubject, StudyGoal, SessionJournal } from "../types";
 import { tr } from "../i18n";
 import { create } from "zustand";
 import {
@@ -29,6 +37,12 @@ interface Store extends Data {
   deleteTask: (id: string) => void;
   settingsSave: (settings: UserSettings) => void;
   restore: (data: Data) => void;
+  putSubject: (subject: StudySubject) => void;
+  chooseSubject: (id: string | null) => void;
+  chooseGoal: (goal: StudyGoal) => void;
+  saveJournal: (journal: SessionJournal) => void;
+  addDistraction: (text: string) => void;
+  resolveDistraction: (id: string) => void;
 }
 export const useApp = create<Store>((set, get) => ({
   ...load(),
@@ -38,7 +52,21 @@ export const useApp = create<Store>((set, get) => ({
     get().tick();
     const { timer, settings, sessions } = get();
     if (action === "start") {
-      set({ timer: start(timer) });
+      const personal = get().personal ?? emptyPersonal;
+      const task = get().tasks.find((item) => item.id === timer.currentTaskId);
+      set({
+        timer: start(
+          timer.status === "IDLE"
+            ? {
+                ...timer,
+                subjectId: task
+                  ? (task.subjectId ?? null)
+                  : personal.activeSubjectId,
+                goal: personal.goal,
+              }
+            : timer,
+        ),
+      });
       return;
     }
     if (action === "pause") {
@@ -59,7 +87,128 @@ export const useApp = create<Store>((set, get) => ({
     get().tick();
     set({ timer: idle(mode, get().settings, get().timer.currentTaskId) });
   },
-  selectTask: (id) => set({ timer: idle("FOCUS", get().settings, id) }),
+  selectTask: (id) => {
+    const task = get().tasks.find((item) => item.id === id);
+    if (!task) return;
+    const personal = get().personal ?? emptyPersonal;
+    set({
+      timer: idle("FOCUS", get().settings, id),
+      personal: { ...personal, activeSubjectId: task.subjectId ?? null },
+    });
+  },
+  putSubject: (subject) => {
+    if (!validSubject(subject)) throw new Error(tr("Môn học không hợp lệ."));
+    const personal = get().personal ?? emptyPersonal;
+    if (
+      personal.subjects.some(
+        (item) =>
+          item.id !== subject.id &&
+          item.name.trim().toLocaleLowerCase() ===
+            subject.name.trim().toLocaleLowerCase(),
+      )
+    )
+      throw new Error(tr("Môn học này đã có."));
+    set({
+      personal: {
+        ...personal,
+        subjects: personal.subjects.some((item) => item.id === subject.id)
+          ? personal.subjects.map((item) =>
+              item.id === subject.id ? subject : item,
+            )
+          : [...personal.subjects, subject],
+      },
+    });
+  },
+  chooseSubject: (id) => {
+    const personal = get().personal ?? emptyPersonal;
+    if (id !== null && !personal.subjects.some((subject) => subject.id === id))
+      return;
+    if (get().timer.status === "RUNNING" || get().timer.status === "PAUSED")
+      return;
+    const selectedTask = get().tasks.find(
+      (task) => task.id === get().timer.currentTaskId,
+    );
+    const subject = personal.subjects.find((item) => item.id === id);
+    set({
+      personal: { ...personal, activeSubjectId: id },
+      timer: idle(
+        "FOCUS",
+        get().settings,
+        (selectedTask?.subjectId ?? null) === id
+          ? (selectedTask?.id ?? null)
+          : null,
+      ),
+      settings: subject
+        ? { ...get().settings, scene: subject.scene }
+        : get().settings,
+    });
+  },
+  chooseGoal: (goal) => {
+    if (
+      !goals.includes(goal) ||
+      get().timer.status === "RUNNING" ||
+      get().timer.status === "PAUSED"
+    )
+      return;
+    const scenes = {
+      read: "library",
+      practice: "cafe",
+      write: "study",
+      memorize: "library",
+      review: "forest",
+    } as const;
+    set({
+      personal: { ...(get().personal ?? emptyPersonal), goal },
+      settings: { ...get().settings, scene: scenes[goal] },
+    });
+  },
+  saveJournal: (journal) => {
+    if (
+      !validJournal(journal) ||
+      !get().sessions.some(
+        (session) =>
+          session.id === journal.sessionId && session.type === "FOCUS",
+      )
+    )
+      throw new Error(tr("Nhật ký không hợp lệ."));
+    const personal = get().personal ?? emptyPersonal;
+    set({
+      personal: {
+        ...personal,
+        journals: [
+          ...personal.journals.filter(
+            (item) => item.sessionId !== journal.sessionId,
+          ),
+          journal,
+        ],
+      },
+    });
+  },
+  addDistraction: (text) => {
+    const personal = get().personal ?? emptyPersonal;
+    const item = {
+      id: crypto.randomUUID(),
+      text: text.trim(),
+      subjectId: personal.activeSubjectId,
+      createdAt: Date.now(),
+      resolved: false,
+    };
+    if (!validDistraction(item)) return;
+    set({
+      personal: { ...personal, distractions: [...personal.distractions, item] },
+    });
+  },
+  resolveDistraction: (id) => {
+    const personal = get().personal ?? emptyPersonal;
+    set({
+      personal: {
+        ...personal,
+        distractions: personal.distractions.map((item) =>
+          item.id === id ? { ...item, resolved: !item.resolved } : item,
+        ),
+      },
+    });
+  },
   tick: () => {
     const snapshot = get();
     if (snapshot.timer.status !== "RUNNING") return;
@@ -75,8 +224,9 @@ export const useApp = create<Store>((set, get) => ({
           deadlineAt: null,
           pausedAt: now,
         },
-        toast:
-          tr("Giờ hệ thống đã thay đổi. Đồng hồ đã tạm dừng; bạn có thể tiếp tục khi sẵn sàng."),
+        toast: tr(
+          "Giờ hệ thống đã thay đổi. Đồng hồ đã tạm dừng; bạn có thể tiếp tục khi sẵn sàng.",
+        ),
       });
       return;
     }
@@ -103,6 +253,12 @@ export const useApp = create<Store>((set, get) => ({
       sessions.push({
         id: timer.sessionId,
         taskId: timer.currentTaskId,
+        subjectId:
+          timer.subjectId !== undefined
+            ? timer.subjectId
+            : (tasks.find((task) => task.id === timer.currentTaskId)
+                ?.subjectId ?? null),
+        goal: timer.goal ?? "read",
         type: timer.mode,
         status: "COMPLETED",
         startedAt: timer.startedAt!,
@@ -134,9 +290,16 @@ export const useApp = create<Store>((set, get) => ({
       const auto =
         next === "FOCUS" ? settings.autoStartFocus : settings.autoStartBreaks;
       timer = auto
-        ? start(idle(next, settings, timer.currentTaskId), {
-            now: () => completedAt,
-          })
+        ? start(
+            {
+              ...idle(next, settings, timer.currentTaskId),
+              subjectId: timer.subjectId,
+              goal: timer.goal,
+            },
+            {
+              now: () => completedAt,
+            },
+          )
         : finished;
     }
     const exceeded = timer.status === "RUNNING" && timer.deadlineAt! <= now;
@@ -152,7 +315,9 @@ export const useApp = create<Store>((set, get) => ({
       LONG_BREAK: tr("nghỉ dài"),
     };
     const message = exceeded
-      ? tr("Bạn đã vắng mặt khá lâu. Vòng lặp đã tạm dừng; hãy kiểm tra tiến độ trước khi tiếp tục.")
+      ? tr(
+          "Bạn đã vắng mặt khá lâu. Vòng lặp đã tạm dừng; hãy kiểm tra tiến độ trước khi tiếp tục.",
+        )
       : timer.status === "RUNNING"
         ? tr("Đã chuyển sang ") +
           modeLabels[timer.mode] +
@@ -215,6 +380,7 @@ export const useApp = create<Store>((set, get) => ({
 }));
 useApp.subscribe((state, previous) => {
   if (
+    state.personal === previous.personal &&
     state.timer === previous.timer &&
     state.tasks === previous.tasks &&
     state.sessions === previous.sessions &&
@@ -223,6 +389,7 @@ useApp.subscribe((state, previous) => {
     return;
   try {
     save({
+      personal: state.personal,
       timer: state.timer,
       tasks: state.tasks,
       sessions: state.sessions,
@@ -231,7 +398,9 @@ useApp.subscribe((state, previous) => {
   } catch {
     if (!state.toast.includes(tr("Không thể lưu thay đổi")))
       state.notify(
-        tr("Không thể lưu thay đổi: bộ nhớ trình duyệt đã đầy hoặc không khả dụng."),
+        tr(
+          "Không thể lưu thay đổi: bộ nhớ trình duyệt đã đầy hoặc không khả dụng.",
+        ),
       );
   }
 });

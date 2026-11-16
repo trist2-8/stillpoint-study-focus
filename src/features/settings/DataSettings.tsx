@@ -80,9 +80,7 @@ export default function DataSettings({
       <div className="settings-block-heading">
         <Cloud size={22} />
         <div>
-          <h3 id="data-heading">
-            {text("Đồng bộ & sao lưu", "Sync & backup")}
-          </h3>
+          <h3 id="data-heading">{text("Sao lưu của bạn", "Your backups")}</h3>
           <p>
             {text(
               "Giữ lại việc học, lịch sử và cài đặt của bạn.",
@@ -200,7 +198,10 @@ export default function DataSettings({
           </div>
         </div>
       )}
-      <div className="cloud-panel">
+      <details className="cloud-panel">
+        <summary>
+          {text("Đồng bộ tài khoản (tùy chọn)", "Account sync (optional)")}
+        </summary>
         <h4>{text("Đồng bộ giữa thiết bị", "Sync between devices")}</h4>
         {!cloudClient ? (
           <p className="settings-note">
@@ -342,7 +343,7 @@ export default function DataSettings({
             </p>
           </>
         )}
-      </div>
+      </details>
       {message && (
         <p className="settings-note" role="status">
           {message}

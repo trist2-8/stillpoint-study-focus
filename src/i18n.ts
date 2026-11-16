@@ -1,6 +1,11 @@
 import { useSyncExternalStore } from "react";
 import type { Language } from "./types";
 const english: Record<string, string> = {
+  "Hôm nay": "Today",
+  "Tổng kết": "Reflection",
+  "Môn học không hợp lệ.": "Invalid subject.",
+  "Môn học này đã có.": "This subject already exists.",
+  "Nhật ký không hợp lệ.": "Invalid journal entry.",
   "Tiếp theo: {0}": "Next: {0}",
   "Sửa {0}": "Edit {0}",
   "Xóa {0}": "Delete {0}",
@@ -316,8 +321,12 @@ export function getLanguage() {
 }
 export function tr(text: string, language: Language = current) {
   const key = text.replace(/\s+/g, " ").trim();
-  if(language !== "en" || !english[key]) return text;
-  return (text.match(/^\s*/)?.[0] ?? "") + english[key] + (text.match(/\s*$/)?.[0] ?? "");
+  if (language !== "en" || !english[key]) return text;
+  return (
+    (text.match(/^\s*/)?.[0] ?? "") +
+    english[key] +
+    (text.match(/\s*$/)?.[0] ?? "")
+  );
 }
 export function useI18n() {
   const language = useSyncExternalStore((listener) => {

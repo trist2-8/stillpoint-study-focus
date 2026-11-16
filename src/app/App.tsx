@@ -9,7 +9,7 @@ import {
   useLocation,
 } from "react-router-dom";
 import {
-  Play,
+  House,
   ListTodo,
   ChartNoAxesCombined,
   PanelLeftClose,
@@ -28,9 +28,9 @@ import { timerTabTitle } from "../features/focus/domain/timer-tab";
 const TasksPage = lazy(() => import("../features/tasks/TasksPage"));
 const InsightsPage = lazy(() => import("../features/analytics/InsightsPage"));
 const links = [
-  { path: "/", label: tr("Tập trung"), icon: Play },
+  { path: "/", label: "Hôm nay", icon: House },
   { path: "/tasks", label: tr("Việc học"), icon: ListTodo },
-  { path: "/insights", label: tr("Tiến độ"), icon: ChartNoAxesCombined },
+  { path: "/insights", label: "Tổng kết", icon: ChartNoAxesCombined },
 ];
 function Navigation({
   mobile = false,
@@ -123,7 +123,7 @@ export default function App() {
     });
   return (
     <div
-      className={`shell reference-shell ${collapsed ? "collapsed" : ""} ${location.pathname === "/" ? "is-focus" : ""}`}
+      className={`shell reference-shell personal-shell ${collapsed ? "collapsed" : ""} ${location.pathname === "/" ? "is-focus" : ""}`}
     >
       <aside className="sidebar">
         <NavLink
@@ -219,8 +219,10 @@ export default function App() {
               {tr("Phòng học của bạn")}
               <span style={{ margin: "0 12px" }}> / </span>
               <strong>
-                {links.find((l) => l.path === location.pathname)?.label ??
-                  tr("Tập trung")}
+                {tr(
+                  links.find((l) => l.path === location.pathname)?.label ??
+                    "Hôm nay",
+                )}
               </strong>
             </span>
           </div>

@@ -32,3 +32,12 @@ Các lỗi quan sát được trên bản cũ: thanh bên có min-height 730px l
 Bố cục hiện tại: reference.css quản lý thanh bên và khung ứng dụng; focus.css quản lý trang tập trung; palettes.css quản lý màu. Tranh và đồng hồ nằm trong hai ô grid riêng. Thanh bên có thể cuộn khi màn hình thấp, các điểm chuyển giữa desktop/mobile thống nhất ở 760px. Đồng hồ, ô chọn việc và nhóm điều khiển cùng một trục. Dùng tiêu đề h1 hiển thị và chừa khoảng cuộn cho thanh điều hướng cố định khi dùng bàn phím.
 
 Kiểm thử hồi quy trong e2e/layout.spec.ts đo: sai lệch tâm đồng hồ dưới 1px; ba nút cùng mép trên/dưới; ô chọn việc và nhóm nút cùng chiều rộng; các khung cùng hàng có cùng mép trên/dưới; nút thu gọn nằm trong thanh bên; không cuộn ngang từ 320 đến 1920px. Bao gồm trạng thái thu gọn, tên việc dài, đồng hồ 180 phút và điều hướng bàn phím trên điện thoại.
+
+## Bàn học cá nhân — 16/11/2026
+
+- Hôm nay: một nhiệm vụ trung tâm; bỏ lưới biểu đồ ở trang đầu. Bàn học và trang sổ cùng hàng ở màn rộng, xếp dọc khi hẹp. Trên điện thoại, đồng hồ đứng trước mục tiêu và tranh để thao tác bắt đầu dễ tìm.
+- Môn học: các tab ngang có thể xuống dòng; màu dùng hệ token hiện có. Khi đang chạy/tạm dừng phiên, đổi môn bị khóa để không làm lẫn lịch sử.
+- Sổ ghi nhớ: bản nháp tự lưu; bản hoàn chỉnh chuyển sang dạng đọc, có hành động sửa. Không bật hộp thoại khi đồng hồ tự đổi sang giờ nghỉ.
+- Chữ: DM Sans cho điều khiển, Lora cho tên bàn học và trang sổ; nội dung luôn trên bề mặt đặc. Bảng tối lavender dùng nền #1c1a25, mặt bàn #272331, mặt phụ #332e40, chữ #f5effb, chữ phụ #c7bed5, điểm nhấn #b49adf.
+- Tổng kết: thời gian theo môn, thói quen giờ bắt đầu, ghi nhận mệt tự báo cáo và việc còn dở. Không kết luận khung giờ hiệu quả từ số phút đơn thuần.
+- Kiểm thử: migration và backup, nhật ký sau reload, đổi môn, snapshot lịch sử, vòng tự chuyển phiên, hai ngôn ngữ, bố cục 320–1920px và audit render có dữ liệu ở sáng/tối.

@@ -9,10 +9,12 @@ test("companion visibility persists and plant grows only after focus completion"
     "data-state",
     "sleeping",
   );
+  await page.goto("/insights");
   await expect(page.locator(".growth-plant")).toHaveAttribute(
     "data-stage",
     "0",
   );
+  await page.goto("/");
   await page.getByRole("button", { name: "Mở cài đặt", exact: true }).click();
   await page.getByLabel("Hiện mèo đồng hành").uncheck();
   await page.getByRole("button", { name: "Lưu cài đặt" }).click();
@@ -35,14 +37,8 @@ test("companion visibility persists and plant grows only after focus completion"
   );
   await page.getByRole("button", { name: "Tiếp tục", exact: true }).click();
   await page.clock.fastForward(25 * 60000);
-  await expect(page.locator(".growth-plant")).toHaveAttribute(
-    "data-stage",
-    "1",
-  );
-  await expect(page.locator(".growth-plant")).toHaveAttribute(
-    "aria-label",
-    /1 phiên tập trung đã hoàn tất/,
-  );
+  await expect(page.locator(".today-progress")).toContainText("1 / 6");
+  await expect(page.locator(".journal-form")).toBeVisible();
   await expect(page.getByLabel("Chế độ phiên")).toHaveValue("SHORT_BREAK");
   await expect(page.locator(".study-cat")).toHaveAttribute(
     "data-state",
@@ -52,11 +48,12 @@ test("companion visibility persists and plant grows only after focus completion"
     page.getByRole("button", { name: "Tạm dừng", exact: true }),
   ).toBeVisible();
   await page.clock.fastForward(5 * 60000);
+  await page.goto("/insights");
   await expect(page.locator(".growth-plant")).toHaveAttribute(
     "data-stage",
     "1",
   );
-  await page.reload();
+  await page.goto("/insights");
   await expect(page.locator(".growth-plant")).toHaveAttribute(
     "data-stage",
     "1",

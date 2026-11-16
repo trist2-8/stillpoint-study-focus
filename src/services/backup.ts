@@ -1,4 +1,9 @@
 import {
+  validPersonal,
+  normalizePersonal,
+  emptyPersonal,
+} from "../features/personal/domain/personal-study";
+import {
   decode,
   validSettings,
   validTask,
@@ -7,9 +12,13 @@ import {
 } from "./storage";
 import { defaults } from "../types";
 import { idle, pause } from "../features/focus/domain/timer-engine";
-export type PortableData = Pick<Data, "settings" | "tasks" | "sessions">;
+export type PortableData = Pick<
+  Data,
+  "settings" | "tasks" | "sessions" | "personal"
+>;
 export function portableData(data: Data): PortableData {
   return {
+    personal: data.personal ?? { ...emptyPersonal },
     settings: data.settings,
     tasks: data.tasks,
     sessions: data.sessions,
@@ -19,6 +28,7 @@ export function parsePortable(value: unknown): PortableData {
   if (!value || typeof value !== "object") throw new Error("Invalid backup");
   const data = value as Partial<PortableData>;
   if (
+    (data.personal !== undefined && !validPersonal(data.personal)) ||
     !validSettings(data.settings) ||
     !Array.isArray(data.tasks) ||
     !data.tasks.every(validTask) ||
@@ -33,6 +43,7 @@ export function parsePortable(value: unknown): PortableData {
   )
     throw new Error("Duplicate records");
   return {
+    personal: normalizePersonal(data.personal, data.sessions),
     settings: { ...defaults, ...data.settings },
     tasks: data.tasks,
     sessions: data.sessions,
@@ -63,6 +74,7 @@ export function importBackup(raw: string): Data {
   const restored = decode(JSON.stringify({ version: 1, data: envelope.data }));
   return {
     ...portable,
+    tasks: restored.tasks,
     timer:
       restored.timer.status === "RUNNING"
         ? pause(restored.timer)

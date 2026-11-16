@@ -50,14 +50,24 @@ Phần client và migration đã có; chưa kết nối dự án Supabase thật
 5. Đặt cùng hai biến môi trường public trên Vercel rồi build lại.
 6. Kiểm tra bằng hai tài khoản thật để xác nhận cách ly dữ liệu và hai thiết bị để xác nhận tải/lưu. Các kiểm tra này chưa được thực hiện vì thiếu dự án thật.
 
-Khi đã kết nối: Cài đặt → Đồng bộ & sao lưu → đăng nhập bằng liên kết email → Kiểm tra bản đám mây → Lưu hoặc Tải về. Lưu gửi revision đã đọc; nếu thiết bị khác vừa cập nhật thì thao tác bị từ chối để tránh ghi đè. Tải về cần xác nhận thay thế. Đồng hồ đang chạy không được chia sẻ lên cloud.
+Khi đã kết nối: Cài đặt → Sao lưu của bạn → Đồng bộ tài khoản (tùy chọn) → đăng nhập bằng liên kết email → Kiểm tra bản đám mây → Lưu hoặc Tải về. Lưu gửi revision đã đọc; nếu thiết bị khác vừa cập nhật thì thao tác bị từ chối để tránh ghi đè. Tải về cần xác nhận thay thế. Đồng hồ đang chạy không được chia sẻ lên cloud.
 
 ## Git và Vercel
 
 Mã đã push lên nhánh `codex/focus-flow-release` của `trist2-8/stillpoint-study-focus`. Lịch sử local và nhánh main gốc khác nhau nên chưa ghi đè main.
 
-`vercel.json` cấu hình Vite và SPA fallback. `.vercelignore` loại dữ liệu kiểm thử, file tạm và biến môi trường local khỏi gói tải lên. Triển khai production chưa hoàn tất: bước cấp quyền chạy lệnh triển khai bị hết thời gian. Sau khi quyền chạy và cấu hình Supabase sẵn sàng, chạy `npx vercel --prod`, rồi kiểm tra URL production, tải trực tiếp /tasks, /insights, ảnh và favicon.
+`vercel.json` cấu hình Vite và SPA fallback. `.vercelignore` loại dữ liệu kiểm thử, file tạm và biến môi trường local khỏi gói tải lên. Website production: https://focus-flow-delta-khaki.vercel.app. Dự án Vercel `binko/focus-flow` đã liên kết ở máy này. Sau khi build/test đạt, chạy `npx vercel --prod`, rồi kiểm tra bản render production, tải trực tiếp /tasks, /insights, ảnh và favicon. Các tính năng cá nhân không cần cấu hình Supabase.
 
 ## Tài nguyên
 
 Ảnh tải từ Unsplash; URL gốc được ghi tại `public/rooms/SOURCES.md`. Tạo ảnh qua Fosta đã thử nhưng thất bại do cấu hình thiếu khóa; không có ảnh AI được tạo trong lần cập nhật này. Minh họa góc học mặc định là SVG có sẵn trong dự án.
+
+## Bàn học cá nhân
+
+Trang Hôm nay ưu tiên một việc đang dang dở, mục tiêu phiên, đồng hồ và sổ ghi nhớ. Tạo môn học để tách việc học, ghi chú và lịch sử. Khi quay lại một môn, ứng dụng ưu tiên việc chưa hoàn thành đã học gần nhất; nếu chưa có lịch sử, chọn theo hạn rồi mức ưu tiên.
+
+Sau một phiên tập trung hoàn tất, sổ ghi nhớ cho phép ghi điều đã làm, phần còn vướng, bước tiếp theo và mức mệt. Nội dung nhập được lưu thành bản nháp trên máy. Bấm Lưu nhật ký để đưa vào tổng kết; bản đã lưu có thể mở lại để sửa. Môn và mục tiêu được chụp vào lịch sử phiên, nên sửa môn của việc học sau này không làm thay đổi thống kê cũ.
+
+Khay Để sau phiên học ghi nhanh ý nghĩ chen ngang và đánh dấu đã xử lý. Tổng kết tuần tính bảy ngày theo giờ địa phương, chỉ dùng phiên tập trung đã hoàn tất. Khung giờ thường học chỉ xuất hiện từ ba phiên; gợi ý về nhịp học cần ba nhật ký đã lưu và không tự thay thời lượng. Biểu đồ cũ nằm trong mục mở rộng.
+
+Dữ liệu mới nằm ở trường personal trong cùng phong bì localStorage/backup v1; bản cũ không có trường này vẫn nhập được. Các bản sao lưu mới bao gồm môn học, nhật ký, bản nháp và ghi nhanh. Không tạo tài khoản hoặc tải dữ liệu lên cloud để sử dụng các tính năng cá nhân. Đồng bộ sẵn có được chuyển vào mục tùy chọn.

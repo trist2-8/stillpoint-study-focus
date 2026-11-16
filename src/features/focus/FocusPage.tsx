@@ -1,6 +1,5 @@
-import { ScenePhoto, AmbientAudio } from "./RoomScenes";
-import { trf, tr, useI18n, locale } from "../../i18n";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import {
   PictureInPicture2,
   Plus,
@@ -8,82 +7,91 @@ import {
   Pause,
   RotateCcw,
   SkipForward,
-  Bell,
   CalendarDays,
   MoreVertical,
   Folder,
   ChevronRight,
-  Sun,
+  ArrowUpRight,
+  PencilLine,
+  BookOpen,
 } from "lucide-react";
 import { useApp } from "../../stores/app-store";
-import {
-  Button,
-  ConfirmDialog,
-  IconButton,
-  ProgressBar,
-} from "../../components/ui";
+import { trf, tr, useI18n, locale } from "../../i18n";
+import { Button, ConfirmDialog, IconButton } from "../../components/ui";
 import { remaining, nextMode } from "./domain/timer-engine";
 import {
-  aggregate,
+  dateKey,
   formatMinutes,
-  streak,
 } from "../analytics/domain/analytics-calculations";
-import ActivityHeatmap from "../analytics/ActivityHeatmap";
-import { Link } from "react-router-dom";
-import type { Mode } from "../../types";
-import ReferenceRoom from "./illustrations/ReferenceRoom";
-import GrowthPlant from "./illustrations/GrowthPlant";
 import { TaskForm } from "../tasks/TaskForm";
-
+import { ScenePhoto, AmbientAudio } from "./RoomScenes";
+import ReferenceRoom from "./illustrations/ReferenceRoom";
+import Subjects from "../personal/Subjects";
+import SessionNotebook, { NextStepNote } from "../personal/SessionNotebook";
+import DistractionTray from "../personal/DistractionTray";
+import {
+  emptyPersonal,
+  goals,
+  nextStudyTask,
+} from "../personal/domain/personal-study";
+import { goalNames, useCopy } from "../personal/copy";
+import type { Mode } from "../../types";
 export default function FocusPage() {
   const { language } = useI18n();
-  const modeName: Record<Mode, string> = {
-    FOCUS: tr("Phiên tập trung"),
-    SHORT_BREAK: tr("Nghỉ ngắn"),
-    LONG_BREAK: tr("Nghỉ dài"),
-  };
-
-  const { timer, settings, sessions, tasks } = useApp();
+  const copy = useCopy();
+  const state = useApp();
+  const { timer, settings, sessions, tasks } = state;
+  const personal = state.personal ?? emptyPersonal;
   const [now, setNow] = useState(Date.now());
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
   const [choosing, setChoosing] = useState(false);
   const [confirm, setConfirm] = useState<null | (() => void)>(null);
   useEffect(() => {
-    const tick = () => {
+    const interval = window.setInterval(() => {
       useApp.getState().tick();
       setNow(Date.now());
-    };
-    tick();
-    const id = window.setInterval(tick, 250);
-    return () => window.clearInterval(id);
+    }, 500);
+    return () => window.clearInterval(interval);
   }, []);
+  const modeName: Record<Mode, string> = {
+    FOCUS: tr("Phiên tập trung"),
+    SHORT_BREAK: tr("Nghỉ ngắn"),
+    LONG_BREAK: tr("Nghỉ dài"),
+  };
   const ms = remaining(timer, { now: () => now });
   const seconds = Math.max(0, Math.ceil(ms / 1000));
-  const display = `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
-  const today = new Date(now).toDateString();
-  const week = useMemo(
-    () => aggregate(sessions, 7, new Date(today)),
-    [sessions, today, language],
-  );
-  const activity = useMemo(
-    () => aggregate(sessions, 30, new Date(today)),
-    [sessions, today, language],
-  );
+  const display =
+    String(Math.floor(seconds / 60)).padStart(2, "0") +
+    ":" +
+    String(seconds % 60).padStart(2, "0");
   const completed = sessions.filter(
-    (s) => s.type === "FOCUS" && s.status === "COMPLETED",
+    (session) => session.type === "FOCUS",
   ).length;
-  const activeTask = tasks.find((t) => t.id === timer.currentTaskId);
-  const completedTasks = tasks.filter((t) => t.isCompleted).length;
   const next = nextMode(timer.mode, completed, settings.longBreakInterval);
-  const request = (fn: () => void) =>
-    timer.status === "RUNNING" || timer.status === "PAUSED"
-      ? setConfirm(() => fn)
-      : fn();
-
-  const totalMinutes = sessions
-    .filter((s) => s.type === "FOCUS" && s.status === "COMPLETED")
-    .reduce((sum, s) => sum + s.actualDurationMs / 60000, 0);
+  const activeTask = tasks.find((task) => task.id === timer.currentTaskId);
+  const mainTask = nextStudyTask(
+    tasks,
+    personal.activeSubjectId,
+    timer.currentTaskId,
+    sessions,
+  );
+  const visibleTasks = tasks.filter(
+    (task) => (task.subjectId ?? null) === personal.activeSubjectId,
+  );
+  const todaySessions = sessions.filter(
+    (session) => session.type === "FOCUS" && session.dateKey === dateKey(now),
+  );
+  const todayMinutes = todaySessions.reduce(
+    (sum, session) => sum + session.actualDurationMs / 60000,
+    0,
+  );
+  const subject = personal.subjects.find(
+    (item) => item.id === personal.activeSubjectId,
+  );
+  const locked = timer.status === "RUNNING" || timer.status === "PAUSED";
+  const request = (operation: () => void) =>
+    locked ? setConfirm(() => operation) : operation();
   const startLabel =
     timer.status === "RUNNING"
       ? tr("Tạm dừng")
@@ -94,70 +102,140 @@ export default function FocusPage() {
           : timer.mode === "FOCUS"
             ? tr("Bắt đầu tập trung")
             : tr("Bắt đầu nghỉ");
-  const notifications = async () => {
-    if (!("Notification" in window)) {
-      useApp.getState().notify(tr("Trình duyệt này không hỗ trợ thông báo."));
-      return;
-    }
-    const permission = await Notification.requestPermission();
-    useApp.getState().settingsSave({
-      ...settings,
-      notificationEnabled: permission === "granted",
-    });
+  const runTimer = () => {
+    if (
+      timer.status === "IDLE" &&
+      timer.mode === "FOCUS" &&
+      mainTask &&
+      mainTask.id !== timer.currentTaskId
+    )
+      useApp.getState().selectTask(mainTask.id);
     useApp
       .getState()
-      .notify(
-        permission === "granted"
-          ? tr("Đã bật thông báo kết thúc phiên.")
-          : tr("Bạn có thể bật thông báo trong cài đặt trình duyệt."),
+      .timerAction(
+        timer.status === "RUNNING"
+          ? "pause"
+          : timer.status === "COMPLETED"
+            ? "next"
+            : "start",
       );
   };
   return (
-    <div className="flow-focus-page">
-      <header className="flow-header">
-        <div className="flow-welcome">
-          <Sun className="sun-badge" />
-          <div>
-            <h1>{tr("Một khoảng yên để học.")}</h1>
-            <span>{tr("Chọn một việc, dành trọn một phiên.")}</span>
-          </div>
-        </div>
-        <div className="flow-top-actions">
-          <time dateTime={new Date(now).toISOString()}>
-            <CalendarDays size={23} />
+    <div
+      className="personal-today"
+      data-status={timer.status}
+      data-mode={timer.mode}
+    >
+      <header className="flow-header today-header">
+        <div>
+          <span className="today-date">
+            <CalendarDays size={16} />
             {new Date(now).toLocaleDateString(locale(), {
-              weekday: "short",
-              month: "short",
+              weekday: "long",
               day: "numeric",
-              year: "numeric",
+              month: "long",
             })}
-          </time>
-          <IconButton
-            label={tr("Bật thông báo")}
-            onClick={() => void notifications()}
-          >
-            <Bell />
-          </IconButton>
-        </div>
-      </header>
-      <section className="flow-hero">
-        <div className="flow-room-wrap" data-scene={settings.scene ?? "study"}>
-          <div className="flow-scene">
-            <blockquote className="flow-quote">
-              {tr("Từng trang một.")}
-              <br />
-              {tr("Từng bước một.")}
-            </blockquote>
-            {settings.scene && settings.scene !== "study" ? (
-              <ScenePhoto />
-            ) : (
-              <ReferenceRoom
-                status={timer.status}
-                mode={timer.mode}
-                companion={settings.companionEnabled !== false}
-              />
+          </span>
+          <h1>{copy("Hôm nay của bạn.", "Your day, your pace.")}</h1>
+          <p>
+            {copy(
+              "Tiếp nối điều đang học. Từng việc một.",
+              "Pick up where you left off. One thing at a time.",
             )}
-            <AmbientAudio />
+          </p>
+        </div>
+        <Link className="today-progress" to="/insights">
+          <span>
+            {formatMinutes(todayMinutes)}{" "}
+            <small>
+              / {settings.dailyFocusGoal} {copy("phút hôm nay", "min today")}
+            </small>
+          </span>
+          <span>
+            {todaySessions.length} / {settings.dailySessionGoal}{" "}
+            {copy("phiên", "sessions")}
+            <ArrowUpRight size={17} />
+          </span>
+        </Link>
+      </header>
+      <Subjects />
+      <div className="personal-workspace">
+        <section
+          className="flow-room-wrap desk-focus"
+          data-scene={settings.scene ?? "study"}
+          aria-label={copy("Bàn học hôm nay", "Today's study desk")}
+        >
+          <div className="desk-intention">
+            <div className="intention-heading">
+              <BookOpen size={18} />
+              <span>
+                {subject?.name ?? copy("Góc học chung", "General study")}
+              </span>
+            </div>
+            <h2>
+              {locked && activeTask
+                ? activeTask.title
+                : (mainTask?.title ??
+                  copy(
+                    "Một khoảng tập trung cho bạn.",
+                    "A little time to focus.",
+                  ))}
+            </h2>
+            <p className="desk-guidance">
+              {locked
+                ? copy(
+                    "Cứ ở lại với việc này. Những việc khác có thể chờ.",
+                    "Stay with this task. Everything else can wait.",
+                  )
+                : mainTask
+                  ? copy(
+                      "Việc đang dang dở đã ở đây. Bắt đầu khi bạn sẵn sàng.",
+                      "Your unfinished task is here. Begin when you are ready.",
+                    )
+                  : copy(
+                      "Thêm một việc cần học, hoặc bắt đầu một phiên tự do.",
+                      "Add a study task, or begin a free focus session.",
+                    )}
+            </p>
+            <NextStepNote taskId={locked ? activeTask?.id : mainTask?.id} />
+            <fieldset className="desk-goals" disabled={locked}>
+              <legend>
+                {copy("Phiên này mình sẽ…", "This session, I will…")}
+              </legend>
+              <div>
+                {goals.map((goal) => (
+                  <label key={goal}>
+                    <input
+                      type="radio"
+                      name="study-goal"
+                      checked={personal.goal === goal}
+                      onChange={() => useApp.getState().chooseGoal(goal)}
+                    />
+                    <span>{copy(...goalNames[goal])}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <div className="desk-room">
+              {settings.scene && settings.scene !== "study" ? (
+                <ScenePhoto />
+              ) : (
+                <ReferenceRoom
+                  status={timer.status}
+                  mode={timer.mode}
+                  companion={settings.companionEnabled !== false}
+                />
+              )}
+              <AmbientAudio />
+            </div>
+            {timer.mode !== "FOCUS" && (
+              <p className="break-note">
+                {copy(
+                  "Để mắt nghỉ một chút. Bàn học vẫn ở đây khi bạn quay lại.",
+                  "Rest your eyes for a moment. Your desk will be here when you return.",
+                )}
+              </p>
+            )}
           </div>
           <div className="flow-orb-area">
             <div
@@ -231,7 +309,11 @@ export default function FocusPage() {
               {choosing && (
                 <div className="task-picker-menu">
                   {tasks
-                    .filter((t) => !t.isCompleted)
+                    .filter(
+                      (t) =>
+                        !t.isCompleted &&
+                        (t.subjectId ?? null) === personal.activeSubjectId,
+                    )
                     .map((task) => (
                       <button
                         key={task.id}
@@ -257,21 +339,7 @@ export default function FocusPage() {
               )}
             </div>
             <div className="flow-controls">
-              <Button
-                primary
-                aria-label={startLabel}
-                onClick={() =>
-                  useApp
-                    .getState()
-                    .timerAction(
-                      timer.status === "RUNNING"
-                        ? "pause"
-                        : timer.status === "COMPLETED"
-                          ? "next"
-                          : "start",
-                    )
-                }
-              >
+              <Button primary aria-label={startLabel} onClick={runTimer}>
                 {timer.status === "RUNNING" ? (
                   <Pause fill="currentColor" />
                 ) : (
@@ -322,24 +390,28 @@ export default function FocusPage() {
                 : tr("Chuyển phiên theo cài đặt của bạn")}
             </p>
           </div>
-        </div>
-        <aside className="flow-tasks">
-          <div className="flow-panel-title">
-            <h2>{tr("Việc học của bạn")}</h2>
-            <Button primary onClick={() => setAdding(true)}>
-              <Plus />
+        </section>
+        <SessionNotebook />
+      </div>
+      <div className="desk-lower">
+        <section className="desk-task-queue">
+          <div className="queue-heading">
+            <div>
+              <h2>
+                {copy("Việc học trong không gian này", "Tasks in this space")}
+              </h2>
+              <p className="flow-summary">
+                {visibleTasks.filter((task) => task.isCompleted).length} /{" "}
+                {visibleTasks.length} {tr("việc đã hoàn thành")}
+              </p>
+            </div>
+            <Button onClick={() => setAdding(true)}>
+              <Plus size={16} />
               {tr("Thêm việc")}
             </Button>
           </div>
-          <p className="flow-summary">
-            <b>{completedTasks}</b> / {tasks.length} {tr("việc đã hoàn thành")}
-          </p>
-          <ProgressBar
-            value={tasks.length ? (completedTasks / tasks.length) * 100 : 0}
-            label={tr("Việc học đã hoàn thành")}
-          />
           <div className="flow-task-list">
-            {tasks.slice(0, 4).map((task) => (
+            {visibleTasks.slice(0, 4).map((task) => (
               <div
                 className={`flow-task ${task.isCompleted ? "is-done" : ""}`}
                 key={task.id}
@@ -380,7 +452,7 @@ export default function FocusPage() {
                 </button>
               </div>
             ))}
-            {!tasks.length && (
+            {!visibleTasks.length && (
               <button
                 className="flow-empty-task"
                 onClick={() => setAdding(true)}
@@ -394,77 +466,26 @@ export default function FocusPage() {
             {tr("Xem tất cả việc học")}
             <ChevronRight size={16} />
           </Link>
-        </aside>
-      </section>
-      <section className="flow-bottom">
-        <article className="flow-card progress-card">
-          <div className="flow-card-head">
-            <h2>{tr("Nhịp học trong tuần")}</h2>
-            <span>{tr("7 ngày qua")}</span>
-          </div>
-          <div
-            className="week-chart"
-            role="img"
-            aria-label={trf("Thời gian học bảy ngày qua: {0}", [
-              week
-                .map((day) => `${day.label}: ${formatMinutes(day.minutes)}`)
-                .join(", "),
-            ])}
-          >
-            {week.map((d) => (
-              <div key={d.date}>
-                <span
-                  title={trf("{0} phút", [d.minutes])}
-                  style={{
-                    minHeight: d.minutes ? 8 : 0,
-                    height: `${(d.minutes / Math.max(1, ...week.map((x) => x.minutes))) * 100}%`,
-                  }}
-                />
-                <small>
-                  {new Date(`${d.date}T12:00:00`).toLocaleDateString(locale(), {
-                    weekday: "short",
-                  })}
-                </small>
-              </div>
-            ))}
-          </div>
-          {!week.some((day) => day.minutes) && (
-            <p className="flow-chart-empty">
-              {tr("Hoàn tất một phiên để bắt đầu ghi lại nhịp học.")}
-            </p>
+        </section>
+        <DistractionTray />
+      </div>
+      <div className="desk-signoff">
+        <PencilLine size={17} />
+        <span>
+          {copy(
+            "Mỗi phiên để lại một bước tiếp theo.",
+            "Leave one next step at the end of each session.",
           )}
-        </article>
-        <article className="flow-card analytics-card">
-          <div className="flow-card-head">
-            <h2>{tr("Tích lũy từng phiên")}</h2>
-            <span className="trend-chip">
-              {streak(sessions)} {tr("ngày liên tiếp")}
-            </span>
-          </div>
-          <strong className="analytics-number">
-            {formatMinutes(totalMinutes)}
-          </strong>
-          <small>{tr("Thời gian tập trung đã hoàn tất")}</small>
-          <span className="analytics-caption">
-            {completed} {tr("phiên học · Cây lớn lên sau mỗi phiên hoàn tất.")}
-          </span>
-
-          <div className="growth-mini">
-            <GrowthPlant completed={completed} />
-          </div>
-        </article>
-        <article className="flow-card heat-card">
-          <div className="flow-card-head">
-            <h2>{tr("Lịch học của bạn")}</h2>
-            <span>{tr("30 ngày qua")}</span>
-          </div>
-          <ActivityHeatmap days={activity} />
-        </article>
-      </section>
+        </span>
+        <Link to="/insights">
+          {copy("Mở tổng kết tuần", "Open weekly reflection")}
+          <ArrowUpRight size={16} />
+        </Link>
+      </div>
       {adding && <TaskForm task={null} onClose={() => setAdding(false)} />}
       {editing && (
         <TaskForm
-          task={tasks.find((t) => t.id === editing) ?? null}
+          task={tasks.find((task) => task.id === editing) ?? null}
           onClose={() => setEditing(null)}
         />
       )}

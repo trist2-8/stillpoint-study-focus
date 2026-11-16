@@ -75,7 +75,7 @@ test("automatic cycle runs outside the focus page and updates the browser tab", 
   await expect(page).toHaveTitle("01:00 · Tập trung | Focus Flow");
   await page
     .getByRole("navigation", { name: "Điều hướng chính" })
-    .getByRole("link", { name: "Tập trung", exact: true })
+    .getByRole("link", { name: "Hôm nay", exact: true })
     .click();
   await page.getByRole("button", { name: "Tạm dừng", exact: true }).click();
   await page.clock.fastForward(120000);

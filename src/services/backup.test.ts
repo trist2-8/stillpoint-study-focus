@@ -17,6 +17,7 @@ describe("backup safety", () => {
     );
     expect(exported.data.toast).toBeUndefined();
     expect(Object.keys(exported.data).sort()).toEqual([
+      "personal",
       "sessions",
       "settings",
       "tasks",

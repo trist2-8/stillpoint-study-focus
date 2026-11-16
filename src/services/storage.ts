@@ -1,4 +1,10 @@
 import {
+  normalizePersonal,
+  optionalSubject,
+  optionalGoal,
+} from "../features/personal/domain/personal-study";
+import type { PersonalStudy } from "../types";
+import {
   defaults,
   type UserSettings,
   type StudyTask,
@@ -8,6 +14,7 @@ import {
 import { idle } from "../features/focus/domain/timer-engine";
 export const STORAGE_KEY = "focus-flow";
 export interface Data {
+  personal?: PersonalStudy;
   settings: UserSettings;
   tasks: StudyTask[];
   sessions: FocusSession[];
@@ -60,6 +67,7 @@ export function validTask(v: unknown): v is StudyTask {
   return (
     object(v) &&
     typeof v.id === "string" &&
+    optionalSubject(v.subjectId) &&
     typeof v.title === "string" &&
     v.title.trim().length > 0 &&
     v.title.length <= 160 &&
@@ -86,6 +94,8 @@ export function validSession(v: unknown): v is FocusSession {
     (v.taskId === null || typeof v.taskId === "string") &&
     ["FOCUS", "SHORT_BREAK", "LONG_BREAK"].includes(String(v.type)) &&
     v.status === "COMPLETED" &&
+    optionalSubject(v.subjectId) &&
+    optionalGoal(v.goal) &&
     finite(v.startedAt) &&
     finite(v.completedAt) &&
     v.completedAt >= v.startedAt &&
@@ -102,6 +112,8 @@ function validTimer(v: unknown): v is TimerState {
     object(v) &&
     ["FOCUS", "SHORT_BREAK", "LONG_BREAK"].includes(String(v.mode)) &&
     ["IDLE", "RUNNING", "PAUSED", "COMPLETED"].includes(String(v.status)) &&
+    optionalSubject(v.subjectId) &&
+    optionalGoal(v.goal) &&
     finite(v.durationMs) &&
     v.durationMs >= 60000 &&
     v.durationMs <= 10800000 &&
@@ -151,7 +163,21 @@ export function decode(raw: string | null): Data {
     let timer = validTimer(data.timer) ? data.timer : idle("FOCUS", settings);
     if (timer.currentTaskId && !tasks.some((t) => t.id === timer.currentTaskId))
       timer = { ...timer, currentTaskId: null };
-    return { settings, tasks, sessions, timer };
+    const personal = normalizePersonal(data.personal, sessions);
+    const validIds = new Set(personal.subjects.map((subject) => subject.id));
+    return {
+      settings,
+      tasks: tasks.map((task) => ({
+        ...task,
+        subjectId:
+          task.subjectId && validIds.has(task.subjectId)
+            ? task.subjectId
+            : null,
+      })),
+      sessions,
+      timer,
+      personal,
+    };
   } catch {
     return fallback;
   }

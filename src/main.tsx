@@ -9,6 +9,7 @@ import "./styles/focus.css";
 import "./styles/palettes.css";
 import "./styles/settings.css";
 import "./styles/features.css";
+import "./styles/personal.css";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>

@@ -1,3 +1,5 @@
+import { useCopy } from "../personal/copy";
+import { emptyPersonal } from "../personal/domain/personal-study";
 import { trf, tr, useI18n } from "../../i18n";
 import { TaskForm } from "./TaskForm";
 import { useState } from "react";
@@ -16,6 +18,11 @@ import { useApp } from "../../stores/app-store";
 import type { StudyTask } from "../../types";
 export default function TasksPage() {
   useI18n();
+  const copy = useCopy();
+  const personal = useApp((state) => state.personal ?? emptyPersonal);
+  const [subjectFilter, setSubjectFilter] = useState(
+    personal.activeSubjectId ?? "all",
+  );
   const tasks = useApp((s) => s.tasks);
   const [form, setForm] = useState<StudyTask | null | undefined>(undefined);
   const [query, setQuery] = useState("");
@@ -32,6 +39,7 @@ export default function TasksPage() {
   const visible = tasks
     .filter(
       (t) =>
+        (subjectFilter === "all" || (t.subjectId ?? "") === subjectFilter) &&
         `${t.title} ${t.description}`
           .toLowerCase()
           .includes(query.toLowerCase()) &&
@@ -60,6 +68,20 @@ export default function TasksPage() {
         </Button>
       </PageTitle>
       <div className="toolbar">
+        <select
+          className="input"
+          aria-label={copy("Lọc môn học", "Filter subjects")}
+          value={subjectFilter}
+          onChange={(event) => setSubjectFilter(event.target.value)}
+        >
+          <option value="all">{copy("Tất cả môn học", "All subjects")}</option>
+          <option value="">{copy("Góc học chung", "General study")}</option>
+          {personal.subjects.map((subject) => (
+            <option key={subject.id} value={subject.id}>
+              {subject.name}
+            </option>
+          ))}
+        </select>
         <input
           className="input search"
           aria-label={tr("Tìm việc học")}
@@ -127,6 +149,11 @@ export default function TasksPage() {
               <h3>{task.title}</h3>
               {task.description && <p>{task.description}</p>}
               <div className="task-meta">
+                <span>
+                  {personal.subjects.find(
+                    (subject) => subject.id === task.subjectId,
+                  )?.name ?? copy("Góc học chung", "General study")}
+                </span>
                 <span className={`badge ${task.priority}`}>
                   {tr("Mức ưu tiên:")}{" "}
                   {

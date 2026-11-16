@@ -1,7 +1,39 @@
 export type Mode = "FOCUS" | "SHORT_BREAK" | "LONG_BREAK";
 export type Language = "vi" | "en";
 export type RoomScene = "study" | "library" | "cafe" | "forest";
+export type StudyGoal = "read" | "practice" | "write" | "memorize" | "review";
+export interface StudySubject {
+  id: string;
+  name: string;
+  scene: RoomScene;
+  notes: string;
+  createdAt: number;
+}
+export interface SessionJournal {
+  sessionId: string;
+  accomplished: string;
+  blocked: string;
+  nextStep: string;
+  energy: "steady" | "fresh" | "tired";
+  updatedAt: number;
+  savedAt: number | null;
+}
+export interface Distraction {
+  id: string;
+  text: string;
+  subjectId: string | null;
+  createdAt: number;
+  resolved: boolean;
+}
+export interface PersonalStudy {
+  subjects: StudySubject[];
+  activeSubjectId: string | null;
+  goal: StudyGoal;
+  journals: SessionJournal[];
+  distractions: Distraction[];
+}
 export interface StudyTask {
+  subjectId?: string | null;
   id: string;
   title: string;
   description: string;
@@ -14,6 +46,8 @@ export interface StudyTask {
   dueAt: string | null;
 }
 export interface FocusSession {
+  subjectId?: string | null;
+  goal?: StudyGoal;
   id: string;
   taskId: string | null;
   type: Mode;
@@ -42,6 +76,8 @@ export interface UserSettings {
   palette?: "lavender" | "midnight" | "forest";
 }
 export interface TimerState {
+  subjectId?: string | null;
+  goal?: StudyGoal;
   mode: Mode;
   status: "IDLE" | "RUNNING" | "PAUSED" | "COMPLETED";
   durationMs: number;

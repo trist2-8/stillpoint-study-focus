@@ -12,3 +12,5 @@ vite-local*.log
 !.env.example
 app.js
 styles.css
+
+test-results-cloud/

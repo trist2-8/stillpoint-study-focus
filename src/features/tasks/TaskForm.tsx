@@ -1,3 +1,5 @@
+import { useCopy } from "../personal/copy";
+import { emptyPersonal } from "../personal/domain/personal-study";
 import { tr, useI18n } from "../../i18n";
 import { useState } from "react";
 import { Button, Modal } from "../../components/ui";
@@ -11,9 +13,12 @@ export function TaskForm({
   onClose: () => void;
 }) {
   useI18n();
+  const copy = useCopy();
+  const personal = useApp((state) => state.personal ?? emptyPersonal);
   const [draft, setDraft] = useState<StudyTask>(
     task ?? {
       id: crypto.randomUUID(),
+      subjectId: personal.activeSubjectId,
       title: "",
       description: "",
       priority: "medium",
@@ -65,6 +70,24 @@ export function TaskForm({
             />
           </label>
           <label className="field full">
+            {copy("Môn học", "Subject")}
+            <select
+              className="input"
+              aria-label={copy("Môn học", "Subject")}
+              value={draft.subjectId ?? ""}
+              onChange={(event) =>
+                setDraft({ ...draft, subjectId: event.target.value || null })
+              }
+            >
+              <option value="">{copy("Góc học chung", "General study")}</option>
+              {personal.subjects.map((subject) => (
+                <option value={subject.id} key={subject.id}>
+                  {subject.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="field full">
             {tr("Mô tả (không bắt buộc)")}
             <textarea
               className="input"
@@ -90,7 +113,7 @@ export function TaskForm({
             >
               <option value="low">{tr("Thấp")}</option>
               <option value="medium">{tr("Vừa")}</option>
-              <option value="high">Cao</option>
+              <option value="high">{tr("Cao")}</option>
             </select>
           </label>
           <label className="field">
