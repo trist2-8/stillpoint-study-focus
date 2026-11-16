@@ -112,6 +112,13 @@ for (const width of [320, 390, 768, 1280, 1440])
       await expect(
         page.getByRole("heading", { name: "Hôm nay của bạn." }),
       ).toBeVisible();
+      await page.getByRole("button", { name: "Thêm môn", exact: true }).click();
+      const modal = await page.getByRole("dialog").boundingBox();
+      expect(Math.abs(modal!.x - (width - modal!.width) / 2)).toBeLessThan(1);
+      expect(Math.abs(modal!.y - (900 - modal!.height) / 2)).toBeLessThan(1);
+      await page
+        .getByRole("button", { name: "Đóng hộp thoại", exact: true })
+        .click();
       expect(
         await page.evaluate(
           () => document.documentElement.scrollWidth <= innerWidth,

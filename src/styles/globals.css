@@ -749,6 +749,7 @@ button svg {
   margin-top: 12px;
 }
 dialog {
+  margin: auto;
   border: 1px solid var(--border);
   border-radius: 20px;
   padding: 0;
