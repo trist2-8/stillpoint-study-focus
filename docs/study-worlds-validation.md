@@ -1,4 +1,14 @@
-# Study Worlds validation — 16 November 2026
+# Study Worlds validation — 18 November 2026
+
+## Latest room polish verification
+
+The six user-supplied room illustrations are bundled as 2048px WebP scenes and 640px previews. Each room has subtle localized motion; reduced-motion preferences disable it. Immersive and Desk use the same selected artwork. The lower timer dock preserves the countdown and controls above mobile navigation, including 180-minute sessions.
+
+Latest checks passed: TypeScript, ESLint, production build, 49 unit tests and all 69 browser tests. Twenty-one fresh rendered snapshots at 1440, 390 and 320px passed the Design QA contrast, keyboard, targets and reflow audit in light/dark, room, gallery, mixer and quiet states. Desktop and mobile screenshots were also visually reviewed. Finish lint reports zero blockers/high findings and two style warnings (raw scene colors and a middle-dot status separator).
+
+Floating-window rejection/timeout now provides explicit recovery, and its notice sits above the timer dock with a dismiss control. Normal popup behavior remains subject to browser restrictions. Audio loading timeouts expose retry without moving the master controls. Task dialogs keep footer actions visible and use a localized date input. The notebook opens its own route and an empty task picker explains the next step.
+
+The separate mocked cloud-sync browser assertion passed, but its runner hung during teardown and was stopped. Live cloud synchronization was not tested. No new artwork was generated; the scenes use the user's six provided images. Original historical evidence follows for traceability.
 
 Six worlds share one timer and task store. The gallery supports preview, cancel, favorites, lighting and reduced motion. Full scenes and the original desk view are both available. Floating timer digits take priority at compact sizes.
 

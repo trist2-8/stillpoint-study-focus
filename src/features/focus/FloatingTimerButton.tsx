@@ -1,4 +1,4 @@
-import { PictureInPicture2, ExternalLink } from "lucide-react";
+import { PictureInPicture2, ExternalLink, X } from "lucide-react";
 import { useCopy } from "../personal/copy";
 import { requestFloatingTimer, useMiniWindow } from "./mini-window";
 export default function FloatingTimerButton() {
@@ -21,6 +21,16 @@ export default function FloatingTimerButton() {
       </button>
       {status !== "closed" && (
         <div className="floating-feedback" role="status">
+          {failed && (
+            <button
+              className="floating-feedback-close"
+              type="button"
+              aria-label={copy("Đóng thông báo", "Dismiss notice")}
+              onClick={() => useMiniWindow.setState({ status: "closed" })}
+            >
+              <X size={16} />
+            </button>
+          )}
           <p>
             {status === "opening"
               ? copy(

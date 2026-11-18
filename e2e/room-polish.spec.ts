@@ -36,6 +36,15 @@ test("native floating window rejection and timeout always offer a working fallba
   await expect(
     page.getByRole("button", { name: "Mở cửa sổ thường", exact: true }),
   ).toBeVisible({ timeout: 5500 });
+  const feedback = page.locator(".floating-feedback").boundingBox();
+  const timer = page.getByRole("timer").boundingBox();
+  const feedbackBox = await feedback;
+  const timerBox = await timer;
+  expect(feedbackBox!.y + feedbackBox!.height).toBeLessThanOrEqual(timerBox!.y);
+  await page
+    .getByRole("button", { name: "Đóng thông báo", exact: true })
+    .click();
+  await expect(page.locator(".floating-feedback")).toHaveCount(0);
 });
 test("pending audio becomes retryable and master buttons stay in place", async ({
   page,
