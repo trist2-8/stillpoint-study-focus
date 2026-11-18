@@ -16,11 +16,20 @@ export const useRoomImages = create<Images>((set) => ({
   preview: {},
   setPreview: (preview) => set({ preview }),
 }));
-export const defaultRoomPhotos: Partial<Record<StudyWorldId, string>> = {
-  academia: "/rooms/library.jpg",
-  forest: "/rooms/forest.jpg",
-  "rainy-cafe": "/rooms/cafe.jpg",
+export const defaultRoomPhotos: Record<StudyWorldId, string> = {
+  lavender: "/worlds/lavender-room.webp",
+  academia: "/worlds/academia-room.webp",
+  forest: "/worlds/forest-room.webp",
+  midnight: "/worlds/midnight-room.webp",
+  "rainy-cafe": "/worlds/rainy-cafe-room.webp",
+  exam: "/worlds/exam-room.webp",
 };
+export const roomThumbnails: Record<StudyWorldId, string> = Object.fromEntries(
+  Object.entries(defaultRoomPhotos).map(([world, source]) => [
+    world,
+    source.replace("-room.webp", "-thumb.webp"),
+  ]),
+) as Record<StudyWorldId, string>;
 function database() {
   return new Promise<IDBDatabase>((resolve, reject) => {
     const request = indexedDB.open("focus-flow-room-images", 1);

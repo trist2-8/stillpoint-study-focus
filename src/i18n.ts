@@ -293,6 +293,7 @@ const english: Record<string, string> = {
     "Only completed focus sessions count, grouped by local completion date. Task completion uses your current list. A streak includes today or ends yesterday.",
   Ngày: "Date",
   "Số phiên": "Sessions",
+  "Sổ học": "Notebook",
   "Giờ hệ thống đã thay đổi. Đồng hồ đã tạm dừng; bạn có thể tiếp tục khi sẵn sàng.":
     "Your system clock changed. The timer is paused; resume when ready.",
   "phiên tập trung": "focus session",

@@ -20,7 +20,6 @@ import {
   useRoomImages,
   validateRoomImage,
   saveRoomImages,
-  defaultRoomPhotos,
 } from "./room-images";
 import { useWorldPreview } from "./world-preview";
 import type { StudyWorldId } from "../../types";
@@ -160,11 +159,11 @@ export default function WorldGallery({ onClose }: { onClose: () => void }) {
                 aria-label={language === "vi" ? world.vi : world.en}
                 aria-pressed={draft.world === world.id}
                 onClick={() =>
-                  setDraft({ ...draft, world: world.id, studyView: "world" })
+                  setDraft({ ...draft, world: world.id, studyView: "world", palette: ["lavender","forest","midnight"].includes(world.id) ? world.id as WorldAppearance["palette"] : draft.palette })
                 }
               >
                 <div className="room-choice-art">
-                  <RoomBackdrop world={world.id} mode={mode} />
+                  <RoomBackdrop world={world.id} mode={mode} thumbnail />
                   <span className="room-number">
                     {String(index + 1).padStart(2, "0")}
                   </span>
@@ -239,15 +238,10 @@ export default function WorldGallery({ onClose }: { onClose: () => void }) {
           <p>
             {images.urls[draft.world] || images.preview[draft.world]
               ? copy("Đang dùng ảnh của bạn.", "Using your image.")
-              : defaultRoomPhotos[draft.world]
-                ? copy(
-                    "Ảnh minh họa sẵn có. Bạn có thể thay bằng tranh của mình.",
-                    "Stock illustration. Replace it with your own artwork.",
-                  )
-                : copy(
-                    "Minh họa cơ bản. Thêm ảnh của bạn để hoàn thiện căn phòng.",
-                    "Basic illustration. Add your own artwork to complete this room.",
-                  )}
+              : copy(
+                  "Bộ tranh của bạn đã có sẵn. Có thể thay ảnh riêng cho phòng này.",
+                  "Your coordinated artwork is included. You can replace this room image.",
+                )}
           </p>
           <label className="button room-upload">
             <Upload size={16} />

@@ -149,30 +149,6 @@ function SubjectForm({
             )}
           />
         </label>
-        <label className="field personal-field">
-          {copy("Ảnh ở chế độ Bàn học", "Image in Desk view")}
-          <select
-            className="input"
-            value={draft.scene}
-            onChange={(event) =>
-              setDraft({
-                ...draft,
-                scene: event.target.value as StudySubject["scene"],
-              })
-            }
-          >
-            {[
-              ["study", "Góc học", "Study nook"],
-              ["library", "Thư viện", "Library"],
-              ["cafe", "Quán cà phê", "Café"],
-              ["forest", "Rừng mưa", "Rainforest"],
-            ].map(([value, vi, en]) => (
-              <option key={value} value={value}>
-                {copy(vi, en)}
-              </option>
-            ))}
-          </select>
-        </label>
         {error && (
           <p role="alert" className="error">
             {error}

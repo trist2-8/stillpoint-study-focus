@@ -13,7 +13,7 @@ test("English applies across routes and survives reload", async ({ page }) => {
     page.getByRole("heading", { name: "Your day, your pace." }),
   ).toBeVisible();
   await expect(page.getByLabel("Session mode")).toHaveValue("FOCUS");
-  for (const path of ["/tasks", "/insights", "/"]) {
+  for (const path of ["/tasks", "/insights", "/notebook", "/"]) {
     await page.goto(path);
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
     const text = await page.locator("body").innerText();
@@ -43,16 +43,16 @@ test("room images persist and remain aligned on mobile", async ({
 }, testInfo) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Bàn học", exact: true }).click();
-  for (const scene of ["Thư viện", "Quán cà phê", "Rừng mưa"]) {
+  for (const scene of ["Thư viện tĩnh", "Quán bên mưa", "Nhà bên rừng"]) {
     await page.getByRole("button", { name: "Mở cài đặt", exact: true }).click();
     await page.getByRole("radio", { name: scene, exact: true }).check();
     await page
       .getByRole("button", { name: "Lưu cài đặt", exact: true })
       .click();
-    await expect(page.locator(".scene-photo img")).toBeVisible();
+    await expect(page.locator(".desk-room img")).toBeVisible();
     expect(
       await page
-        .locator(".scene-photo img")
+        .locator(".desk-room img")
         .evaluate(
           (image: HTMLImageElement) => image.complete && image.naturalWidth > 0,
         ),
@@ -61,7 +61,7 @@ test("room images persist and remain aligned on mobile", async ({
   for (const width of [320, 390, 768, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await page.reload();
-    await expect(page.locator(".scene-photo img")).toBeVisible();
+    await expect(page.locator(".desk-room img")).toBeVisible();
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= innerWidth,

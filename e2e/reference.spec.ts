@@ -21,10 +21,7 @@ test("reference dashboard supports tasks, timer, theme and responsive layouts", 
   await page
     .getByRole("button", { name: "Bắt đầu tập trung", exact: true })
     .click();
-  await expect(page.locator(".study-cat")).toHaveAttribute(
-    "data-state",
-    "awake",
-  );
+  await expect(page.locator(".desk-room img")).toHaveAttribute("src", "/worlds/lavender-room.webp");
   await page.getByRole("button", { name: "Tạm dừng", exact: true }).click();
   await page
     .getByRole("button", { name: "Đặt lại phiên", exact: true })

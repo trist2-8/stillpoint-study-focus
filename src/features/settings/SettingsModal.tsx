@@ -9,7 +9,6 @@ import {
   Sun,
   Moon,
   Monitor,
-  Check,
   RotateCcw,
   Volume2,
   ArrowRight,
@@ -19,8 +18,9 @@ import { useApp } from "../../stores/app-store";
 import { defaults, type UserSettings } from "../../types";
 import { validSettings } from "../../services/storage";
 import DataSettings from "./DataSettings";
-import { rooms } from "../focus/RoomScenes";
-import { WorldButton } from "../worlds/WorldControls";
+import { studyWorlds } from "../focus/worlds";
+import RoomBackdrop from "../worlds/RoomBackdrop";
+import { useColorMode } from "../worlds/WorldScene";
 import { useWorldPreview } from "../worlds/world-preview";
 
 type NumericSetting =
@@ -33,29 +33,12 @@ type NumericSetting =
 type ToggleSetting =
   | "autoStartBreaks"
   | "autoStartFocus"
-  | "companionEnabled"
+  | "worldMotion"
   | "soundEnabled"
   | "notificationEnabled";
 
 export default function SettingsModal({ onClose }: { onClose: () => void }) {
   const { language } = useI18n();
-  const palettes = [
-    {
-      value: "lavender",
-      label: tr("Hoa oải hương"),
-      description: tr("Nhẹ nhàng, quen thuộc"),
-    },
-    {
-      value: "midnight",
-      label: tr("Đêm xanh"),
-      description: tr("Yên tĩnh, sâu lắng"),
-    },
-    {
-      value: "forest",
-      label: tr("Rừng yên tĩnh"),
-      description: tr("Dịu mắt, gần thiên nhiên"),
-    },
-  ] as const;
   const themes = [
     { value: "light", label: tr("Sáng"), icon: Sun },
     { value: "dark", label: tr("Tối"), icon: Moon },
@@ -74,6 +57,7 @@ export default function SettingsModal({ onClose }: { onClose: () => void }) {
     palette: saved.palette ?? "lavender",
     companionEnabled: saved.companionEnabled !== false,
   });
+  const colorMode = useColorMode(draft.theme);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [soundMessage, setSoundMessage] = useState("");
@@ -87,8 +71,9 @@ export default function SettingsModal({ onClose }: { onClose: () => void }) {
       theme: draft.theme,
       palette: draft.palette,
       world: draft.world,
+      worldMotion: draft.worldMotion,
     });
-  }, [draft.theme, draft.palette, draft.world]);
+  }, [draft.theme, draft.palette, draft.world, draft.worldMotion]);
   useEffect(() => () => useWorldPreview.getState().setPreview(null), []);
   useEffect(() => {
     const sync = () => {
@@ -380,40 +365,39 @@ export default function SettingsModal({ onClose }: { onClose: () => void }) {
                 <option value="en">English</option>
               </select>
             </label>
-            <div className="settings-world-entry">
-              <WorldButton />
-              <p className="settings-note">
-                {language === "vi"
-                  ? "Sáu thế giới có cảnh toàn màn hình, ánh sáng và chuyển động riêng. Áp dụng ngay trong cửa sổ xem thử."
-                  : "Six worlds with full scenes, lighting and gentle motion. Apply directly in the preview."}
-              </p>
-            </div>
             <fieldset className="settings-choices">
-              <legend>{tr("Cảnh phòng học")}</legend>
-              <p className="settings-note">
-                {language === "vi"
-                  ? "Ảnh minh họa cho chế độ Bàn học."
-                  : "Illustration for Desk view."}
-              </p>
-              <div className="room-choices">
-                {rooms.map((room) => (
-                  <label key={room.id}>
+              <legend>
+                {language === "vi" ? "Thế giới học" : "Study world"}
+              </legend>
+              <div className="settings-world-grid">
+                {studyWorlds.map((world) => (
+                  <label key={world.id}>
                     <input
                       type="radio"
-                      name="scene"
-                      value={room.id}
-                      checked={draft.scene === room.id}
-                      onChange={() => setDraft({ ...draft, scene: room.id })}
+                      name="settings-world"
+                      checked={draft.world === world.id}
+                      onChange={() =>
+                        setDraft({
+                          ...draft,
+                          world: world.id,
+                          palette: ["lavender", "forest", "midnight"].includes(
+                            world.id,
+                          )
+                            ? (world.id as UserSettings["palette"])
+                            : draft.palette,
+                        })
+                      }
                     />
-                    {room.image ? (
-                      <img src={room.image} alt="" loading="lazy" />
-                    ) : (
-                      <span className="room-default">🌸</span>
-                    )}
-                    <strong>{language === "vi" ? room.vi : room.en}</strong>
+                    <RoomBackdrop world={world.id} mode={colorMode} thumbnail />
+                    <span>{language === "vi" ? world.vi : world.en}</span>
                   </label>
                 ))}
               </div>
+              <p className="settings-note">
+                {language === "vi"
+                  ? "Cùng một căn phòng trong Toàn cảnh, Bàn học và đồng hồ nổi."
+                  : "The same room in Immersive, Desk and the floating timer."}
+              </p>
             </fieldset>
             <fieldset className="settings-choices">
               <legend>{tr("Chế độ sáng tối")}</legend>
@@ -435,50 +419,12 @@ export default function SettingsModal({ onClose }: { onClose: () => void }) {
                 ))}
               </div>
             </fieldset>
-            <fieldset className="settings-choices">
-              <legend>
-                {language === "vi"
-                  ? "Chọn nhanh thế giới"
-                  : "Quick world choices"}
-              </legend>
-              <div className="palette-choices">
-                {palettes.map(({ value, label, description }) => (
-                  <label
-                    className="palette-choice"
-                    key={value}
-                    data-preview-palette={value}
-                  >
-                    <input
-                      type="radio"
-                      name="palette"
-                      value={value}
-                      checked={draft.world === value}
-                      onChange={() =>
-                        setDraft({ ...draft, palette: value, world: value })
-                      }
-                    />
-                    <span className="palette-preview" aria-hidden="true">
-                      <span className="preview-sidebar">
-                        <i />
-                        <i />
-                        <i />
-                      </span>
-                      <span className="preview-workspace">
-                        <span className="preview-clock">25:00</span>
-                        <span className="preview-button" />
-                      </span>
-                      <Check className="palette-check" size={16} />
-                    </span>
-                    <span className="palette-name">{label}</span>
-                    <small>{description}</small>
-                  </label>
-                ))}
-              </div>
-            </fieldset>
             {toggle(
-              "companionEnabled",
-              tr("Hiện mèo đồng hành"),
-              tr("Một người bạn nhỏ bên góc học trên màn hình rộng."),
+              "worldMotion",
+              language === "vi" ? "Chuyển động trong phòng" : "Room motion",
+              language === "vi"
+                ? "Mưa, ánh sáng và hơi trà nhẹ; tự tắt khi thiết bị giảm chuyển động."
+                : "Gentle rain, light and steam; respects reduced motion.",
             )}
           </section>
           <div className="settings-bottom-grid">
@@ -567,7 +513,11 @@ export default function SettingsModal({ onClose }: { onClose: () => void }) {
               <span>{tr("Về mặc định")}</span>
             </button>
             <span className="settings-save-state" role="status">
-              {changed ? tr("Có thay đổi chưa lưu") : tr("Cài đặt đã lưu")}
+              {changed
+                ? tr("Có thay đổi chưa lưu")
+                : language === "vi"
+                  ? "Chưa có thay đổi mới"
+                  : "No new changes"}
             </span>
             <div className="settings-actions">
               <Button type="button" disabled={saving} onClick={onClose}>

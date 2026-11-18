@@ -86,9 +86,11 @@ test("personal study loop remembers subject, task, journal and next step", async
     .getByRole("button", { name: "Góc học chung", exact: true })
     .click();
   await expect(page.locator(".next-step-note")).toHaveCount(0);
-  await page.getByRole("button", { name: "Sổ học", exact: true }).click();
+  await page.getByRole("navigation", {name:"Điều hướng chính",exact:true}).getByRole("link", {name:"Sổ học",exact:true}).click();
+  await expect(page).toHaveURL("/notebook");
   await expect(page.locator(".notebook-empty")).toBeVisible();
   await page.getByRole("button", { name: "Tiếng Anh", exact: true }).click();
+  await page.goto("/");
   await expect(page.locator(".next-step-note")).toContainText(
     "Tiếp tục trang 6",
   );

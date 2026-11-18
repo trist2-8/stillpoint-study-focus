@@ -34,106 +34,120 @@ function loadMix() {
     return normalizeMix(null);
   }
 }
+type PlaybackState = "idle" | "loading" | "playing" | "paused" | "error";
 const players = new Map<SoundId, HTMLAudioElement>();
+const generations = new Map<SoundId, number>();
 let noise: AudioContext | null = null;
 let noiseGain: GainNode | null = null;
-async function play(id: SoundId, volume: number) {
-  if (id === "brown-noise") {
-    if (!noise) {
-      noise = new AudioContext();
-      const buffer = noise.createBuffer(
-        1,
-        noise.sampleRate * 8,
-        noise.sampleRate,
-      );
-      const samples = buffer.getChannelData(0);
-      let previous = 0;
-      for (let index = 0; index < samples.length; index++) {
-        previous = (previous + (Math.random() * 2 - 1) * 0.02) / 1.02;
-        samples[index] = previous * 3.5;
-      }
-      const source = noise.createBufferSource();
-      source.buffer = buffer;
-      source.loop = true;
-      noiseGain = noise.createGain();
-      source.connect(noiseGain).connect(noise.destination);
-      source.start();
-    }
-    noiseGain!.gain.value = volume * 0.35;
-    await noise.resume();
-    return;
-  }
-  let player = players.get(id);
-  if (!player) {
-    const track = soundTracks.find((item) => item.id === id)!;
-    player = new Audio(track.source!);
-    player.loop = true;
-    player.preload = "none";
-    player.addEventListener("error", () => {
-      player!.pause();
-      useSoundMixer.setState((state) => ({
-        selected: state.selected.filter((item) => item !== id),
-        error: id,
-      }));
-    });
-    players.set(id, player);
-  }
-  player.volume = volume;
-  await player.play();
-}
-function stop(id: SoundId) {
-  if (id === "brown-noise") {
-    void noise?.suspend();
-    return;
-  }
-  players.get(id)?.pause();
+function updateTrack(id: SoundId, status: PlaybackState) {
+  useSoundMixer.setState((state) => ({
+    states: { ...state.states, [id]: status },
+    pending:
+      status === "loading"
+        ? [...state.pending.filter((item) => item !== id), id]
+        : state.pending.filter((item) => item !== id),
+  }));
 }
 function volumeFor(id: SoundId) {
   const state = useSoundMixer.getState();
   return ((state.master / 100) * (state.levels[id] ?? 30)) / 100;
 }
-let playbackRevision = 0;
-async function synchronize() {
-  const revision = ++playbackRevision;
+function stop(id: SoundId) {
+  generations.set(id, (generations.get(id) ?? 0) + 1);
+  if (id === "brown-noise") void noise?.suspend();
+  else players.get(id)?.pause();
+  updateTrack(id, "paused");
+}
+async function startTrack(id: SoundId) {
   const state = useSoundMixer.getState();
-  for (const track of soundTracks)
-    if (state.paused || !state.selected.includes(track.id)) stop(track.id);
-  if (state.paused) {
-    useSoundMixer.setState({ pending: [] });
+  if (
+    state.paused ||
+    !state.selected.includes(id) ||
+    ["playing", "loading"].includes(state.states[id] ?? "idle")
+  )
     return;
-  }
-  useSoundMixer.setState({ pending: state.selected });
-  await Promise.all(
-    state.selected.map(async (id) => {
-      try {
-        await play(id, volumeFor(id));
-        const current = useSoundMixer.getState();
-        if (
-          revision !== playbackRevision &&
-          (current.paused || !current.selected.includes(id))
-        )
-          stop(id);
-      } catch {
-        const current = useSoundMixer.getState();
-        if (
-          !current.paused &&
-          revision === playbackRevision &&
-          current.selected.includes(id)
-        ) {
-          stop(id);
-          useSoundMixer.setState({
-            selected: current.selected.filter((item) => item !== id),
-            error: id,
-          });
+  const generation = (generations.get(id) ?? 0) + 1;
+  generations.set(id, generation);
+  updateTrack(id, "loading");
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  try {
+    let playback: Promise<void>;
+    if (id === "brown-noise") {
+      if (!noise) {
+        noise = new AudioContext();
+        const buffer = noise.createBuffer(
+          1,
+          noise.sampleRate * 8,
+          noise.sampleRate,
+        );
+        const samples = buffer.getChannelData(0);
+        let previous = 0;
+        for (let index = 0; index < samples.length; index++) {
+          previous = (previous + (Math.random() * 2 - 1) * 0.02) / 1.02;
+          samples[index] = previous * 3.5;
         }
-      } finally {
-        if (revision === playbackRevision)
-          useSoundMixer.setState((current) => ({
-            pending: current.pending.filter((item) => item !== id),
-          }));
+        const source = noise.createBufferSource();
+        source.buffer = buffer;
+        source.loop = true;
+        noiseGain = noise.createGain();
+        source.connect(noiseGain).connect(noise.destination);
+        source.start();
       }
-    }),
-  );
+      noiseGain!.gain.value = volumeFor(id) * 0.35;
+      playback = noise.resume();
+    } else {
+      let player = players.get(id);
+      if (!player) {
+        player = new Audio(
+          soundTracks.find((track) => track.id === id)!.source!,
+        );
+        player.loop = true;
+        player.preload = "none";
+        players.set(id, player);
+      }
+      player.volume = volumeFor(id);
+      playback = player.play();
+    }
+    await Promise.race([
+      playback,
+      new Promise<never>((_, reject) => {
+        timeout = setTimeout(() => reject(new Error("timeout")), 4500);
+      }),
+    ]);
+    if (generations.get(id) !== generation) return;
+    const current = useSoundMixer.getState();
+    if (current.paused || !current.selected.includes(id)) {
+      stop(id);
+      return;
+    }
+    updateTrack(id, "playing");
+  } catch {
+    if (generations.get(id) !== generation) return;
+    const player = players.get(id);
+    if (player) {
+      player.pause();
+      player.removeAttribute("src");
+      player.load();
+      players.delete(id);
+    }
+    if (id === "brown-noise") void noise?.suspend();
+    updateTrack(id, "error");
+    useSoundMixer.setState({ error: id });
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+function synchronize() {
+  const state = useSoundMixer.getState();
+  for (const track of soundTracks) {
+    if (state.paused || !state.selected.includes(track.id)) {
+      if (
+        state.states[track.id] === "playing" ||
+        state.states[track.id] === "loading"
+      )
+        stop(track.id);
+    } else void startTrack(track.id);
+  }
 }
 interface Mixer {
   master: number;
@@ -142,9 +156,11 @@ interface Mixer {
   paused: boolean;
   error: SoundId | null;
   pending: SoundId[];
+  states: Partial<Record<SoundId, PlaybackState>>;
   setMaster: (value: number) => void;
   setLevel: (id: SoundId, value: number) => void;
   toggle: (id: SoundId) => void;
+  retry: (id: SoundId) => void;
   pause: () => void;
   resume: () => void;
   setMix: (levels: Partial<Record<SoundId, number>>) => void;
@@ -154,6 +170,7 @@ export const useSoundMixer = create<Mixer>((set, get) => ({
   paused: true,
   error: null,
   pending: [],
+  states: {},
   setMaster: (value) => {
     set({ master: Math.max(0, Math.min(100, value)) });
     for (const [id, player] of players) player.volume = volumeFor(id);
@@ -169,19 +186,26 @@ export const useSoundMixer = create<Mixer>((set, get) => ({
       noiseGain.gain.value = volumeFor(id) * 0.35;
   },
   toggle: (id) => {
-    const selected = get().selected.includes(id)
-      ? get().selected.filter((item) => item !== id)
-      : [...get().selected, id];
-    set({ selected, paused: false, error: null });
-    void synchronize();
+    set({
+      selected: get().selected.includes(id)
+        ? get().selected.filter((item) => item !== id)
+        : [...get().selected, id],
+      paused: false,
+      error: null,
+    });
+    synchronize();
+  },
+  retry: (id) => {
+    set({ paused: false, error: null });
+    void startTrack(id);
   },
   pause: () => {
     set({ paused: true });
-    void synchronize();
+    synchronize();
   },
   resume: () => {
     set({ paused: false, error: null });
-    void synchronize();
+    synchronize();
   },
   setMix: (levels) => {
     set({
@@ -190,7 +214,7 @@ export const useSoundMixer = create<Mixer>((set, get) => ({
       paused: false,
       error: null,
     });
-    void synchronize();
+    synchronize();
   },
 }));
 useSoundMixer.subscribe((state, previous) => {
@@ -213,7 +237,6 @@ useSoundMixer.subscribe((state, previous) => {
     return;
   }
 });
-
 if (import.meta.hot)
   import.meta.hot.dispose(() => {
     for (const player of players.values()) player.pause();

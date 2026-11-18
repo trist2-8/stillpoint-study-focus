@@ -11,6 +11,7 @@ import "./styles/settings.css";
 import "./styles/features.css";
 import "./styles/personal.css";
 import "./styles/worlds.css";
+import "./styles/room-workspace.css";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>

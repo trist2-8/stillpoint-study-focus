@@ -73,7 +73,7 @@ test("custom artwork previews, cancels and persists locally without changing the
     /^blob:/,
   );
   await page.getByRole("button", { name: "Hủy xem thử", exact: true }).click();
-  await expect(page.locator(".world-stage-scene img")).toHaveCount(0);
+  await expect(page.locator(".world-stage-scene img")).toHaveAttribute("src", "/worlds/lavender-room.webp");
   await page.getByRole("button", { name: "Đổi thế giới", exact: true }).click();
   await page.getByLabel("Chọn ảnh cho phòng", { exact: true }).setInputFiles({
     name: "bad.png",
@@ -202,7 +202,8 @@ test("a failed audio file leaves other controls usable", async ({ page }) => {
   );
   await expect(
     page.getByRole("button", { name: "Gió qua tán lá", exact: true }),
-  ).toHaveAttribute("aria-pressed", "false");
+  ).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("button",{name:"Thử lại Gió qua tán lá",exact:true})).toBeVisible();
   await page.getByRole("button", { name: "Lửa lò sưởi", exact: true }).click();
   await expect(
     page.getByRole("button", { name: "Lửa lò sưởi", exact: true }),
@@ -259,7 +260,7 @@ test("quiet room view keeps the running timer and restores task controls", async
     page.getByRole("button", { name: "Tạm dừng", exact: true }),
   ).toBeVisible();
   expect((await state(page)).timer).toEqual(before.timer);
-  await page.getByRole("button", { name: "Mở bảng học", exact: true }).click();
+  await page.getByRole("button", { name: "Quay lại học", exact: true }).click();
   await expect(
     page.getByRole("button", { name: "Thêm việc vào góc học", exact: true }),
   ).toBeVisible();

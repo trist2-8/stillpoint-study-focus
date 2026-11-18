@@ -6,7 +6,7 @@ test("settings previews cancel cleanly and saved values survive reload", async (
   await page.goto("/");
   await page.getByRole("button", { name: "Mở cài đặt", exact: true }).click();
   await page.getByRole("radio", { name: "Sáng", exact: true }).check();
-  await page.getByRole("radio", { name: /Rừng yên tĩnh/ }).check();
+  await page.getByRole("radio", { name: /Nhà bên rừng/ }).check();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   await expect(page.locator("html")).toHaveAttribute("data-palette", "forest");
   await page.getByRole("button", { name: "Học sâu", exact: false }).click();
@@ -19,7 +19,7 @@ test("settings previews cancel cleanly and saved values survive reload", async (
   await expect(page.getByRole("timer")).toHaveText("25:00");
   await page.reload();
   await page.getByRole("button", { name: "Mở cài đặt", exact: true }).click();
-  await page.getByRole("radio", { name: /Đêm xanh/ }).check();
+  await page.getByRole("radio", { name: /Đài quan sát đêm/ }).check();
   await page.keyboard.press("Escape");
   await expect(page.locator("html")).toHaveAttribute(
     "data-palette",
@@ -27,7 +27,7 @@ test("settings previews cancel cleanly and saved values survive reload", async (
   );
   await page.getByRole("button", { name: "Mở cài đặt", exact: true }).click();
   await page.getByRole("button", { name: "Học sâu", exact: false }).click();
-  await page.getByRole("radio", { name: /Đêm xanh/ }).check();
+  await page.getByRole("radio", { name: /Đài quan sát đêm/ }).check();
   await page.getByRole("button", { name: "Lưu cài đặt", exact: true }).click();
   await page.reload();
   await expect(page.getByRole("timer")).toHaveText("50:00");

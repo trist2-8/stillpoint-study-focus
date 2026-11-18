@@ -55,7 +55,7 @@ test("mobile settings persist palette, theme and durations", async ({
   await page.getByRole("button", { name: "Mở cài đặt", exact: true }).click();
   await page.getByLabel("Tập trung (phút)", { exact: true }).fill("1");
   await page.getByRole("radio", { name: "Sáng", exact: true }).check();
-  await page.getByRole("radio", { name: /Rừng yên tĩnh/ }).check();
+  await page.getByRole("radio", { name: /Nhà bên rừng/ }).check();
   await page.getByRole("button", { name: "Lưu cài đặt" }).click();
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("data-palette", "forest");

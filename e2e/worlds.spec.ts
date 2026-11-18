@@ -72,23 +72,15 @@ test("world changes preserve an unsaved task, settings draft and analytics filte
   await page
     .getByLabel("Tên việc học", { exact: true })
     .fill("Bản nháp phải còn nguyên");
-  await page
-    .getByRole("dialog")
-    .getByRole("button", { name: "Đổi thế giới", exact: true })
-    .click();
-  await apply(page, "Thư viện tĩnh");
+  await expect(page.getByRole("dialog").getByRole("button",{name:"Đổi thế giới",exact:true})).toHaveCount(0);
   await expect(page.getByLabel("Tên việc học", { exact: true })).toHaveValue(
     "Bản nháp phải còn nguyên",
   );
   await page.getByRole("button", { name: "Tạo việc học", exact: true }).click();
   await page.getByRole("button", { name: "Mở cài đặt", exact: true }).click();
   await page.getByLabel("Tập trung (phút)", { exact: true }).fill("37");
-  await page
-    .getByRole("dialog")
-    .getByRole("button", { name: "Đổi thế giới", exact: true })
-    .first()
-    .click();
-  await apply(page, "Góc ôn thi");
+  await expect(page.getByRole("dialog").getByRole("button",{name:"Đổi thế giới",exact:true})).toHaveCount(0);
+  await page.getByRole("radio",{name:"Góc ôn thi",exact:true}).check();
   await expect(
     page.getByLabel("Tập trung (phút)", { exact: true }),
   ).toHaveValue("37");
@@ -173,12 +165,7 @@ test("system lighting, motion preference and manual world choice persist", async
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   await page.emulateMedia({ colorScheme: "dark" });
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-  expect(
-    await page
-      .locator(".world-stage-scene .scene-leaves")
-      .first()
-      .evaluate((element) => getComputedStyle(element).animationName),
-  ).toBe("none");
+  await expect(page.locator(".world-stage-scene .room-effects")).toBeHidden();
   await page.getByRole("radio", { name: "Giải bài", exact: true }).check();
   await expect(page.locator("html")).toHaveAttribute("data-world", "lavender");
   await gallery(page);
@@ -294,8 +281,8 @@ test("empty favorites and blocked popups show useful recovery", async ({
     page.getByRole("button", { name: "Đổi thế giới", exact: true }),
   ).toBeFocused();
   await page.getByRole("button", { name: "Đồng hồ nổi", exact: true }).click();
-  await expect(page.locator(".mini-message")).toContainText(
-    "Hãy cho phép cửa sổ bật lên",
+  await expect(page.locator(".floating-feedback")).toContainText(
+    "Trình duyệt đang chặn cửa sổ bật lên",
   );
   await expect(page.getByRole("timer")).toHaveText("25:00");
 });

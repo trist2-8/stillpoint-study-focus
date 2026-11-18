@@ -88,28 +88,15 @@ export default function WorldControls({
             <Scan size={16} />
             {language === "vi"
               ? roomUi.quiet
-                ? "Mở bảng học"
+                ? "Quay lại học"
                 : "Ngắm phòng"
               : roomUi.quiet
-                ? "Study panels"
+                ? "Back to study"
                 : "Room view"}
           </button>
         )}
         <WorldButton />
         <SoundLauncher />
-        {focusPage && (
-          <button
-            type="button"
-            className="world-notebook-toggle"
-            onClick={() => {
-              if (roomUi.quiet) roomUi.toggleQuiet();
-              window.dispatchEvent(new Event("focus-flow:toggle-notes"));
-            }}
-          >
-            <BookOpen size={17} />
-            {language === "vi" ? "Sổ học" : "Notebook"}
-          </button>
-        )}
         {focusPage && (
           <nav
             className="room-navigation"
@@ -123,6 +110,13 @@ export default function WorldControls({
             >
               <ListTodo size={18} />
               <span>{language === "vi" ? "Việc học" : "Study tasks"}</span>
+            </Link>
+            <Link
+              to="/notebook"
+              title={language === "vi" ? "Sổ học" : "Notebook"}
+            >
+              <BookOpen size={18} />
+              <span>{language === "vi" ? "Sổ học" : "Notebook"}</span>
             </Link>
             <Link
               to="/insights"
@@ -139,6 +133,7 @@ export default function WorldControls({
               }
             >
               <Settings size={18} />
+              <span>{language === "vi" ? "Cài đặt" : "Settings"}</span>
             </button>
           </nav>
         )}

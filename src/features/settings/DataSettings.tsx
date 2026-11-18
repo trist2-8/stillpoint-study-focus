@@ -198,152 +198,154 @@ export default function DataSettings({
           </div>
         </div>
       )}
-      <details className="cloud-panel">
-        <summary>
-          {text("Đồng bộ tài khoản (tùy chọn)", "Account sync (optional)")}
-        </summary>
-        <h4>{text("Đồng bộ giữa thiết bị", "Sync between devices")}</h4>
-        {!cloudClient ? (
-          <p className="settings-note">
-            {text(
-              "Đồng bộ tài khoản chưa được cấu hình cho bản này. Bạn vẫn có thể chuyển dữ liệu bằng tệp sao lưu.",
-              "Account sync is not configured for this deployment. You can still transfer data using backup files.",
-            )}
-          </p>
-        ) : !account ? (
-          <>
-            <label className="field">
-              Email
-              <input
-                className="input"
-                type="email"
-                value={email}
-                autoComplete="email"
-                onChange={(event) => setEmail(event.target.value)}
-              />
-            </label>
-            <button
-              className="button"
-              type="button"
-              disabled={busy || !/^\S+@\S+\.\S+$/.test(email)}
-              onClick={() =>
-                void run(async () => {
-                  const { error } = await cloudClient!.auth.signInWithOtp({
-                    email,
-                    options: { emailRedirectTo: location.origin },
-                  });
-                  if (error) throw error;
-                  setMessage(
-                    text(
-                      "Đã gửi liên kết đăng nhập. Kiểm tra email của bạn.",
-                      "Sign-in link sent. Check your email.",
-                    ),
-                  );
-                })
-              }
-            >
-              {busy
-                ? text("Đang gửi…", "Sending…")
-                : text("Gửi liên kết đăng nhập", "Send sign-in link")}
-            </button>
+      {cloudClient && (
+        <details className="cloud-panel">
+          <summary>
+            {text("Đồng bộ tài khoản (tùy chọn)", "Account sync (optional)")}
+          </summary>
+          <h4>{text("Đồng bộ giữa thiết bị", "Sync between devices")}</h4>
+          {!cloudClient ? (
             <p className="settings-note">
               {text(
-                "Đăng nhập cùng email trên các thiết bị. Mỗi tài khoản chỉ truy cập dữ liệu của mình.",
-                "Use the same email on each device. Each account can access only its own data.",
+                "Đồng bộ tài khoản chưa được cấu hình cho bản này. Bạn vẫn có thể chuyển dữ liệu bằng tệp sao lưu.",
+                "Account sync is not configured for this deployment. You can still transfer data using backup files.",
               )}
             </p>
-          </>
-        ) : (
-          <>
-            <p className="cloud-account">{account}</p>
-            <div className="data-actions">
+          ) : !account ? (
+            <>
+              <label className="field">
+                Email
+                <input
+                  className="input"
+                  type="email"
+                  value={email}
+                  autoComplete="email"
+                  onChange={(event) => setEmail(event.target.value)}
+                />
+              </label>
               <button
                 className="button"
                 type="button"
-                disabled={busy}
-                onClick={() => void inspect()}
-              >
-                <RefreshCw size={16} />
-                {text("Kiểm tra bản đám mây", "Check cloud copy")}
-              </button>
-              <button
-                className="button"
-                type="button"
-                disabled={busy}
+                disabled={busy || !/^\S+@\S+\.\S+$/.test(email)}
                 onClick={() =>
                   void run(async () => {
-                    await cloudClient!.auth.signOut();
+                    const { error } = await cloudClient!.auth.signInWithOtp({
+                      email,
+                      options: { emailRedirectTo: location.origin },
+                    });
+                    if (error) throw error;
                     setMessage(
                       text(
-                        "Đã đăng xuất. Dữ liệu trên máy được giữ nguyên.",
-                        "Signed out. Local data is retained.",
+                        "Đã gửi liên kết đăng nhập. Kiểm tra email của bạn.",
+                        "Sign-in link sent. Check your email.",
                       ),
                     );
                   })
                 }
               >
-                <LogOut size={16} />
-                {text("Đăng xuất", "Sign out")}
+                {busy
+                  ? text("Đang gửi…", "Sending…")
+                  : text("Gửi liên kết đăng nhập", "Send sign-in link")}
               </button>
-            </div>
-            {revision !== null && (
+              <p className="settings-note">
+                {text(
+                  "Đăng nhập cùng email trên các thiết bị. Mỗi tài khoản chỉ truy cập dữ liệu của mình.",
+                  "Use the same email on each device. Each account can access only its own data.",
+                )}
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="cloud-account">{account}</p>
               <div className="data-actions">
+                <button
+                  className="button"
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void inspect()}
+                >
+                  <RefreshCw size={16} />
+                  {text("Kiểm tra bản đám mây", "Check cloud copy")}
+                </button>
                 <button
                   className="button"
                   type="button"
                   disabled={busy}
                   onClick={() =>
                     void run(async () => {
-                      const latest = await writeCloud(
-                        portableData(useApp.getState()),
-                        revision,
-                      );
-                      setRevision(latest);
-                      setCloudExists(true);
+                      await cloudClient!.auth.signOut();
                       setMessage(
                         text(
-                          "Đã lưu dữ liệu lên tài khoản. Mở thiết bị khác để tải về.",
-                          "Saved to your account. Download it on your other device.",
+                          "Đã đăng xuất. Dữ liệu trên máy được giữ nguyên.",
+                          "Signed out. Local data is retained.",
                         ),
                       );
                     })
                   }
                 >
-                  {text(
-                    "Lưu bản trên máy lên đám mây",
-                    "Save this device to cloud",
-                  )}
+                  <LogOut size={16} />
+                  {text("Đăng xuất", "Sign out")}
                 </button>
-                {cloudExists && (
+              </div>
+              {revision !== null && (
+                <div className="data-actions">
                   <button
                     className="button"
                     type="button"
                     disabled={busy}
                     onClick={() =>
                       void run(async () => {
-                        const remote = await readCloud();
-                        if (!remote) return;
-                        setRevision(remote.revision);
-                        setPending(
-                          fromCloud(remote.payload, useApp.getState()),
+                        const latest = await writeCloud(
+                          portableData(useApp.getState()),
+                          revision,
+                        );
+                        setRevision(latest);
+                        setCloudExists(true);
+                        setMessage(
+                          text(
+                            "Đã lưu dữ liệu lên tài khoản. Mở thiết bị khác để tải về.",
+                            "Saved to your account. Download it on your other device.",
+                          ),
                         );
                       })
                     }
                   >
-                    {text("Tải bản đám mây về", "Download cloud copy")}
+                    {text(
+                      "Lưu bản trên máy lên đám mây",
+                      "Save this device to cloud",
+                    )}
                   </button>
-                )}
-              </div>
-            )}
-            <p className="settings-note">
-              {text(
-                "Đồng bộ theo yêu cầu. Bấm kiểm tra trước khi lưu để tránh ghi đè dữ liệu mới từ thiết bị khác. Đồng hồ đang chạy chỉ hoạt động trên thiết bị này.",
-                "Sync is manual. Check before saving to avoid overwriting newer changes from another device. A running timer stays on this device.",
+                  {cloudExists && (
+                    <button
+                      className="button"
+                      type="button"
+                      disabled={busy}
+                      onClick={() =>
+                        void run(async () => {
+                          const remote = await readCloud();
+                          if (!remote) return;
+                          setRevision(remote.revision);
+                          setPending(
+                            fromCloud(remote.payload, useApp.getState()),
+                          );
+                        })
+                      }
+                    >
+                      {text("Tải bản đám mây về", "Download cloud copy")}
+                    </button>
+                  )}
+                </div>
               )}
-            </p>
-          </>
-        )}
-      </details>
+              <p className="settings-note">
+                {text(
+                  "Đồng bộ theo yêu cầu. Bấm kiểm tra trước khi lưu để tránh ghi đè dữ liệu mới từ thiết bị khác. Đồng hồ đang chạy chỉ hoạt động trên thiết bị này.",
+                  "Sync is manual. Check before saving to avoid overwriting newer changes from another device. A running timer stays on this device.",
+                )}
+              </p>
+            </>
+          )}
+        </details>
+      )}
       {message && (
         <p className="settings-note" role="status">
           {message}

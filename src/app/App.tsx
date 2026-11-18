@@ -17,6 +17,7 @@ import {
 } from "react-router-dom";
 import {
   House,
+  BookOpen,
   ListTodo,
   ChartNoAxesCombined,
   PanelLeftClose,
@@ -34,9 +35,11 @@ import { applyAppearance } from "../features/settings/appearance";
 import { timerTabTitle } from "../features/focus/domain/timer-tab";
 const TasksPage = lazy(() => import("../features/tasks/TasksPage"));
 const InsightsPage = lazy(() => import("../features/analytics/InsightsPage"));
+const NotebookPage = lazy(() => import("../features/personal/NotebookPage"));
 const links = [
   { path: "/", label: "Hôm nay", icon: House },
   { path: "/tasks", label: tr("Việc học"), icon: ListTodo },
+  { path: "/notebook", label: "Sổ học", icon: BookOpen },
   { path: "/insights", label: "Tổng kết", icon: ChartNoAxesCombined },
 ];
 function Navigation({
@@ -161,7 +164,7 @@ export default function App() {
     >
       {location.pathname === "/" && appearance.studyView !== "desk" && (
         <div className="world-stage-scene immersive-backdrop">
-          <RoomBackdrop world={appearance.world} mode={colorMode} />
+          <RoomBackdrop world={appearance.world} mode={colorMode} animated />
         </div>
       )}
       <a className="skip-content" href="#study-content">
@@ -305,6 +308,7 @@ export default function App() {
             <Routes>
               <Route path="/" element={<FocusPage />} />
               <Route path="/tasks" element={<TasksPage />} />
+              <Route path="/notebook" element={<NotebookPage />} />
               <Route path="/insights" element={<InsightsPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

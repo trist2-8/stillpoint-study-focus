@@ -1,23 +1,15 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Pause, Play, X } from "lucide-react";
 import { useApp } from "../../stores/app-store";
 import { useI18n } from "../../i18n";
-import miniStyles from "./mini-timer.css?inline";
+import { useMiniWindow, closeFloatingTimer } from "./mini-window";
 import { useColorMode } from "../worlds/WorldScene";
 import RoomBackdrop from "../worlds/RoomBackdrop";
 import { useWorldAppearance } from "../worlds/world-preview";
 import { worldTokens, worldById } from "./worlds";
 import { remaining } from "./domain/timer-engine";
 import { timerTabTitle } from "./domain/timer-tab";
-interface PictureWindow extends Window {
-  documentPictureInPicture?: {
-    requestWindow: (options: {
-      width: number;
-      height: number;
-    }) => Promise<Window>;
-  };
-}
 function TimerContents({
   popup,
   onClose,
@@ -124,94 +116,12 @@ function TimerContents({
   );
 }
 export default function FloatingTimer() {
-  const { language } = useI18n();
-  const [popup, setPopup] = useState<Window | null>(null);
-  const [message, setMessage] = useState("");
-  const opened = useRef<Window | null>(null);
-  const opening = useRef(false);
-  useEffect(
-    () => () => {
-      opened.current?.close();
-    },
-    [],
-  );
-  const open = async () => {
-    if (opened.current && !opened.current.closed) {
-      opened.current.focus();
-      return;
-    }
-    if (opening.current) return;
-    opening.current = true;
-    try {
-      const api = (window as PictureWindow).documentPictureInPicture;
-      const child = api
-        ? await api.requestWindow({ width: 280, height: 160 })
-        : window.open("", "focus-flow-timer", "popup,width=280,height=160");
-      if (!child) throw new Error("blocked");
-      const style = child.document.createElement("style");
-      style.textContent = miniStyles;
-      child.document.head.appendChild(style);
-      child.document.documentElement.lang = language;
-      child.addEventListener(
-        "pagehide",
-        () => {
-          opened.current = null;
-          setPopup(null);
-        },
-        { once: true },
-      );
-      opened.current = child;
-      setPopup(child);
-      setMessage(
-        api
-          ? ""
-          : language === "vi"
-            ? "Đã mở cửa sổ mini. Trình duyệt này không hỗ trợ ghim nổi trên mọi cửa sổ."
-            : "Mini window opened. This browser cannot keep it above all windows.",
-      );
-    } catch {
-      setMessage(
-        language === "vi"
-          ? "Hãy cho phép cửa sổ bật lên để mở đồng hồ mini."
-          : "Allow pop-ups to open the mini timer.",
-      );
-    } finally {
-      opening.current = false;
-    }
-  };
-  useEffect(() => {
-    const request = () => void open();
-    window.addEventListener("focus-flow:open-mini", request);
-    return () => window.removeEventListener("focus-flow:open-mini", request);
-  });
-  return (
-    <>
-      {message && (
-        <div className="mini-message" role="status">
-          {message}
-          <button
-            onClick={() => setMessage("")}
-            aria-label={
-              language === "vi" ? "Đóng thông báo" : "Dismiss notification"
-            }
-          >
-            <X size={16} />
-          </button>
-        </div>
-      )}
-      {popup &&
-        !popup.closed &&
-        createPortal(
-          <TimerContents
-            popup={popup}
-            onClose={() => {
-              popup.close();
-              setPopup(null);
-              opened.current = null;
-            }}
-          />,
-          popup.document.body,
-        )}
-    </>
-  );
+  const popup = useMiniWindow((state) => state.popup);
+  useEffect(() => () => closeFloatingTimer(), []);
+  return popup && !popup.closed
+    ? createPortal(
+        <TimerContents popup={popup} onClose={closeFloatingTimer} />,
+        popup.document.body,
+      )
+    : null;
 }
